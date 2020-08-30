@@ -1,2 +1,0 @@
-There is a lot "missing" with ?
-	change ? to randomly be y or n.
