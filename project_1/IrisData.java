@@ -62,6 +62,8 @@ public class IrisData {
         //PROBLEM: if features[i] = max it gets put in bin 0 (which does not exist)
         //i.e. if pedal width = 2.5 (biggest value in the data) it does not go in bin 4
         //since that bin is not closed on the end [1.9, 2.5) <---
+        
+        
         for (int i= 1; i<= noBins; i++) {
             //place features[0] (sepal len) into a bin [0, noBins]
             //if features[0] is between min and min + bin size,

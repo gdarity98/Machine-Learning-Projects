@@ -3,76 +3,115 @@ package project_1;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Arrays;
-
 import project_1.BreastCancerData;
-import project_1.BinarySearchTree;
-import project_1.Queue;
 
 public class DataMain {
     public static void main(String[] args) {
-//        BufferedReader reader; //creates a buffered reader
-//        BreastCancerData bData; //creates the breast cancer data class
-//        BinarySearchTree<String, BreastCancerData> st; //Creates a BST that will be full of breast cancer data
-//        st = new BinarySearchTree();
-//        try { //Reads in the file and checks for exception
-//        	//The file path would need to be changed based on system.
-//        	reader = new BufferedReader(new FileReader("data-sets/breast-cancer-wisconsin.data"));
-//        	//reads the file in line by line
-//        	String line = reader.readLine();
-//        	//While we are not at the end of the file do things in the while loop
-//        	while(line != null) {
-//        		//This creates a bData class with the one line from the file
-//        		bData = new BreastCancerData(line);
-//
-//        		st.put(bData.getID(), bData);
-//        		line = reader.readLine();
-//        	}
-//
-//        }catch (IOException e) {
-//        	e.printStackTrace();
-//        }
-//
-//        //Prints everything in tree
-//        st.keys();  //This is a changed keys method to print depthFirst
-//
-//        //This is how we would get to specific data
-//        BreastCancerData oneData = st.get(Integer.toString(95719));
-//        System.out.println(oneData.getFullInfo());
+        BufferedReader reader; //creates a buffered reader
+        BreastCancerData bData; //creates the breast cancer data class
+
+        BreastCancerData[] st = new BreastCancerData[699];
         
-        //To get to large amounts of data you would want to copy and change the .keys function or 
-        //two other functions in order to get access to stuff while the tree is going through everything
-        //For whatever reason if I wanted to sum the id numbers I would need to go into keys
-        //then while it is going through add everything up while it does recursive calls
-        //I'm sure we can figure it all out.
-
-
-        //------------------------------------------------------------------------------------------testing
-        BufferedReader reader1; //creates a buffered reader
-        IrisData iData; //creates the breast cancer data class
-        IrisData[] irisArray= new IrisData[150];
-
         try { //Reads in the file and checks for exception
-            //The file path would need to be changed based on system.
-            reader1 = new BufferedReader(new FileReader("data-sets/iris.data"));
-            //reads the file in line by line
-            String line1 = reader1.readLine();
-            int lineNo = 0;
-            //While we are not at the end of the file do things in the while loop
-            while(line1 != null) {
-                //This creates a bData class with the one line from the file
-                iData = new IrisData(line1, ++lineNo);
-                irisArray[lineNo - 1] = iData;
-
-                System.out.println(lineNo + " " + Arrays.toString(iData.getBinnedFeatures()) + " " + iData.getClassNo());
-
-                line1 = reader1.readLine();
-            }
-
+        	//The file path would need to be changed based on system.
+        	reader = new BufferedReader(new FileReader("C:\\Users\\gdari\\Desktop\\Important\\School\\CSCI 447\\Projects\\src\\project_1\\data-sets\\breast-cancer-wisconsin.data"));
+        	
+        	//reads the file in line by line
+        	String line = reader.readLine();
+        	
+        	//While we are not at the end of the file do things in the while loop
+        	int i = 0;
+        	while(line != null) {
+        		//This creates a bData class with the one line from the file
+        		bData = new BreastCancerData(line);
+        		
+        		st[i] = bData;
+        		i++;
+        		line = reader.readLine();
+        	}
+        	
         }catch (IOException e) {
-            e.printStackTrace();
+        	e.printStackTrace();
         }
         
+        
+     //#1. & #2.
+      //split data up by class
+        BreastCancerData[] mal = new BreastCancerData[241];
+    	BreastCancerData[] ben = new BreastCancerData[458];
+    	int countBen = 0;
+    	int countMal = 0;
+    	
+    	
+    	for(int i = 0; i < st.length; i++) {
+    		if(st[i].getCl().equals("2")){
+    			ben[countBen] = st[i];
+    			countBen++;
+    		}else{
+    			mal[countMal] = st[i];
+    			countMal++;
+    		}
+    	}
+
+        
+        //Q(ben)
+        float xBen = ((float)ben.length/((float)st.length));
+        
+        //Q(mal)
+        float xMal = ((float)mal.length/((float)st.length));
+     //END OF #1. & #2.
+        
+     //#3.
+        //the id numbers with attributes 2-10 are instances of that attribute with 11 showing the class attribute
+        //TRAINING from TrainBCD
+  
+        TrainBCD trainBen = new TrainBCD();
+        double[] trainDataBen = new double[9];
+        for(int attribute = 0; attribute < ben[0].getFeat().length; attribute++) {
+        	for(int attributeVal = 1; attributeVal<=10; attributeVal++) {
+        		trainDataBen[attribute] = trainBen.train(ben, attributeVal, attribute);
+        	}
+        }
+        
+        TrainBCD trainMal = new TrainBCD();
+        double[] trainDataMal = new double[9];
+        for(int attribute = 0; attribute < mal[0].getFeat().length; attribute++) {
+        	for(int attributeVal = 0; attributeVal<=10; attributeVal++) {
+        		trainDataMal[attribute] = trainMal.train(mal, attributeVal, attribute);
+        	}
+        }
+        
+//      //CLASSIFING
+        double piNotation = 1;
+        for(double trainNum : trainDataBen) {
+        	piNotation *= trainNum;
+        }
+        
+        double c1 = xBen*piNotation;
+        
+        piNotation = 1;
+        for(double trainNum : trainDataMal) {
+        	piNotation *= trainNum;
+        }
+        
+        double c2 = xMal*piNotation;
+        
+        for(double x : trainDataBen) {
+        	System.out.println(x);
+        }
+        
+        System.out.println("");
+        
+        for(double x : trainDataMal) {
+        	System.out.println(x);
+        }
+        
+        System.out.println("");
+        
+        System.out.println(c1 + " and " + c2);
+        System.out.println("Mal is higher");
+        
+     //END OF #3.   
       
     }
     
