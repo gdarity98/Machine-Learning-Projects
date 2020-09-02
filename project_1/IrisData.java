@@ -16,10 +16,9 @@ public class IrisData {
         String[] tokens = fullData.split(","); //splitting string at commas
 
         features = new double[4];
-        for (int i= 0; i < 4; i++) {
-            features[i]= Double.parseDouble(tokens[i]);
+        for (int i = 0; i < 4; i++) {
+            features[i] = Double.parseDouble(tokens[i]);
         }
-
         classNo = tokens[4];
 
     }
