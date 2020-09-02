@@ -75,7 +75,7 @@ public class Train {
                 num++;
             }
         }
-//        System.out.println("Num: "+ num + ", feature: " + feature);
+        System.out.println("Num: "+ num + ", feature: " + feature);
 
         return (num+1) / 154.0;
     }
@@ -111,6 +111,7 @@ public class Train {
     public static void main(String[] args) {
         Train train= new Train();
         int[] test= {2, 2, 3, 3};
+        System.out.println("Test data: "+ Arrays.toString(test));
         System.out.println(train.classify(test));
     }
 
