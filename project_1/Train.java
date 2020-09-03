@@ -82,7 +82,7 @@ public class Train {
         F(Aj = ak, C = ci) = ...
      */
     public double train(IrisData[] classSpecificData, int target, int feature) {
-
+        int numFeatures= 4;
         int num= 0;
         for (IrisData data : classSpecificData) {
             int[] attributeData = data.getBinnedFeatures();
@@ -92,9 +92,8 @@ public class Train {
                 num++;
             }
         }
-//        System.out.println("Num: "+ num + ", feature: " + feature);
 
-        return (num+1) / 154.0;
+        return (double)(num+1) / classSpecificData.length + numFeatures; //<-- making denominator smaller = worse accuracy on c3 ?!
     }
 
     /*
@@ -113,7 +112,6 @@ public class Train {
         }
 
         //return argmax (this could be done cleaner)
-//        System.out.println(Arrays.toString(C));
         if (C[0] > C[1] && C[0] > C[2]) {
             return "Iris-setosa";
         }
@@ -126,77 +124,113 @@ public class Train {
     }
 
     /*
-        Makes a confusion matrix
+        Makes a confusion matrix (FP / FN are in context of c1)
+        ----trueClass------
             c1  c2  c3
-        c1  TP  FP
-        c2      TP
-        c3          TP
+   |    c1  TP  FP  FP
+ guess  c2  FN  TP
+   |    c3  FN      TP
 
         definitely confusing...
+
+        This method goes through the data given in the parameter, classifies it,
+        (classifier trained on iris-data) and compares it against the original iris-data. It gives
+        *Accuracy = total correct / total samples
+        *Error = 1 - accuracy
+        *Precision
+        *Recall
      */
-    public double loss(IrisData[] testData) {
-        //confusion matrix ?
+    public void loss(IrisData[] testData) {
         int count= 0;
         int[][] confusionMatrix = new int[3][3];
 
+        //this loops through all irisData's in the test data and fills the confusion matrix
         for (IrisData irisData: testData) {
             String trueClass = irisData.getClassNo();
             int[] test = irisData.getBinnedFeatures();
             String guess = classify(test);
 
-            if (trueClass.contentEquals("Iris-setosa") && guess.contentEquals(irisData.getClassNo())) {
-                count++;
-
-                confusionMatrix[0][0]++;
-                if (trueClass.contentEquals("Iris-versicolor")) {
-                    confusionMatrix[0][1]++;
+            if (trueClass.contentEquals("Iris-setosa")) {
+                if (guess.contentEquals(trueClass)) {
+                    count++;
+                    confusionMatrix[0][0]++;
                 }
-                else {
-                    confusionMatrix[0][2]++;
-                }
-            }
-            if (trueClass.contentEquals("Iris-versicolor") && guess.contentEquals(irisData.getClassNo())) {
-                count++;
-
-                confusionMatrix[1][1]++;
-                if (trueClass.contentEquals("Iris-versicolor")) {
-                    confusionMatrix[1][2]++;
-                }
-                else {
+                if (guess.contentEquals("Iris-versicolor")) {
                     confusionMatrix[1][0]++;
                 }
-            }
-            if (trueClass.contentEquals("Iris-virginica") && guess.contentEquals(irisData.getClassNo())) {
-                count++;
-
-                confusionMatrix[2][2]++;
-                if (trueClass.contentEquals("Iris-versicolor")) {
+                if (guess.contentEquals("Iris-virginica")) {
                     confusionMatrix[2][0]++;
                 }
-                else {
+            }
+            if (trueClass.contentEquals("Iris-versicolor")) {
+                if (guess.contentEquals(trueClass)) {
+                    count++;
+                    confusionMatrix[1][1]++;
+                }
+                if (guess.contentEquals("Iris-virginica")) {
                     confusionMatrix[2][1]++;
                 }
+                if (guess.contentEquals("Iris-setosa")) {
+                    confusionMatrix[0][1]++;
+                }
             }
-//            System.out.println("TA: "+ trueA + "\tTB: "+ trueB + "\tTC: "+ trueC+ "\nFA: "+ falseA+ "\tFB: "+ falseB+ "\tFC: "+ falseC);
+            if (trueClass.contentEquals("Iris-virginica")) {
+                if (guess.contentEquals(trueClass)) {
+                    count++;
+                    confusionMatrix[2][2]++;
+                }
+                if (guess.contentEquals("Iris-setosa")) {
+                    confusionMatrix[0][2]++;
+                }
+                if (guess.contentEquals("Iris-versicolor")) {
+                    confusionMatrix[1][2]++;
+                }
+            }
 
         }
 
+        //Calculating Precision Pmacro and Pmicro for 3 classes
         double Pmacro= 0;
+        double Pmicro= 0;
+        int TP = 0, TPsum = 0;
+        int FP = 0, FPsum= 0;
+        int i = 0;
         for (int[] row: confusionMatrix) {
             System.out.println(Arrays.toString(row));
-            Pmacro += (double)row[0] / (row[0] + row[1] + row[2]);
+            TP = row[i];
+            FP = row[(i+1)%2] + row[(i+2)%2];
+
+            TPsum += TP;
+            FPsum += FP + TP;
+
+            Pmacro += (double)TP / (TP + FP);
+            i++;
         }
         Pmacro /= 3.0;
+        Pmicro = (double)TPsum / FPsum;
         System.out.println("Pmacro: "+ Pmacro);
+        System.out.println("Pmicro: "+ Pmicro);
 
+        //Calculating Risk Rmacro and Rmicro for 3 classes
         double Rmacro = 0;
-        for (int i= 0; i < 3; i++) {
-            Rmacro += (double)confusionMatrix[i][0] / (confusionMatrix[i][1] + confusionMatrix[i][2]);
+        for (int j= 0; j < 3; j++) {
+            Rmacro += (double)confusionMatrix[0][j] / (confusionMatrix[0][j] + confusionMatrix[1][j] + confusionMatrix[2][j]);
         }
         Rmacro /= 3.0;
         System.out.println("Rmacro: "+ Rmacro);
 
-        return 100*(count / 150.0);
+        double accuracy = count / 150.0;
+        System.out.println("Accuracy: "+ accuracy);
+        double error = 1 - accuracy;
+        System.out.println("Error: "+ error);
+
+    }
+
+    public double crossValidate(IrisData[] data) {
+        int fold = 10;  //10-fold cross validation
+
+
+        return 0;
     }
 
     public static void main(String[] args) {
@@ -206,8 +240,11 @@ public class Train {
 //        System.out.println("Test data: "+ Arrays.toString(test));
 //        System.out.println(train.classify(test));
 
-        System.out.println("Loss: " + (int)train.loss(train.alldata) + "%");            //-->92%
-        System.out.println("Loss, noisy: " + (int)train.loss(train.noiseData)+ "%");    //-->90%
+        System.out.println("Iris-data -----------------------------------------");
+        train.loss(train.alldata);     //-->92%
+
+        System.out.println("\nIris-noise ----------------------------------------");
+        train.loss(train.noiseData);    //-->90%
 
 
     }
