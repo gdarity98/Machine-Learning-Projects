@@ -15,7 +15,7 @@ public class BreastCancerData {
 	private String normNucleoli = " ";
 	private String mitoses = " ";
 	private String benMal = " ";
-	private String[] features = new String[9];
+	private String[] features = new String[9]; //only thing that really matters. Needs to be up to date when noise happens.
 	
 	public BreastCancerData(String fullData) {
 		//This sets up all the variables by splitting the string and assigning the correct value to variables.
@@ -36,18 +36,7 @@ public class BreastCancerData {
 		blandChrom = tokens[7];
 		normNucleoli = tokens[8];
 		mitoses = tokens[9];
-		benMal = tokens[10];
-		
-		if(bareNuclei.equals("?")){
-			Random random = new Random();
-			int randomNum = 0;
-			while(true) {
-				randomNum = random.nextInt(11);
-				if (randomNum != 0) break;
-			}
-			bareNuclei = Integer.toString(randomNum);
-			
-		}
+		benMal = tokens[10];		
 		
 		allData = String.join(",",id,clumpThickness,uniformCSize,uniformCShape,margAdhesion,singEpithCSize,bareNuclei,blandChrom,normNucleoli,mitoses,benMal);
 		//features = String.join(",",id,clumpThickness,uniformCSize,uniformCShape,margAdhesion,singEpithCSize,bareNuclei,blandChrom,normNucleoli,mitoses,benMal);
@@ -55,6 +44,17 @@ public class BreastCancerData {
         for (int i = 0; i < 9; i++) {
             features[i] = tokens[i+1];
         }
+        
+        if(features[5].equals("?")){
+			Random random = new Random();
+			int randomNum = 0;
+			while(true) {
+				randomNum = random.nextInt(11);
+				if (randomNum != 0) break;
+			}
+			features[5] = Integer.toString(randomNum);
+			
+		}
 	}
 	
 	//returns full info variable
