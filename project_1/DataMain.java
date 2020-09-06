@@ -21,7 +21,7 @@ public class DataMain {
         
         try { //Reads in the file and checks for exception
         	//The file path would need to be changed based on system.
-        	reader = new BufferedReader(new FileReader("C:\\Users\\gdari\\Desktop\\Important\\School\\CSCI 447\\Projects\\src\\project_1\\data-sets\\breast-cancer-wisconsin.data"));
+        	reader = new BufferedReader(new FileReader("C:\\Users\\gdari\\Desktop\\School\\CSCI 447\\Projects\\src\\project_1\\data-sets\\breast-cancer-wisconsin.data"));
         	
         	//reads the file in line by line
         	String line = reader.readLine();
@@ -53,7 +53,7 @@ public class DataMain {
         
         try { //Reads in the file and checks for exception
         	//The file path would need to be changed based on system.
-        	reader2 = new BufferedReader(new FileReader("C:\\Users\\gdari\\Desktop\\Important\\School\\CSCI 447\\Projects\\src\\project_1\\data-sets\\house-votes-84.data"));
+        	reader2 = new BufferedReader(new FileReader("C:\\Users\\gdari\\Desktop\\School\\CSCI 447\\Projects\\src\\project_1\\data-sets\\house-votes-84.data"));
         	
         	//reads the file in line by line
         	String line = reader2.readLine();
@@ -75,7 +75,37 @@ public class DataMain {
         	e.printStackTrace();
         }
         
-        //Glass Data?
+        //Glass Data
+        BufferedReader reader3; //creates a buffered reader
+        GlassData gData; //creates the breast cancer data class
+        GlassDataNoise gDataNoise; //creates the breast cancer noise data class
+
+        GlassData[] sA3 = new GlassData[214];
+        GlassDataNoise[] sA3Noise = new GlassDataNoise[214]; //I don't think my noise changes 10% each time...maybe it does idk
+        
+        try { //Reads in the file and checks for exception
+        	//The file path would need to be changed based on system.
+        	reader3 = new BufferedReader(new FileReader("C:\\Users\\gdari\\Desktop\\School\\CSCI 447\\Projects\\src\\project_1\\data-sets\\glass.data"));
+        	
+        	//reads the file in line by line
+        	String line = reader3.readLine();
+        	
+        	//While we are not at the end of the file do things in the while loop
+        	int i = 0;
+        	while(line != null) {
+        		//This creates a bData class with the one line from the file
+        		gData = new GlassData(line);
+        		gDataNoise = new GlassDataNoise(line);
+        		
+        		sA3[i] = gData;
+        		sA3Noise[i] = gDataNoise;
+        		i++;
+        		line = reader3.readLine();
+        	}
+        	
+        }catch (IOException e) {
+        	e.printStackTrace();
+        }
 //END SETTING UP ALL THE DATA
         
 //BREAST CANCER DATA NORMAL 
@@ -111,7 +141,21 @@ public class DataMain {
        TrainClassLoss trainHouseVotesNoise = new TrainClassLoss(sA2Noise);
        //END OF #1., #2., & #3. 
       
-////END OF HOUSE VOTE DATA NOISE
+//END OF HOUSE VOTE DATA NOISE
+       
+//GLASS DATA NORMAL
+       //#1., #2., & #3. 
+       TrainClassLoss trainGlass = new TrainClassLoss(sA3);
+       //END OF #1., #2., & #3. 
+      
+//END OF GLASS DATA NORMAL
+       
+//GLASS DATA NOISE
+       //#1., #2., & #3. 
+       TrainClassLoss glassNoise = new TrainClassLoss(sA3Noise);
+       //END OF #1., #2., & #3. 
+      
+//END OF GLASS DATA NOISE
   
     }
     
