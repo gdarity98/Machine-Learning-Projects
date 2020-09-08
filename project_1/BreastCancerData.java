@@ -1,14 +1,25 @@
 package project_1;
+import java.util.Random;
 
 public class BreastCancerData {
-	private String allData;
-	public String id;
-	public String classNo;	//this is a 2 or a 4 (benign / malignant)
-	public int[] features;			//feature array (1 - 9)
+	private String tempData = " ";
+	private String allData = " ";
+	public String id = " ";
+	private String clumpThickness = " ";
+	private String uniformCSize = " ";
+	private String uniformCShape = " ";
+	private String margAdhesion = " ";
+	private String singEpithCSize = " ";
+	private String bareNuclei = " ";
+	private String blandChrom = " ";
+	private String normNucleoli = " ";
+	private String mitoses = " ";
+	private String benMal = " ";
+	private String[] features = new String[9]; //only thing that really matters. Needs to be up to date when noise happens.
 	
 	public BreastCancerData(String fullData) {
 		//This sets up all the variables by splitting the string and assigning the correct value to variables.
-		allData = fullData;
+		tempData = fullData;
 		String[] tokens = fullData.split(","); //splitting string at commas
 		
 		//assigning proper strings to the variables
@@ -16,13 +27,34 @@ public class BreastCancerData {
 		//WHILE data is being separated we can filter out unknown items and change them to what we need them to be.
 		
 		id = tokens[0];
-		classNo = tokens[10];
-
-		features = new int[9];
-		for (int i= 0; i < 9; i++) {
-			features[i]= Integer.parseInt(tokens[i+1]);
+		clumpThickness = tokens[1];
+		uniformCSize = tokens[2];
+	    uniformCShape = tokens[3];
+	    margAdhesion = tokens[4];
+		singEpithCSize = tokens[5];
+		bareNuclei = tokens[6];  // the only attribute with missing information
+		blandChrom = tokens[7];
+		normNucleoli = tokens[8];
+		mitoses = tokens[9];
+		benMal = tokens[10];		
+		
+		allData = String.join(",",id,clumpThickness,uniformCSize,uniformCShape,margAdhesion,singEpithCSize,bareNuclei,blandChrom,normNucleoli,mitoses,benMal);
+		//features = String.join(",",id,clumpThickness,uniformCSize,uniformCShape,margAdhesion,singEpithCSize,bareNuclei,blandChrom,normNucleoli,mitoses,benMal);
+		
+        for (int i = 0; i < 9; i++) {
+            features[i] = tokens[i+1];
+        }
+        
+        if(features[5].equals("?")){
+			Random random = new Random();
+			int randomNum = 0;
+			while(true) {
+				randomNum = random.nextInt(11);
+				if (randomNum != 0) break;
+			}
+			features[5] = Integer.toString(randomNum);
+			
 		}
-
 	}
 	
 	//returns full info variable
@@ -34,14 +66,12 @@ public class BreastCancerData {
 	public String getID() {
 		return id;
 	}
-
-	//returns class number (2 or 4)
-	public String getClassNo() {
-		return classNo;
+	
+	public String getCl(){
+		return benMal;
 	}
-
-	//returns feature array
-	public int[] getFeatures() {
+	
+	public String[] getFeat() {
 		return features;
 	}
 }
