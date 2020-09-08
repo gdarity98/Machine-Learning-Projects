@@ -103,7 +103,10 @@ public class TrainClassLoss{
 	public double[][] trainDataHeadLN = new double[9][10];
 
     
-
+	public TrainClassLoss() {
+		
+	}
+	
 	public TrainClassLoss(BreastCancerData[] sA) {
        
     	for(int i = 0; i < sA.length; i++) {
@@ -180,39 +183,42 @@ public class TrainClassLoss{
 	*Recall
 	*
 	*/
-	public void loss(BreastCancerData[] testData, float probC1, float probC2, double[][] allFC1, double[][] allFC2) {
+	public double[] loss(BreastCancerData[] testData, float probC1, float probC2, double[][] allFC1, double[][] allFC2) {
 	    int count= 0;
 	    int[][] confusionMatrix = new int[2][2];
-	
+	    
 	    //this loops through all irisData's in the test data and fills the confusion matrix
 	    for (BreastCancerData bcD: testData) {
-	        String trueClass = bcD.getCl();
-	        String[] test = bcD.getFeat();
-	        String guess = classify(test,allFC1,allFC2,probC1,probC2); //this is what I did outside this function
-	
-	        if (trueClass.contentEquals("2")) {
-	            if (guess.contentEquals(trueClass)) {
-	                count++;
-	                confusionMatrix[0][0]++;
-	            }
-	            if (guess.contentEquals("4")) {
-	                confusionMatrix[1][0]++;
-	            }
-	        }
-	        if (trueClass.contentEquals("4")) {
-	            if (guess.contentEquals(trueClass)) {
-	                count++;
-	                confusionMatrix[1][1]++;
-	            }
-	            if (guess.contentEquals("2")) {
-	                confusionMatrix[0][1]++;
-	            }
-	        }
+	    	if(bcD != null) {
+		        String trueClass = bcD.getCl();
+		        String[] test = bcD.getFeat();
+		        String guess = classify(test,allFC1,allFC2,probC1,probC2); //this is what I did outside this function
+		
+		        if (trueClass.contentEquals("2")) {
+		            if (guess.contentEquals(trueClass)) {
+		                count++;
+		                confusionMatrix[0][0]++;
+		            }
+		            if (guess.contentEquals("4")) {
+		                confusionMatrix[1][0]++;
+		            }
+		        }
+		        if (trueClass.contentEquals("4")) {
+		            if (guess.contentEquals(trueClass)) {
+		                count++;
+		                confusionMatrix[1][1]++;
+		            }
+		            if (guess.contentEquals("2")) {
+		                confusionMatrix[0][1]++;
+		            }
+		        }
+		        
+	    	}
 	
 	    }
 
 	    //Calculating Precision Pmacro and Pmicro for 3 classes
-	    System.out.println("\nBreast Cancer Data:");
+	    //System.out.println("\nBreast Cancer Data:");
 	    double Pmacro= 0;
 	    double Pmicro= 0;
 	    int TP = 0, TPsum = 0;
@@ -229,23 +235,43 @@ public class TrainClassLoss{
 	        Pmacro += (double)TP / (TP + FP);
 	        i++;
 	    }
-	    Pmacro /= 3.0;
+	    Pmacro /= 2.0;
 	    Pmicro = (double)TPsum / FPsum;
-	    System.out.println("Pmacro: "+ Pmacro);
-	    System.out.println("Pmicro: "+ Pmicro);
+	   // System.out.println("Pmacro: "+ Pmacro);
+	   // System.out.println("Pmicro: "+ Pmicro);
 
-	    //Calculating Risk Rmacro and Rmicro for 3 classes
+	   // Calculating Risk Rmacro and Rmicro for 2 classes
 	    double Rmacro = 0;
+	    double Rmicro =0;
+	    TPsum=0;
+	    int FN, FNsum =0;
 	    for (int j= 0; j < 2; j++) {
-	        Rmacro += (double)confusionMatrix[0][j] / (confusionMatrix[0][j] + confusionMatrix[1][j]);
+	    	TP = confusionMatrix[j][j];
+	    	FN = confusionMatrix[(j+1)%2][j]; //+ confusionMatrix[(j+2)%2][j]
+	        Rmacro += (double)TP/(TP+FN);
+	        TPsum += TP;
+	        FNsum += FN + TP;
+	        
 	    }
-	    Rmacro /= 3.0;
-	    System.out.println("Rmacro: "+ Rmacro);
+	    Rmacro /= 2.0;
+	    Rmicro =(double)TPsum / FNsum;
+	    
+	  //  System.out.println("Rmacro: "+ Rmacro);
 
-	    double accuracy = count / 150.0;
-	    System.out.println("Accuracy: "+ accuracy);
+	    double accuracy = count / 699.0;
+	  //  System.out.println("Accuracy: "+ accuracy);
 	    double error = 1 - accuracy;
-	    System.out.println("Error: "+ error);
+	  //  System.out.println("Error: "+ error);
+	    
+	    double[] lossData = new double[6];
+        lossData[0] = accuracy;
+        lossData[1] = error;
+        lossData[2] = Pmacro;
+        lossData[3] = Pmicro;
+        lossData[4] = Rmacro;
+        lossData[5] = Rmicro;
+
+        return lossData;
 
 	}
 
@@ -308,39 +334,40 @@ public class TrainClassLoss{
         return (num+1)/((float)classSpecificData.length+numOfAttributes);
 	}
 	
-	public void loss(BreastCancerDataNoise[] testData, float probC1, float probC2, double[][] allFC1, double[][] allFC2) {
+	public double[] loss(BreastCancerDataNoise[] testData, float probC1, float probC2, double[][] allFC1, double[][] allFC2) {
 	    int count= 0;
 	    int[][] confusionMatrix = new int[2][2];
 	
 	    //this loops through all irisData's in the test data and fills the confusion matrix
 	    for (BreastCancerDataNoise bcD: testData) {
-	        String trueClass = bcD.getCl();
-	        String[] test = bcD.getFeat();
-	        String guess = classify(test,allFC1,allFC2,probC1,probC2); //this is what I did outside this function
-	
-	        if (trueClass.contentEquals("2")) {
-	            if (guess.contentEquals(trueClass)) {
-	                count++;
-	                confusionMatrix[0][0]++;
-	            }
-	            if (guess.contentEquals("4")) {
-	                confusionMatrix[1][0]++;
-	            }
-	        }
-	        if (trueClass.contentEquals("4")) {
-	            if (guess.contentEquals(trueClass)) {
-	                count++;
-	                confusionMatrix[1][1]++;
-	            }
-	            if (guess.contentEquals("2")) {
-	                confusionMatrix[0][1]++;
-	            }
-	        }
-	
+	    	if(bcD != null) {
+		        String trueClass = bcD.getCl();
+		        String[] test = bcD.getFeat();
+		        String guess = classify(test,allFC1,allFC2,probC1,probC2); //this is what I did outside this function
+		
+		        if (trueClass.contentEquals("2")) {
+		            if (guess.contentEquals(trueClass)) {
+		                count++;
+		                confusionMatrix[0][0]++;
+		            }
+		            if (guess.contentEquals("4")) {
+		                confusionMatrix[1][0]++;
+		            }
+		        }
+		        if (trueClass.contentEquals("4")) {
+		            if (guess.contentEquals(trueClass)) {
+		                count++;
+		                confusionMatrix[1][1]++;
+		            }
+		            if (guess.contentEquals("2")) {
+		                confusionMatrix[0][1]++;
+		            }
+		        }
+	    	}
 	    }
 
 	    //Calculating Precision Pmacro and Pmicro for 3 classes
-	    System.out.println("\nBreast Cancer Noise Data:");
+	    //System.out.println("\nBreast Cancer Noise Data:");
 	    double Pmacro= 0;
 	    double Pmicro= 0;
 	    int TP = 0, TPsum = 0;
@@ -357,23 +384,43 @@ public class TrainClassLoss{
 	        Pmacro += (double)TP / (TP + FP);
 	        i++;
 	    }
-	    Pmacro /= 3.0;
+	    Pmacro /= 2.0;
 	    Pmicro = (double)TPsum / FPsum;
-	    System.out.println("Pmacro: "+ Pmacro);
-	    System.out.println("Pmicro: "+ Pmicro);
+	    //System.out.println("Pmacro: "+ Pmacro);
+	    //System.out.println("Pmicro: "+ Pmicro);
 
-	    //Calculating Risk Rmacro and Rmicro for 3 classes
+
+		   // Calculating Risk Rmacro and Rmicro for 2 classes
 	    double Rmacro = 0;
+	    double Rmicro =0;
+	    TPsum=0;
+	    int FN, FNsum =0;
 	    for (int j= 0; j < 2; j++) {
-	        Rmacro += (double)confusionMatrix[0][j] / (confusionMatrix[0][j] + confusionMatrix[1][j]);
+	    	TP = confusionMatrix[j][j];
+	    	FN = confusionMatrix[(j+1)%2][j]; //+ confusionMatrix[(j+2)%2][j]
+	        Rmacro += (double)TP/(TP+FN);
+	        TPsum += TP;
+	        FNsum += FN + TP;
+	        
 	    }
-	    Rmacro /= 3.0;
-	    System.out.println("Rmacro: "+ Rmacro);
-
-	    double accuracy = count / 150.0;
-	    System.out.println("Accuracy: "+ accuracy);
+	    Rmacro /= 2.0;
+	    Rmicro =(double)TPsum / FNsum;
+	    
+	  //  System.out.println("Rmacro: "+ Rmacro);
+	    double accuracy = count / 699.0;
+	  //  System.out.println("Accuracy: "+ accuracy);
 	    double error = 1 - accuracy;
-	    System.out.println("Error: "+ error);
+	  //  System.out.println("Error: "+ error);
+	    
+	    double[] lossData = new double[6];
+        lossData[0] = accuracy;
+        lossData[1] = error;
+        lossData[2] = Pmacro;
+        lossData[3] = Pmicro;
+        lossData[4] = Rmacro;
+        lossData[5] = Rmicro;
+
+        return lossData;
 
 	}
 
@@ -448,39 +495,40 @@ public class TrainClassLoss{
         return (num+1)/((float)classSpecificData.length+numOfAttributes);
 	}
 	
-	public void loss(HouseVotesData[] testData, float probC1, float probC2, double[][] allFC1, double[][] allFC2) {
+	public double[] loss(HouseVotesData[] testData, float probC1, float probC2, double[][] allFC1, double[][] allFC2) {
 	    int count= 0;
 	    int[][] confusionMatrix = new int[2][2];
 	
 	    //this loops through all irisData's in the test data and fills the confusion matrix
 	    for (HouseVotesData hvD: testData) {
-	        String trueClass = hvD.getCl();
-	        String[] test = hvD.getFeat();
-	        String guess = classifyHV(test,allFC1,allFC2,probC1,probC2); //this is what I did outside this function
-	
-	        if (trueClass.contentEquals("democrat")) {
-	            if (guess.contentEquals(trueClass)) {
-	                count++;
-	                confusionMatrix[0][0]++;
-	            }
-	            if (guess.contentEquals("republican")) {
-	                confusionMatrix[1][0]++;
-	            }
-	        }
-	        if (trueClass.contentEquals("republican")) {
-	            if (guess.contentEquals(trueClass)) {
-	                count++;
-	                confusionMatrix[1][1]++;
-	            }
-	            if (guess.contentEquals("democrat")) {
-	                confusionMatrix[0][1]++;
-	            }
-	        }
-	
+	    	if(hvD != null) {
+		        String trueClass = hvD.getCl();
+		        String[] test = hvD.getFeat();
+		        String guess = classifyHV(test,allFC1,allFC2,probC1,probC2); //this is what I did outside this function
+		
+		        if (trueClass.contentEquals("democrat")) {
+		            if (guess.contentEquals(trueClass)) {
+		                count++;
+		                confusionMatrix[0][0]++;
+		            }
+		            if (guess.contentEquals("republican")) {
+		                confusionMatrix[1][0]++;
+		            }
+		        }
+		        if (trueClass.contentEquals("republican")) {
+		            if (guess.contentEquals(trueClass)) {
+		                count++;
+		                confusionMatrix[1][1]++;
+		            }
+		            if (guess.contentEquals("democrat")) {
+		                confusionMatrix[0][1]++;
+		            }
+		        }
+	    	}
 	    }
 
 	    //Calculating Precision Pmacro and Pmicro for 3 classes
-	    System.out.println("\nHouse Votes Data:");
+	    //System.out.println("\nHouse Votes Data:");
 	    double Pmacro= 0;
 	    double Pmicro= 0;
 	    int TP = 0, TPsum = 0;
@@ -497,23 +545,42 @@ public class TrainClassLoss{
 	        Pmacro += (double)TP / (TP + FP);
 	        i++;
 	    }
-	    Pmacro /= 3.0;
+	    Pmacro /= 2.0;
 	    Pmicro = (double)TPsum / FPsum;
-	    System.out.println("Pmacro: "+ Pmacro);
-	    System.out.println("Pmicro: "+ Pmicro);
+	   // System.out.println("Pmacro: "+ Pmacro);
+	    //System.out.println("Pmicro: "+ Pmicro);
 
-	    //Calculating Risk Rmacro and Rmicro for 3 classes
+		   // Calculating Risk Rmacro and Rmicro for 2 classes
 	    double Rmacro = 0;
+	    double Rmicro =0;
+	    TPsum=0;
+	    int FN, FNsum =0;
 	    for (int j= 0; j < 2; j++) {
-	        Rmacro += (double)confusionMatrix[0][j] / (confusionMatrix[0][j] + confusionMatrix[1][j]);
+	    	TP = confusionMatrix[j][j];
+	    	FN = confusionMatrix[(j+1)%2][j]; //+ confusionMatrix[(j+2)%2][j]
+	        Rmacro += (double)TP/(TP+FN);
+	        TPsum += TP;
+	        FNsum += FN + TP;
+	        
 	    }
-	    Rmacro /= 3.0;
-	    System.out.println("Rmacro: "+ Rmacro);
-
-	    double accuracy = count / 150.0;
-	    System.out.println("Accuracy: "+ accuracy);
+	    Rmacro /= 2.0;
+	    Rmicro =(double)TPsum / FNsum;
+	    
+	  //  System.out.println("Rmacro: "+ Rmacro);
+	    double accuracy = count / 435.0;
+	  //  System.out.println("Accuracy: "+ accuracy);
 	    double error = 1 - accuracy;
-	    System.out.println("Error: "+ error);
+	  //  System.out.println("Error: "+ error);
+	    
+	    double[] lossData = new double[6];
+     lossData[0] = accuracy;
+     lossData[1] = error;
+     lossData[2] = Pmacro;
+     lossData[3] = Pmicro;
+     lossData[4] = Rmacro;
+     lossData[5] = Rmicro;
+
+     return lossData;
 
 	}
 
@@ -588,39 +655,40 @@ public class TrainClassLoss{
         return (num+1)/((float)classSpecificData.length+numOfAttributes);
 	}
 
-	public void loss(HouseVotesDataNoise[] testData, float probC1, float probC2, double[][] allFC1, double[][] allFC2) {
+	public double[] loss(HouseVotesDataNoise[] testData, float probC1, float probC2, double[][] allFC1, double[][] allFC2) {
 	    int count= 0;
 	    int[][] confusionMatrix = new int[2][2];
 	
 	    //this loops through all irisData's in the test data and fills the confusion matrix
 	    for (HouseVotesDataNoise hvD: testData) {
-	        String trueClass = hvD.getCl();
-	        String[] test = hvD.getFeat();
-	        String guess = classifyHV(test,allFC1,allFC2,probC1,probC2); //this is what I did outside this function
-	
-	        if (trueClass.contentEquals("democrat")) {
-	            if (guess.contentEquals(trueClass)) {
-	                count++;
-	                confusionMatrix[0][0]++;
-	            }
-	            if (guess.contentEquals("republican")) {
-	                confusionMatrix[1][0]++;
-	            }
-	        }
-	        if (trueClass.contentEquals("republican")) {
-	            if (guess.contentEquals(trueClass)) {
-	                count++;
-	                confusionMatrix[1][1]++;
-	            }
-	            if (guess.contentEquals("democrat")) {
-	                confusionMatrix[0][1]++;
-	            }
-	        }
-	
+	    	if(hvD != null) {
+		        String trueClass = hvD.getCl();
+		        String[] test = hvD.getFeat();
+		        String guess = classifyHV(test,allFC1,allFC2,probC1,probC2); //this is what I did outside this function
+		
+		        if (trueClass.contentEquals("democrat")) {
+		            if (guess.contentEquals(trueClass)) {
+		                count++;
+		                confusionMatrix[0][0]++;
+		            }
+		            if (guess.contentEquals("republican")) {
+		                confusionMatrix[1][0]++;
+		            }
+		        }
+		        if (trueClass.contentEquals("republican")) {
+		            if (guess.contentEquals(trueClass)) {
+		                count++;
+		                confusionMatrix[1][1]++;
+		            }
+		            if (guess.contentEquals("democrat")) {
+		                confusionMatrix[0][1]++;
+		            }
+		        }
+	    	}
 	    }
 
 	    //Calculating Precision Pmacro and Pmicro for 3 classes
-	    System.out.println("\nHouse Votes Noise Data:");
+	    //System.out.println("\nHouse Votes Noise Data:");
 	    double Pmacro= 0;
 	    double Pmicro= 0;
 	    int TP = 0, TPsum = 0;
@@ -637,23 +705,43 @@ public class TrainClassLoss{
 	        Pmacro += (double)TP / (TP + FP);
 	        i++;
 	    }
+	    
 	    Pmacro /= 3.0;
 	    Pmicro = (double)TPsum / FPsum;
-	    System.out.println("Pmacro: "+ Pmacro);
-	    System.out.println("Pmicro: "+ Pmicro);
+	   // System.out.println("Pmacro: "+ Pmacro);
+	   // System.out.println("Pmicro: "+ Pmicro);
 
-	    //Calculating Risk Rmacro and Rmicro for 3 classes
+		   // Calculating Risk Rmacro and Rmicro for 2 classes
 	    double Rmacro = 0;
+	    double Rmicro =0;
+	    TPsum=0;
+	    int FN, FNsum =0;
 	    for (int j= 0; j < 2; j++) {
-	        Rmacro += (double)confusionMatrix[0][j] / (confusionMatrix[0][j] + confusionMatrix[1][j]);
+	    	TP = confusionMatrix[j][j];
+	    	FN = confusionMatrix[(j+1)%2][j]; //+ confusionMatrix[(j+2)%2][j]
+	        Rmacro += (double)TP/(TP+FN);
+	        TPsum += TP;
+	        FNsum += FN + TP;
+	        
 	    }
-	    Rmacro /= 3.0;
-	    System.out.println("Rmacro: "+ Rmacro);
-
-	    double accuracy = count / 150.0;
-	    System.out.println("Accuracy: "+ accuracy);
+	    Rmacro /= 2.0;
+	    Rmicro =(double)TPsum / FNsum;
+	    
+	  //  System.out.println("Rmacro: "+ Rmacro);
+	    double accuracy = count / 435.0;
+	  //  System.out.println("Accuracy: "+ accuracy);
 	    double error = 1 - accuracy;
-	    System.out.println("Error: "+ error);
+	  //  System.out.println("Error: "+ error);
+	    
+	    double[] lossData = new double[6];
+	    lossData[0] = accuracy;
+  		lossData[1] = error;
+  		lossData[2] = Pmacro;
+  		lossData[3] = Pmicro;
+  		lossData[4] = Rmacro;
+  		lossData[5] = Rmicro;
+
+  		return lossData;
 
 	}
 	
@@ -763,7 +851,7 @@ public class TrainClassLoss{
         return (double)(num+1) / (classSpecificData.length + numFeatures); //<-- making denominator smaller = worse accuracy on c3 ?!
 	}
 	
-	public void loss(GlassData[] testData, float probC1, float probC2,float probC3,float probC5,float probC6,float probC7, 
+	public double[] loss(GlassData[] testData, float probC1, float probC2,float probC3,float probC5,float probC6,float probC7, 
 			double[][] allFC1, double[][] allFC2,double[][] allFC3,
 			double[][] allFC5,double[][] allFC6,double[][] allFC7) {
 	    int count= 0;
@@ -771,148 +859,149 @@ public class TrainClassLoss{
 	
 	    //this loops through all irisData's in the test data and fills the confusion matrix
 	    for (GlassData gD: testData) {
-	        String trueClass = gD.getCl();
-	        int[] test = gD.getBinnedFeat();
-	        String guess = classifyG(test,allFC1,allFC2,allFC3,
-	    			allFC5,allFC6,allFC7,probC1, 
-	    			probC2,probC3,probC5,probC6,probC7); //this is what I did outside this function
-	
-	        if (trueClass.contentEquals("1")) {
-	            if (guess.contentEquals(trueClass)) {
-	                count++;
-	                confusionMatrix[0][0]++;
-	            }
-	            if (guess.contentEquals("2")) {
-	                confusionMatrix[1][0]++;
-	            }
-	            if (guess.contentEquals("3")) {
-	                confusionMatrix[2][0]++;
-	            }
-	            if (guess.contentEquals("5")) {
-	                confusionMatrix[3][0]++;
-	            }
-	            if (guess.contentEquals("6")) {
-	                confusionMatrix[4][0]++;
-	            }
-	            if (guess.contentEquals("7")) {
-	                confusionMatrix[5][0]++;
-	            }
-	        }
-	        
-	        if (trueClass.contentEquals("2")) {
-	            if (guess.contentEquals(trueClass)) {
-	                count++;
-	                confusionMatrix[1][1]++;
-	            }
-	            if (guess.contentEquals("1")) {
-	                confusionMatrix[0][1]++;
-	            }
-	            if (guess.contentEquals("3")) {
-	                confusionMatrix[2][1]++;
-	            }
-	            if (guess.contentEquals("5")) {
-	                confusionMatrix[3][1]++;
-	            }
-	            if (guess.contentEquals("6")) {
-	                confusionMatrix[4][1]++;
-	            }
-	            if (guess.contentEquals("7")) {
-	                confusionMatrix[5][1]++;
-	            }
-	        }
-	        
-	        if (trueClass.contentEquals("3")) {
-	            if (guess.contentEquals(trueClass)) {
-	                count++;
-	                confusionMatrix[2][2]++;
-	            }
-	            if (guess.contentEquals("1")) {
-	                confusionMatrix[0][2]++;
-	            }
-	            if (guess.contentEquals("2")) {
-	                confusionMatrix[1][2]++;
-	            }
-	            if (guess.contentEquals("5")) {
-	                confusionMatrix[3][2]++;
-	            }
-	            if (guess.contentEquals("6")) {
-	                confusionMatrix[4][2]++;
-	            }
-	            if (guess.contentEquals("7")) {
-	                confusionMatrix[5][2]++;
-	            }
-	        }
-	        
-	        if (trueClass.contentEquals("5")) {
-	            if (guess.contentEquals(trueClass)) {
-	                count++;
-	                confusionMatrix[3][3]++;
-	            }
-	            if (guess.contentEquals("1")) {
-	                confusionMatrix[0][3]++;
-	            }
-	            if (guess.contentEquals("2")) {
-	                confusionMatrix[1][3]++;
-	            }
-	            if (guess.contentEquals("3")) {
-	                confusionMatrix[2][3]++;
-	            }
-	            if (guess.contentEquals("6")) {
-	                confusionMatrix[4][3]++;
-	            }
-	            if (guess.contentEquals("7")) {
-	                confusionMatrix[5][3]++;
-	            }
-	        }
-	        
-	        if (trueClass.contentEquals("6")) {
-	            if (guess.contentEquals(trueClass)) {
-	                count++;
-	                confusionMatrix[4][4]++;
-	            }
-	            if (guess.contentEquals("1")) {
-	                confusionMatrix[0][4]++;
-	            }
-	            if (guess.contentEquals("2")) {
-	                confusionMatrix[1][4]++;
-	            }
-	            if (guess.contentEquals("3")) {
-	                confusionMatrix[2][4]++;
-	            }
-	            if (guess.contentEquals("5")) {
-	                confusionMatrix[3][4]++;
-	            }
-	            if (guess.contentEquals("7")) {
-	                confusionMatrix[5][4]++;
-	            }
-	        }
-	        
-	        if (trueClass.contentEquals("7")) {
-	            if (guess.contentEquals(trueClass)) {
-	                count++;
-	                confusionMatrix[5][5]++;
-	            }
-	            if (guess.contentEquals("1")) {
-	                confusionMatrix[0][5]++;
-	            }
-	            if (guess.contentEquals("2")) {
-	                confusionMatrix[1][5]++;
-	            }
-	            if (guess.contentEquals("3")) {
-	                confusionMatrix[2][5]++;
-	            }
-	            if (guess.contentEquals("5")) {
-	                confusionMatrix[3][5]++;
-	            }
-	            if (guess.contentEquals("6")) {
-	                confusionMatrix[4][5]++;
-	            }
-	        }
-	
+	    	if(gD != null) {
+		        String trueClass = gD.getCl();
+		        int[] test = gD.getBinnedFeat();
+		        String guess = classifyG(test,allFC1,allFC2,allFC3,
+		    			allFC5,allFC6,allFC7,probC1, 
+		    			probC2,probC3,probC5,probC6,probC7); //this is what I did outside this function
+		
+		        if (trueClass.contentEquals("1")) {
+		            if (guess.contentEquals(trueClass)) {
+		                count++;
+		                confusionMatrix[0][0]++;
+		            }
+		            if (guess.contentEquals("2")) {
+		                confusionMatrix[1][0]++;
+		            }
+		            if (guess.contentEquals("3")) {
+		                confusionMatrix[2][0]++;
+		            }
+		            if (guess.contentEquals("5")) {
+		                confusionMatrix[3][0]++;
+		            }
+		            if (guess.contentEquals("6")) {
+		                confusionMatrix[4][0]++;
+		            }
+		            if (guess.contentEquals("7")) {
+		                confusionMatrix[5][0]++;
+		            }
+		        }
+		        
+		        if (trueClass.contentEquals("2")) {
+		            if (guess.contentEquals(trueClass)) {
+		                count++;
+		                confusionMatrix[1][1]++;
+		            }
+		            if (guess.contentEquals("1")) {
+		                confusionMatrix[0][1]++;
+		            }
+		            if (guess.contentEquals("3")) {
+		                confusionMatrix[2][1]++;
+		            }
+		            if (guess.contentEquals("5")) {
+		                confusionMatrix[3][1]++;
+		            }
+		            if (guess.contentEquals("6")) {
+		                confusionMatrix[4][1]++;
+		            }
+		            if (guess.contentEquals("7")) {
+		                confusionMatrix[5][1]++;
+		            }
+		        }
+		        
+		        if (trueClass.contentEquals("3")) {
+		            if (guess.contentEquals(trueClass)) {
+		                count++;
+		                confusionMatrix[2][2]++;
+		            }
+		            if (guess.contentEquals("1")) {
+		                confusionMatrix[0][2]++;
+		            }
+		            if (guess.contentEquals("2")) {
+		                confusionMatrix[1][2]++;
+		            }
+		            if (guess.contentEquals("5")) {
+		                confusionMatrix[3][2]++;
+		            }
+		            if (guess.contentEquals("6")) {
+		                confusionMatrix[4][2]++;
+		            }
+		            if (guess.contentEquals("7")) {
+		                confusionMatrix[5][2]++;
+		            }
+		        }
+		        
+		        if (trueClass.contentEquals("5")) {
+		            if (guess.contentEquals(trueClass)) {
+		                count++;
+		                confusionMatrix[3][3]++;
+		            }
+		            if (guess.contentEquals("1")) {
+		                confusionMatrix[0][3]++;
+		            }
+		            if (guess.contentEquals("2")) {
+		                confusionMatrix[1][3]++;
+		            }
+		            if (guess.contentEquals("3")) {
+		                confusionMatrix[2][3]++;
+		            }
+		            if (guess.contentEquals("6")) {
+		                confusionMatrix[4][3]++;
+		            }
+		            if (guess.contentEquals("7")) {
+		                confusionMatrix[5][3]++;
+		            }
+		        }
+		        
+		        if (trueClass.contentEquals("6")) {
+		            if (guess.contentEquals(trueClass)) {
+		                count++;
+		                confusionMatrix[4][4]++;
+		            }
+		            if (guess.contentEquals("1")) {
+		                confusionMatrix[0][4]++;
+		            }
+		            if (guess.contentEquals("2")) {
+		                confusionMatrix[1][4]++;
+		            }
+		            if (guess.contentEquals("3")) {
+		                confusionMatrix[2][4]++;
+		            }
+		            if (guess.contentEquals("5")) {
+		                confusionMatrix[3][4]++;
+		            }
+		            if (guess.contentEquals("7")) {
+		                confusionMatrix[5][4]++;
+		            }
+		        }
+		        
+		        if (trueClass.contentEquals("7")) {
+		            if (guess.contentEquals(trueClass)) {
+		                count++;
+		                confusionMatrix[5][5]++;
+		            }
+		            if (guess.contentEquals("1")) {
+		                confusionMatrix[0][5]++;
+		            }
+		            if (guess.contentEquals("2")) {
+		                confusionMatrix[1][5]++;
+		            }
+		            if (guess.contentEquals("3")) {
+		                confusionMatrix[2][5]++;
+		            }
+		            if (guess.contentEquals("5")) {
+		                confusionMatrix[3][5]++;
+		            }
+		            if (guess.contentEquals("6")) {
+		                confusionMatrix[4][5]++;
+		            }
+		        }
+	    	}
 	    }
 
 	    //Calculating Precision Pmacro and Pmicro for 6 classes
-	    System.out.println("\nGlass Data:");
+	    //System.out.println("\nGlass Data:");
 	    double Pmacro= 0;
 	    double Pmicro= 0;
 	    int TP = 0, TPsum = 0;
@@ -931,22 +1020,40 @@ public class TrainClassLoss{
 	    }
 	    Pmacro /= 6.0;
 	    Pmicro = (double)TPsum / FPsum;
-	    System.out.println("Pmacro: "+ Pmacro);
-	    System.out.println("Pmicro: "+ Pmicro);
+	    //System.out.println("Pmacro: "+ Pmacro);
+	    //System.out.println("Pmicro: "+ Pmicro);
 
-	    //Calculating Risk Rmacro and Rmicro for 6 classes
+		   // Calculating Risk Rmacro and Rmicro for 2 classes
 	    double Rmacro = 0;
+	    double Rmicro =0;
+	    TPsum=0;
+	    int FN, FNsum =0;
 	    for (int j= 0; j < 2; j++) {
-	        Rmacro += (double)confusionMatrix[0][j] / (confusionMatrix[0][j] + confusionMatrix[1][j]+ confusionMatrix[2][j]+ confusionMatrix[3][j]+ confusionMatrix[4][j]+ confusionMatrix[5][j]);
+	    	TP = confusionMatrix[j][j];
+	    	FN = confusionMatrix[(j+1)%2][j] + confusionMatrix[(j+2)%2][j] + confusionMatrix[(j+3)%2][j] + confusionMatrix[(j+4)%2][j] + confusionMatrix[(j+5)%2][j];
+	        Rmacro += (double)TP/(TP+FN);
+	        TPsum += TP;
+	        FNsum += FN + TP;
+	        
 	    }
 	    Rmacro /= 6.0;
-	    System.out.println("Rmacro: "+ Rmacro);
-
+	    Rmicro =(double)TPsum / FNsum;
+	    
+	  //  System.out.println("Rmacro: "+ Rmacro);
 	    double accuracy = count / 214.0;
-	    System.out.println("Accuracy: "+ accuracy);
+	  //  System.out.println("Accuracy: "+ accuracy);
 	    double error = 1 - accuracy;
-	    System.out.println("Error: "+ error);
+	  //  System.out.println("Error: "+ error);
+	    
+	    double[] lossData = new double[6];
+	    lossData[0] = accuracy;
+		lossData[1] = error;
+		lossData[2] = Pmacro;
+		lossData[3] = Pmicro;
+		lossData[4] = Rmacro;
+		lossData[5] = Rmicro;
 
+		return lossData;
 	}
 
 	public TrainClassLoss(GlassDataNoise[] sA) {
@@ -1055,7 +1162,7 @@ public class TrainClassLoss{
      return (double)(num+1) / (classSpecificData.length + numFeatures); //<-- making denominator smaller = worse accuracy on c3 ?!
 	}
 	
-	public void loss(GlassDataNoise[] testData, float probC1, float probC2,float probC3,float probC5,float probC6,float probC7, 
+	public double[] loss(GlassDataNoise[] testData, float probC1, float probC2,float probC3,float probC5,float probC6,float probC7, 
 			double[][] allFC1, double[][] allFC2,double[][] allFC3,
 			double[][] allFC5,double[][] allFC6,double[][] allFC7) {
 	    int count= 0;
@@ -1063,148 +1170,149 @@ public class TrainClassLoss{
 	
 	    //this loops through all irisData's in the test data and fills the confusion matrix
 	    for (GlassDataNoise gD: testData) {
-	        String trueClass = gD.getCl();
-	        int[] test = gD.getBinnedFeat();
-	        String guess = classifyG(test,allFC1,allFC2,allFC3,
-	    			allFC5,allFC6,allFC7,probC1, 
-	    			probC2,probC3,probC5,probC6,probC7); //this is what I did outside this function
-	
-	        if (trueClass.contentEquals("1")) {
-	            if (guess.contentEquals(trueClass)) {
-	                count++;
-	                confusionMatrix[0][0]++;
-	            }
-	            if (guess.contentEquals("2")) {
-	                confusionMatrix[1][0]++;
-	            }
-	            if (guess.contentEquals("3")) {
-	                confusionMatrix[2][0]++;
-	            }
-	            if (guess.contentEquals("5")) {
-	                confusionMatrix[3][0]++;
-	            }
-	            if (guess.contentEquals("6")) {
-	                confusionMatrix[4][0]++;
-	            }
-	            if (guess.contentEquals("7")) {
-	                confusionMatrix[5][0]++;
-	            }
-	        }
-	        
-	        if (trueClass.contentEquals("2")) {
-	            if (guess.contentEquals(trueClass)) {
-	                count++;
-	                confusionMatrix[1][1]++;
-	            }
-	            if (guess.contentEquals("1")) {
-	                confusionMatrix[0][1]++;
-	            }
-	            if (guess.contentEquals("3")) {
-	                confusionMatrix[2][1]++;
-	            }
-	            if (guess.contentEquals("5")) {
-	                confusionMatrix[3][1]++;
-	            }
-	            if (guess.contentEquals("6")) {
-	                confusionMatrix[4][1]++;
-	            }
-	            if (guess.contentEquals("7")) {
-	                confusionMatrix[5][1]++;
-	            }
-	        }
-	        
-	        if (trueClass.contentEquals("3")) {
-	            if (guess.contentEquals(trueClass)) {
-	                count++;
-	                confusionMatrix[2][2]++;
-	            }
-	            if (guess.contentEquals("1")) {
-	                confusionMatrix[0][2]++;
-	            }
-	            if (guess.contentEquals("2")) {
-	                confusionMatrix[1][2]++;
-	            }
-	            if (guess.contentEquals("5")) {
-	                confusionMatrix[3][2]++;
-	            }
-	            if (guess.contentEquals("6")) {
-	                confusionMatrix[4][2]++;
-	            }
-	            if (guess.contentEquals("7")) {
-	                confusionMatrix[5][2]++;
-	            }
-	        }
-	        
-	        if (trueClass.contentEquals("5")) {
-	            if (guess.contentEquals(trueClass)) {
-	                count++;
-	                confusionMatrix[3][3]++;
-	            }
-	            if (guess.contentEquals("1")) {
-	                confusionMatrix[0][3]++;
-	            }
-	            if (guess.contentEquals("2")) {
-	                confusionMatrix[1][3]++;
-	            }
-	            if (guess.contentEquals("3")) {
-	                confusionMatrix[2][3]++;
-	            }
-	            if (guess.contentEquals("6")) {
-	                confusionMatrix[4][3]++;
-	            }
-	            if (guess.contentEquals("7")) {
-	                confusionMatrix[5][3]++;
-	            }
-	        }
-	        
-	        if (trueClass.contentEquals("6")) {
-	            if (guess.contentEquals(trueClass)) {
-	                count++;
-	                confusionMatrix[4][4]++;
-	            }
-	            if (guess.contentEquals("1")) {
-	                confusionMatrix[0][4]++;
-	            }
-	            if (guess.contentEquals("2")) {
-	                confusionMatrix[1][4]++;
-	            }
-	            if (guess.contentEquals("3")) {
-	                confusionMatrix[2][4]++;
-	            }
-	            if (guess.contentEquals("5")) {
-	                confusionMatrix[3][4]++;
-	            }
-	            if (guess.contentEquals("7")) {
-	                confusionMatrix[5][4]++;
-	            }
-	        }
-	        
-	        if (trueClass.contentEquals("7")) {
-	            if (guess.contentEquals(trueClass)) {
-	                count++;
-	                confusionMatrix[5][5]++;
-	            }
-	            if (guess.contentEquals("1")) {
-	                confusionMatrix[0][5]++;
-	            }
-	            if (guess.contentEquals("2")) {
-	                confusionMatrix[1][5]++;
-	            }
-	            if (guess.contentEquals("3")) {
-	                confusionMatrix[2][5]++;
-	            }
-	            if (guess.contentEquals("5")) {
-	                confusionMatrix[3][5]++;
-	            }
-	            if (guess.contentEquals("6")) {
-	                confusionMatrix[4][5]++;
-	            }
-	        }
-	
+	    	if(gD != null) {
+		        String trueClass = gD.getCl();
+		        int[] test = gD.getBinnedFeat();
+		        String guess = classifyG(test,allFC1,allFC2,allFC3,
+		    			allFC5,allFC6,allFC7,probC1, 
+		    			probC2,probC3,probC5,probC6,probC7); //this is what I did outside this function
+		
+		        if (trueClass.contentEquals("1")) {
+		            if (guess.contentEquals(trueClass)) {
+		                count++;
+		                confusionMatrix[0][0]++;
+		            }
+		            if (guess.contentEquals("2")) {
+		                confusionMatrix[1][0]++;
+		            }
+		            if (guess.contentEquals("3")) {
+		                confusionMatrix[2][0]++;
+		            }
+		            if (guess.contentEquals("5")) {
+		                confusionMatrix[3][0]++;
+		            }
+		            if (guess.contentEquals("6")) {
+		                confusionMatrix[4][0]++;
+		            }
+		            if (guess.contentEquals("7")) {
+		                confusionMatrix[5][0]++;
+		            }
+		        }
+		        
+		        if (trueClass.contentEquals("2")) {
+		            if (guess.contentEquals(trueClass)) {
+		                count++;
+		                confusionMatrix[1][1]++;
+		            }
+		            if (guess.contentEquals("1")) {
+		                confusionMatrix[0][1]++;
+		            }
+		            if (guess.contentEquals("3")) {
+		                confusionMatrix[2][1]++;
+		            }
+		            if (guess.contentEquals("5")) {
+		                confusionMatrix[3][1]++;
+		            }
+		            if (guess.contentEquals("6")) {
+		                confusionMatrix[4][1]++;
+		            }
+		            if (guess.contentEquals("7")) {
+		                confusionMatrix[5][1]++;
+		            }
+		        }
+		        
+		        if (trueClass.contentEquals("3")) {
+		            if (guess.contentEquals(trueClass)) {
+		                count++;
+		                confusionMatrix[2][2]++;
+		            }
+		            if (guess.contentEquals("1")) {
+		                confusionMatrix[0][2]++;
+		            }
+		            if (guess.contentEquals("2")) {
+		                confusionMatrix[1][2]++;
+		            }
+		            if (guess.contentEquals("5")) {
+		                confusionMatrix[3][2]++;
+		            }
+		            if (guess.contentEquals("6")) {
+		                confusionMatrix[4][2]++;
+		            }
+		            if (guess.contentEquals("7")) {
+		                confusionMatrix[5][2]++;
+		            }
+		        }
+		        
+		        if (trueClass.contentEquals("5")) {
+		            if (guess.contentEquals(trueClass)) {
+		                count++;
+		                confusionMatrix[3][3]++;
+		            }
+		            if (guess.contentEquals("1")) {
+		                confusionMatrix[0][3]++;
+		            }
+		            if (guess.contentEquals("2")) {
+		                confusionMatrix[1][3]++;
+		            }
+		            if (guess.contentEquals("3")) {
+		                confusionMatrix[2][3]++;
+		            }
+		            if (guess.contentEquals("6")) {
+		                confusionMatrix[4][3]++;
+		            }
+		            if (guess.contentEquals("7")) {
+		                confusionMatrix[5][3]++;
+		            }
+		        }
+		        
+		        if (trueClass.contentEquals("6")) {
+		            if (guess.contentEquals(trueClass)) {
+		                count++;
+		                confusionMatrix[4][4]++;
+		            }
+		            if (guess.contentEquals("1")) {
+		                confusionMatrix[0][4]++;
+		            }
+		            if (guess.contentEquals("2")) {
+		                confusionMatrix[1][4]++;
+		            }
+		            if (guess.contentEquals("3")) {
+		                confusionMatrix[2][4]++;
+		            }
+		            if (guess.contentEquals("5")) {
+		                confusionMatrix[3][4]++;
+		            }
+		            if (guess.contentEquals("7")) {
+		                confusionMatrix[5][4]++;
+		            }
+		        }
+		        
+		        if (trueClass.contentEquals("7")) {
+		            if (guess.contentEquals(trueClass)) {
+		                count++;
+		                confusionMatrix[5][5]++;
+		            }
+		            if (guess.contentEquals("1")) {
+		                confusionMatrix[0][5]++;
+		            }
+		            if (guess.contentEquals("2")) {
+		                confusionMatrix[1][5]++;
+		            }
+		            if (guess.contentEquals("3")) {
+		                confusionMatrix[2][5]++;
+		            }
+		            if (guess.contentEquals("5")) {
+		                confusionMatrix[3][5]++;
+		            }
+		            if (guess.contentEquals("6")) {
+		                confusionMatrix[4][5]++;
+		            }
+		        }
+	    	}
 	    }
 
 	    //Calculating Precision Pmacro and Pmicro for 6 classes
-	    System.out.println("\nGlass Data Noise:");
+	   // System.out.println("\nGlass Data Noise:");
 	    double Pmacro= 0;
 	    double Pmicro= 0;
 	    int TP = 0, TPsum = 0;
@@ -1223,21 +1331,40 @@ public class TrainClassLoss{
 	    }
 	    Pmacro /= 6.0;
 	    Pmicro = (double)TPsum / FPsum;
-	    System.out.println("Pmacro: "+ Pmacro);
-	    System.out.println("Pmicro: "+ Pmicro);
+	    //System.out.println("Pmacro: "+ Pmacro);
+	    //System.out.println("Pmicro: "+ Pmicro);
 
-	    //Calculating Risk Rmacro and Rmicro for 6 classes
+		   // Calculating Risk Rmacro and Rmicro for 2 classes
 	    double Rmacro = 0;
+	    double Rmicro =0;
+	    TPsum=0;
+	    int FN, FNsum =0;
 	    for (int j= 0; j < 2; j++) {
-	        Rmacro += (double)confusionMatrix[0][j] / (confusionMatrix[0][j] + confusionMatrix[1][j]+ confusionMatrix[2][j]+ confusionMatrix[3][j]+ confusionMatrix[4][j]+ confusionMatrix[5][j]);
+	    	TP = confusionMatrix[j][j];
+	    	FN = confusionMatrix[(j+1)%2][j] + confusionMatrix[(j+2)%2][j] + confusionMatrix[(j+3)%2][j] + confusionMatrix[(j+4)%2][j] + confusionMatrix[(j+5)%2][j];
+	        Rmacro += (double)TP/(TP+FN);
+	        TPsum += TP;
+	        FNsum += FN + TP;
+	        
 	    }
 	    Rmacro /= 6.0;
-	    System.out.println("Rmacro: "+ Rmacro);
-
+	    Rmicro =(double)TPsum / FNsum;
+	    
+	  //  System.out.println("Rmacro: "+ Rmacro);
 	    double accuracy = count / 214.0;
-	    System.out.println("Accuracy: "+ accuracy);
+	  //  System.out.println("Accuracy: "+ accuracy);
 	    double error = 1 - accuracy;
-	    System.out.println("Error: "+ error);
+	  //  System.out.println("Error: "+ error);
+	    
+	    double[] lossData = new double[6];
+	    lossData[0] = accuracy;
+		lossData[1] = error;
+		lossData[2] = Pmacro;
+		lossData[3] = Pmicro;
+		lossData[4] = Rmacro;
+		lossData[5] = Rmicro;
+
+		return lossData;
 
 	}
 			
@@ -1390,6 +1517,16 @@ public class TrainClassLoss{
         
 	}
 
+    public void printLossData(double[] lossData) {
+        if (lossData.length < 7) {
+            System.out.println("Accuracy: "+ lossData[0]);
+            System.out.println("Error:    "+ lossData[1]);
+            System.out.println("Pmacro:   "+ lossData[2]);
+            System.out.println("Pmicro:   "+ lossData[3]);
+            System.out.println("Rmacro:   "+ lossData[4]);
+            System.out.println("Rmicro:   "+ lossData[5]);
+        }
+    }
 
 
 	
