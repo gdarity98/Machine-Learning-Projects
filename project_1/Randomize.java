@@ -27,16 +27,16 @@ public class Randomize {
                     rand = (int)(Math.random()*10 + 1);
                     if (rand == 7) {
                         if (i == 0) {
-                            tokens[i] = String.valueOf(df.format(Math.random()*4.6 + 4.3));
+                            tokens[i] = String.valueOf(df.format(Math.random()*3.6 + 4.3));
                         }
                         else if (i == 1) {
-                            tokens[i]= String.valueOf(df.format(Math.random()*3.4 + 2.0));
+                            tokens[i]= String.valueOf(df.format(Math.random()*2.4 + 2.0));
                         }
                         else if (i == 2) {
-                            tokens[i]= String.valueOf(df.format(Math.random()*6.9 + 1.0));
+                            tokens[i]= String.valueOf(df.format(Math.random()*5.9 + 1.0));
                         }
                         else if (i == 3) {
-                            tokens[i]= String.valueOf(df.format(Math.random()*3.4 + 0.1));
+                            tokens[i]= String.valueOf(df.format(Math.random()*2.4 + 0.1));
                         }
                     }
                 }
@@ -46,6 +46,27 @@ public class Randomize {
                 line = reader.readLine();
             }
             writer.close();
+
+            //----------------------------soybean
+            reader = new BufferedReader(new FileReader("data-sets/soybean-small.data"));
+            writer = new FileWriter("data-sets/soybean-noise.txt");
+
+            line = reader.readLine();
+            while(line != null) {
+                String[] tokens = line.split(",");
+                for (int i= 0; i< tokens.length-1; i++) {
+                    rand = (int)(Math.random()*10 + 1);
+                    if (rand == 7) {
+                        tokens[i] = String.valueOf((int)(Math.random()*6 + 0));
+                    }
+                }
+                writer.write(String.join(",", tokens));
+                writer.write("\n");
+
+                line = reader.readLine();
+            }
+            writer.close();
+
         }catch (IOException e) {
             e.printStackTrace();
         }

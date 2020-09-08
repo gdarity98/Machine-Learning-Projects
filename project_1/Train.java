@@ -3,6 +3,7 @@ package project_1;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -12,10 +13,8 @@ import java.util.List;
  */
 public class Train {
 
-    public IrisData[][] data = new IrisData[3][50];
-    public IrisData[] alldata = new IrisData[150];
-    public double[][] trainedData;
-
+    public IrisData[] alldata;
+    public int numFeatures = 4;
 
     public Train(String fileName) {
         BufferedReader reader; //creates a buffered reader
@@ -42,25 +41,6 @@ public class Train {
             e.printStackTrace();
         }
 
-        //split the data up by class
-        IrisData[] setosa = new IrisData[50];
-        IrisData[] versicolor = new IrisData[50];
-        IrisData[] virginica = new IrisData[50];
-
-        int j= 0, k= 0, l= 0;
-        for (IrisData irisData : irisArray) {
-            if (irisData.getClassNo().contentEquals("Iris-setosa")) {
-                setosa[j++] = irisData;
-            } else if (irisData.getClassNo().contentEquals("Iris-versicolor")) {
-                versicolor[k++] = irisData;
-            } else {
-                virginica[l++] = irisData;
-            }
-        }
-
-        this.data[0] = setosa;
-        this.data[1] = versicolor;
-        this.data[2] = virginica;
         this.alldata = irisArray;
 
     }
@@ -80,29 +60,27 @@ public class Train {
     public double[][] train(IrisData[] classSpecificData) {
         int[][] count = new int[4][4];
         double[][] model = new double[4][4];
-        int numFeatures= 4;
-        int num= 0;
         for (IrisData data : classSpecificData) {
-            for (int i= 0; i< numFeatures; i++) {
-                int[] attributeData = data.getBinnedFeatures();
-                int attr = attributeData[i];
+            if (data != null) {
+                for (int i = 0; i < numFeatures; i++) {
+                    int[] attributeData = data.getBinnedFeatures();
+                    int attr = attributeData[i];
 
-                for (int j= 0; j< numFeatures; j++) {
-                    if (attr == j+1) {
-                        count[i][j]++;
+                    for (int j = 0; j < numFeatures; j++) {
+                        if (attr == j + 1) {
+                            count[i][j]++;
+                        }
                     }
                 }
-
             }
         }
+
         for (int i= 0; i< 4; i++) {
             for (int j= 0; j< 4; j++) {
                 model[i][j] = (double)count[i][j] / (classSpecificData.length + numFeatures);//<-- making denominator smaller = worse accuracy on c3 ?!
             }
 //            System.out.println(Arrays.toString(model[i]));
         }
-
-        this.trainedData = model;
 
         return model;
     }
@@ -118,7 +96,7 @@ public class Train {
         for (int i= 0; i< C.length; i++) {
             double product= 1;
             double[][] trainedData = train(train[i]);
-            for (int j= 0; j< 4; j++) {
+            for (int j= 0; j< numFeatures; j++) {
                 product *= trainedData[j][test[j]-1];
             }
             C[i]= probabilityOfClass * product;
@@ -156,63 +134,63 @@ public class Train {
     public double[] loss(IrisData[] trainData, IrisData[] testData) {
         int count= 0;
         int[][] confusionMatrix = new int[3][3];
-        double[] lossData = new double[5];
+        double[] lossData = new double[6];
 
         //this loops through all irisData's in the test data and fills the confusion matrix
         for (IrisData irisData: testData) {
-            String trueClass = irisData.getClassNo();
-            int[] test = irisData.getBinnedFeatures();
-            String guess = classify(trainData, test);
+            if (irisData != null) {
+                String trueClass = irisData.getClassNo();
+                int[] test = irisData.getBinnedFeatures();
+                String guess = classify(trainData, test);
 
-            if (trueClass.contentEquals("Iris-setosa")) {
-                if (guess.contentEquals(trueClass)) {
-                    count++;
-                    confusionMatrix[0][0]++;
+                if (trueClass.contentEquals("Iris-setosa")) {
+                    if (guess.contentEquals(trueClass)) {
+                        count++;
+                        confusionMatrix[0][0]++;
+                    }
+                    if (guess.contentEquals("Iris-versicolor")) {
+                        confusionMatrix[1][0]++;
+                    }
+                    if (guess.contentEquals("Iris-virginica")) {
+                        confusionMatrix[2][0]++;
+                    }
                 }
-                if (guess.contentEquals("Iris-versicolor")) {
-                    confusionMatrix[1][0]++;
+                if (trueClass.contentEquals("Iris-versicolor")) {
+                    if (guess.contentEquals(trueClass)) {
+                        count++;
+                        confusionMatrix[1][1]++;
+                    }
+                    if (guess.contentEquals("Iris-virginica")) {
+                        confusionMatrix[2][1]++;
+                    }
+                    if (guess.contentEquals("Iris-setosa")) {
+                        confusionMatrix[0][1]++;
+                    }
                 }
-                if (guess.contentEquals("Iris-virginica")) {
-                    confusionMatrix[2][0]++;
+                if (trueClass.contentEquals("Iris-virginica")) {
+                    if (guess.contentEquals(trueClass)) {
+                        count++;
+                        confusionMatrix[2][2]++;
+                    }
+                    if (guess.contentEquals("Iris-setosa")) {
+                        confusionMatrix[0][2]++;
+                    }
+                    if (guess.contentEquals("Iris-versicolor")) {
+                        confusionMatrix[1][2]++;
+                    }
                 }
             }
-            if (trueClass.contentEquals("Iris-versicolor")) {
-                if (guess.contentEquals(trueClass)) {
-                    count++;
-                    confusionMatrix[1][1]++;
-                }
-                if (guess.contentEquals("Iris-virginica")) {
-                    confusionMatrix[2][1]++;
-                }
-                if (guess.contentEquals("Iris-setosa")) {
-                    confusionMatrix[0][1]++;
-                }
-            }
-            if (trueClass.contentEquals("Iris-virginica")) {
-                if (guess.contentEquals(trueClass)) {
-                    count++;
-                    confusionMatrix[2][2]++;
-                }
-                if (guess.contentEquals("Iris-setosa")) {
-                    confusionMatrix[0][2]++;
-                }
-                if (guess.contentEquals("Iris-versicolor")) {
-                    confusionMatrix[1][2]++;
-                }
-            }
-
         }
 
         //Calculating Precision Pmacro and Pmicro for 3 classes
-        double Pmacro= 0;
-        double Pmicro= 0;
-        int TP = 0, TPsum = 0;
-        int FP = 0, FPsum= 0;
+        double Pmacro= 0, Pmicro;
+        int TP, TPsum = 0;
+        int FP, FPsum= 0;
         int i = 0;
         for (int[] row: confusionMatrix) {
 //            System.out.println(Arrays.toString(row));
             TP = row[i];
-            FP = row[(i+1)%2] + row[(i+2)%2];
+            FP = row[(i+1)%3] + row[(i+2)%3];
 
             TPsum += TP;
             FPsum += FP + TP;
@@ -224,11 +202,19 @@ public class Train {
         Pmicro = (double)TPsum / FPsum;
 
         //Calculating Risk Rmacro and Rmicro for 3 classes
-        double Rmacro = 0;
+        double Rmacro = 0, Rmicro;
+        TPsum= 0;
+        int FN, FNsum= 0;
         for (int j= 0; j < 3; j++) {
-            Rmacro += (double)confusionMatrix[0][j] / (confusionMatrix[0][j] + confusionMatrix[1][j] + confusionMatrix[2][j]);
+            TP = confusionMatrix[j][j];
+            FN = confusionMatrix[(j+1)%3][j] + confusionMatrix[(j+2)%3][j];
+            Rmacro += (double)TP / (TP + FN);
+
+            TPsum += TP;
+            FNsum += FN + TP;
         }
         Rmacro /= 3.0;
+        Rmicro = (double)TPsum / FNsum;
 
         double accuracy = (double)count / testData.length;
         double error = 1 - accuracy;
@@ -238,6 +224,7 @@ public class Train {
         lossData[2] = Pmacro;
         lossData[3] = Pmicro;
         lossData[4] = Rmacro;
+        lossData[5] = Rmicro;
 
         return lossData;
     }
@@ -248,47 +235,40 @@ public class Train {
         of the samples for training, and tests on the test samples.
      */
     public void crossValidate(IrisData[] data) {
-        int fold = 10;  //10-fold cross validation
-        /*
+        IrisData[] train = new IrisData[135], test;
+        IrisData[][] split= new IrisData[10][15];
+        double[] lossData = new double[6];
 
-             Randomly add 15 samples to a test set, train on everything else, repeat 10x
+        //shuffle
+        List<IrisData> temp = Arrays.asList(data);
+        Collections.shuffle(temp);
+        IrisData[] shuffled = new IrisData[data.length];
+        temp.toArray(shuffled);
 
-         */
-        IrisData[] train = new IrisData[135], test = new IrisData[15];
-        double[] lossData = new double[5];
-
-        //go through 10x, shuffle data each time
-        for (int pass= 0; pass < 10; pass++) {
-            List<IrisData> temp = Arrays.asList(data);
-            Collections.shuffle(temp);
-            IrisData[] shuffled = new IrisData[data.length];
-            temp.toArray(shuffled);
-
-            //separate data into train[] and test[], with test[] having 5 samples from each class
-            int i= 0, j= 0;
-            int l= 0, m= 0, n= 0;
-            for (IrisData irisData : shuffled) {
-                if (i < 15) {
-                    if (irisData.getClassNo().contentEquals("Iris-setosa") && l< 5) {
-                        test[i++] = irisData;
-                        l++;
-                    }
-                    else if (irisData.getClassNo().contentEquals("Iris-versicolor") && m< 5) {
-                        test[i++] = irisData;
-                        m++;
-                    }
-                    else if (irisData.getClassNo().contentEquals("Iris-virginica") && n< 5) {
-                        test[i++] = irisData;
-                        n++;
-                    }
-                    else {
-                        train[j++] = irisData;
-                    }
+        //split into 10 arrays
+        int k= 0;
+        for (int i= 0; i< 10; i++) {
+            for (int j= 0; j< 15; j++) {
+                if (k >= data.length) {
+                    split[i][j] = null;
                 }
                 else {
-                    train[j++] = irisData;
+                    split[i][j] = shuffled[k++];
                 }
             }
+        }
+
+        //go through 10x
+        for (int pass= 0; pass < 10; pass++) {
+
+            //train pass to (pass+9)%10, test on (pass+10)%10
+            List<IrisData> list = new ArrayList<>();
+            for (int i= 0; i< 9; i++) {
+                list.addAll(Arrays.asList(split[(i+pass)%10]));
+            }
+
+            list.toArray(train);
+            test = split[(pass+9)%10];
 
             //add lossData from this iteration to lossData[]
             int c= 0;
@@ -301,7 +281,7 @@ public class Train {
         //average lossData
         int i= 0;
         for (double d: lossData) {
-            lossData[i++] = d /= 10;
+            lossData[i++] = d / 10;
         }
 
         printLossData(lossData);
@@ -312,17 +292,19 @@ public class Train {
      */
     public IrisData[][] separateByClass(IrisData[] data) {
 
-        IrisData[][] classData= new IrisData[3][data.length / 3];
+        IrisData[][] classData= new IrisData[3][50];
         int i= 0, j= 0, k= 0;
         for (IrisData irisData: data) {
-            if (irisData.getClassNo().contentEquals("Iris-setosa")) {
-                classData[0][i++] = irisData;
-            }
-            if (irisData.getClassNo().contentEquals("Iris-versicolor")) {
-                classData[1][j++] = irisData;
-            }
-            if (irisData.getClassNo().contentEquals("Iris-virginica")) {
-                classData[2][k++] = irisData;
+            if (irisData != null) {
+                if (irisData.getClassNo().contentEquals("Iris-setosa")) {
+                    classData[0][i++] = irisData;
+                }
+                if (irisData.getClassNo().contentEquals("Iris-versicolor")) {
+                    classData[1][j++] = irisData;
+                }
+                if (irisData.getClassNo().contentEquals("Iris-virginica")) {
+                    classData[2][k++] = irisData;
+                }
             }
         }
 
@@ -333,29 +315,37 @@ public class Train {
         Print data from loss()
      */
     public void printLossData(double[] lossData) {
-        if (lossData.length < 6) {
+        if (lossData.length < 7) {
             System.out.println("Accuracy: "+ lossData[0]);
             System.out.println("Error:    "+ lossData[1]);
             System.out.println("Pmacro:   "+ lossData[2]);
             System.out.println("Pmicro:   "+ lossData[3]);
             System.out.println("Rmacro:   "+ lossData[4]);
+            System.out.println("Rmicro:   "+ lossData[5]);
         }
     }
 
     public static void main(String[] args) {
 
         Train train= new Train("data-sets/iris.data"); //Model()
+        Train trainNoise = new Train("data-sets/iris-noise.txt");
+
         System.out.println("Iris-data --------------------------------> train on all data, test on all data");
         train.printLossData(train.loss(train.alldata, train.alldata));     //-->92%
 
-        System.out.println("\nCross-validate----------------------------------");
+        System.out.println("\nCross-validate---------------");
+        System.out.println("\n\tRegular data");
         train.crossValidate(train.alldata);
+        System.out.println("\n\tNoise data");
+        train.crossValidate(trainNoise.alldata);
 
-        Train trainNoise = new Train("data-sets/iris-noise.txt");
         System.out.println("\nIris-noise ------------------------------> train on all data, test on all data");
         trainNoise.printLossData(trainNoise.loss(trainNoise.alldata, trainNoise.alldata));    //-->90%
 
-        System.out.println("\nCross-validate-------------------------------------");
+        System.out.println("\nCross-validate--------------");
+        System.out.println("\n\tRegular data");
+        trainNoise.crossValidate(train.alldata);
+        System.out.println("\n\tNoise data");
         trainNoise.crossValidate(trainNoise.alldata);
         
     }
