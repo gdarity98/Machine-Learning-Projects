@@ -114,7 +114,7 @@ public class DataMain {
         
 //BREAST CANCER DATA NORMAL 
      //#1., #2., & #3.       
-       System.out.println("Expected BreastCancerData Normal");
+       System.out.println("Expected BreastCancerData Normal:");
         TrainClassLoss trainBenMal = new TrainClassLoss(sA);
 
      //END OF #1., #2., & #3. 
@@ -123,7 +123,7 @@ public class DataMain {
         
 //BREAST CANCER DATA NOISE
         //#1., #2., & #3. 
-        System.out.println("Expected BreastCancerData Noise");
+        System.out.println("Expected BreastCancerData Noise:");
         TrainClassLoss trainBenMalNoise = new TrainClassLoss(sANoise);
 
        //END OF  #1., #2., & #3. 
@@ -133,7 +133,7 @@ public class DataMain {
         
 //HOUSE VOTE DATA NORMAL 
        //#1., #2., & #3. 
-        System.out.println("Expected HouseVotesData Normal");
+        System.out.println("Expected HouseVotesData Normal:");
        TrainClassLoss trainHouseVotes = new TrainClassLoss(sA2);
     
        //END OF #1., #2., & #3. 
@@ -143,7 +143,7 @@ public class DataMain {
 
 //HOUSE VOTE DATA NOISE
        //#1., #2., & #3. 
-       System.out.println("Expected HouseVotesData Noise");
+       System.out.println("Expected HouseVotesData Noise:");
        TrainClassLoss trainHouseVotesNoise = new TrainClassLoss(sA2Noise);
        //END OF #1., #2., & #3. 
       
@@ -151,7 +151,7 @@ public class DataMain {
        
 //GLASS DATA NORMAL
        //#1., #2., & #3. 
-       System.out.println("Expected GlassData Normal");
+       System.out.println("Expected GlassData Normal:");
        TrainClassLoss trainGlass = new TrainClassLoss(sA3);
        //END OF #1., #2., & #3. 
       
@@ -159,7 +159,7 @@ public class DataMain {
        
 //GLASS DATA NOISE
        //#1., #2., & #3. 
-       System.out.println("Expected GlassData Noise");
+       System.out.println("Expected GlassData Noise:");
        TrainClassLoss glassNoise = new TrainClassLoss(sA3Noise);
        //END OF #1., #2., & #3. 
       
@@ -272,13 +272,13 @@ public class DataMain {
     		   lossData[c++] =+ d;
     	   }
 
-    	   i = 0;
-    	   for(double d: lossData) {
-    		   lossData[i++] = d/= 10;
-    	   }
-
-    	   //Trainer.printLossData(lossData);
       }
+       
+	   i = 0;
+	   for(double d: lossData) {
+		   lossData[i++] = d/= 10;
+	   }
+
        Trainer.printLossData(lossData);
      //END Breast Cancer Data Normal
      
@@ -384,13 +384,12 @@ public class DataMain {
     		   lossDataN[c++] =+ d;
     	   }
 
-    	   i = 0;
-    	   for(double d: lossDataN) {
-    		   lossDataN[i++] = d/= 10;
-    	   }
-
     	   //Trainer.printLossData(lossDataN);
       }
+	   i = 0;
+	   for(double d: lossDataN) {
+		   lossDataN[i++] = d/= 10;
+	   }
        Trainer.printLossData(lossDataN);
      //END Breast Cancer Noise
        
@@ -514,14 +513,14 @@ public class DataMain {
     		   lossData2[c++] =+ d;
     	   }
 
-    	   i = 0;
-    	   for(double d: lossData2) {
-    		   lossData2[i++] = d/= 10;
-    	   }
 
     	   //Trainer.printLossData(lossData2);
       }   
- 
+
+	   i = 0;
+	   for(double d: lossData2) {
+		   lossData2[i++] = d/= 10;
+	   }
        Trainer.printLossData(lossData2);
        
      //END House Votes Normal
@@ -646,14 +645,14 @@ public class DataMain {
     	   for(double d: lossTemp) {
     		   lossData2N[c++] =+ d;
     	   }
-
-    	   i = 0;
-    	   for(double d: lossData2N) {
-    		   lossData2N[i++] = d/= 10;
-    	   }
-
     	   //Trainer.printLossData(lossData2N);
-      }   
+      }
+
+	   i = 0;
+	   for(double d: lossData2N) {
+		   lossData2N[i++] = d/= 10;
+	   }
+
        Trainer.printLossData(lossData2N);
        
      //END House Votes Noise
@@ -848,13 +847,12 @@ public class DataMain {
     		   lossData3[c++] =+ d;
     	   }
 
-    	   i = 0;
-    	   for(double d: lossData3) {
-    		   lossData3[i++] = d/= 10;
-    	   }
-
     	   //Trainer.printLossData(lossData3);
       }   
+	   i = 0;
+	   for(double d: lossData3) {
+		   lossData3[i++] = d/= 10;
+	   }
        Trainer.printLossData(lossData3);
        
      //END Glass Noise
@@ -1044,18 +1042,19 @@ public class DataMain {
            		trainDataCont,
            		trainDataTableW,
            		trainDataHeadL);
+    	   
     	   for(double d: lossTemp) {
     		   lossData3N[c++] =+ d;
     	   }
 
-    	   i = 0;
-    	   for(double d: lossData3N) {
-    		   lossData3N[i++] = d/= 10;
-    	   }
 
     	   //Trainer.printLossData(lossData3N);
       }   
-        
+       
+	   i = 0;
+	   for(double d: lossData3N) {
+		   lossData3N[i++] = d/= 10;
+	   }
        Trainer.printLossData(lossData3N);     
 
      //END Glass Noise
