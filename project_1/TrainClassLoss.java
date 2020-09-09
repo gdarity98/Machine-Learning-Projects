@@ -228,7 +228,7 @@ public class TrainClassLoss{
 	    for (int[] row: confusionMatrix) {
 	       // System.out.println(Arrays.toString(row));
 	        TP = row[i];
-	        FP = row[(i+1)%2] + row[(i+2)%2];
+	        FP = row[(i+1)%2];
 
 	        TPsum += TP;
 	        FPsum += FP + TP;
@@ -377,7 +377,7 @@ public class TrainClassLoss{
 	    for (int[] row: confusionMatrix) {
 	        //System.out.println(Arrays.toString(row));
 	        TP = row[i];
-	        FP = row[(i+1)%2] + row[(i+2)%2];
+	        FP = row[(i+1)%2];
 
 	        TPsum += TP;
 	        FPsum += FP + TP;
@@ -538,7 +538,7 @@ public class TrainClassLoss{
 	    for (int[] row: confusionMatrix) {
 	        //System.out.println(Arrays.toString(row));
 	        TP = row[i];
-	        FP = row[(i+1)%2] + row[(i+2)%2];
+	        FP = row[(i+1)%2];
 
 	        TPsum += TP;
 	        FPsum += FP + TP;
@@ -698,7 +698,7 @@ public class TrainClassLoss{
 	    for (int[] row: confusionMatrix) {
 	        //System.out.println(Arrays.toString(row));
 	        TP = row[i];
-	        FP = row[(i+1)%2] + row[(i+2)%2];
+	        FP = row[(i+1)%2];
 
 	        TPsum += TP;
 	        FPsum += FP + TP;
@@ -1011,7 +1011,7 @@ public class TrainClassLoss{
 	    for (int[] row: confusionMatrix) {
 	        //System.out.println(Arrays.toString(row));
 	        TP = row[i];
-	        FP = row[(i+1)%2] + row[(i+2)%2];
+	        FP = row[(i+1)%6] + row[(i+2)%6] + row[(i+3)%6] + row[(i+4)%6] + row[(i+5)%6];
 
 	        TPsum += TP;
 	        FPsum += FP + TP;
@@ -1029,9 +1029,9 @@ public class TrainClassLoss{
 	    double Rmicro =0;
 	    TPsum=0;
 	    int FN, FNsum =0;
-	    for (int j= 0; j < 2; j++) {
+	    for (int j= 0; j < 6; j++) {
 	    	TP = confusionMatrix[j][j];
-	    	FN = confusionMatrix[(j+1)%2][j] + confusionMatrix[(j+2)%2][j] + confusionMatrix[(j+3)%2][j] + confusionMatrix[(j+4)%2][j] + confusionMatrix[(j+5)%2][j];
+	    	FN = confusionMatrix[(j+1)%6][j] + confusionMatrix[(j+2)%6][j] + confusionMatrix[(j+3)%6][j] + confusionMatrix[(j+4)%6][j] + confusionMatrix[(j+5)%6][j];
 	        Rmacro += (double)TP/(TP+FN);
 	        TPsum += TP;
 	        FNsum += FN + TP;
@@ -1322,8 +1322,7 @@ public class TrainClassLoss{
 	    for (int[] row: confusionMatrix) {
 	        //System.out.println(Arrays.toString(row));
 	        TP = row[i];
-	        FP = row[(i+1)%2] + row[(i+2)%2];
-
+	        FP = row[(i+1)%6] + row[(i+2)%6] + row[(i+3)%6] + row[(i+4)%6] + row[(i+5)%6];
 	        TPsum += TP;
 	        FPsum += FP + TP;
 
@@ -1340,9 +1339,9 @@ public class TrainClassLoss{
 	    double Rmicro =0;
 	    TPsum=0;
 	    int FN, FNsum =0;
-	    for (int j= 0; j < 2; j++) {
+	    for (int j= 0; j < 6; j++) {
 	    	TP = confusionMatrix[j][j];
-	    	FN = confusionMatrix[(j+1)%2][j] + confusionMatrix[(j+2)%2][j] + confusionMatrix[(j+3)%2][j] + confusionMatrix[(j+4)%2][j] + confusionMatrix[(j+5)%2][j];
+	    	FN = confusionMatrix[(j+1)%6][j] + confusionMatrix[(j+2)%6][j] + confusionMatrix[(j+3)%6][j] + confusionMatrix[(j+4)%6][j] + confusionMatrix[(j+5)%6][j];
 	        Rmacro += (double)TP/(TP+FN);
 	        TPsum += TP;
 	        FNsum += FN + TP;
