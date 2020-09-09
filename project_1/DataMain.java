@@ -269,7 +269,7 @@ public class DataMain {
     	   int c = 0;
     	   double[] lossTemp = Trainer.loss(test,xBen,xMal,trainDataBen,trainDataMal);
     	   for(double d: lossTemp) {
-    		   lossData[c++] =+ d;
+    		   lossData[c++] += d;
     	   }
 
       }
@@ -381,7 +381,7 @@ public class DataMain {
     	   int c = 0;
     	   double[] lossTemp = Trainer.loss(testN,xBen,xMal,trainDataBen,trainDataMal);
     	   for(double d: lossTemp) {
-    		   lossDataN[c++] =+ d;
+    		   lossDataN[c++] += d;
     	   }
 
     	   //Trainer.printLossData(lossDataN);
@@ -510,7 +510,7 @@ public class DataMain {
     	   int c = 0;
     	   double[] lossTemp = Trainer.loss(test2,xDemo,xRepub,trainDataDemo,trainDataRepub);
     	   for(double d: lossTemp) {
-    		   lossData2[c++] =+ d;
+    		   lossData2[c++] += d;
     	   }
 
 
@@ -643,7 +643,7 @@ public class DataMain {
     	   int c = 0;
     	   double[] lossTemp = Trainer.loss(test2N,xDemo,xRepub,trainDataDemo,trainDataRepub);
     	   for(double d: lossTemp) {
-    		   lossData2N[c++] =+ d;
+    		   lossData2N[c++] += d;
     	   }
     	   //Trainer.printLossData(lossData2N);
       }
@@ -844,7 +844,7 @@ public class DataMain {
            		trainDataTableW,
            		trainDataHeadL);
     	   for(double d: lossTemp) {
-    		   lossData3[c++] =+ d;
+    		   lossData3[c++] += d;
     	   }
 
     	   //Trainer.printLossData(lossData3);
@@ -1044,7 +1044,7 @@ public class DataMain {
            		trainDataHeadL);
     	   
     	   for(double d: lossTemp) {
-    		   lossData3N[c++] =+ d;
+    		   lossData3N[c++] += d;
     	   }
 
 
