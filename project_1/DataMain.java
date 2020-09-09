@@ -114,8 +114,8 @@ public class DataMain {
         
 //BREAST CANCER DATA NORMAL 
      //#1., #2., & #3.       
-       
-        TrainClassLoss trainBenMal = new TrainClassLoss(sA); 
+       System.out.println("Expected BreastCancerData Normal");
+        TrainClassLoss trainBenMal = new TrainClassLoss(sA);
 
      //END OF #1., #2., & #3. 
         
@@ -123,7 +123,7 @@ public class DataMain {
         
 //BREAST CANCER DATA NOISE
         //#1., #2., & #3. 
-        
+        System.out.println("Expected BreastCancerData Noise");
         TrainClassLoss trainBenMalNoise = new TrainClassLoss(sANoise);
 
        //END OF  #1., #2., & #3. 
@@ -133,6 +133,7 @@ public class DataMain {
         
 //HOUSE VOTE DATA NORMAL 
        //#1., #2., & #3. 
+        System.out.println("Expected HouseVotesData Normal");
        TrainClassLoss trainHouseVotes = new TrainClassLoss(sA2);
     
        //END OF #1., #2., & #3. 
@@ -142,6 +143,7 @@ public class DataMain {
 
 //HOUSE VOTE DATA NOISE
        //#1., #2., & #3. 
+       System.out.println("Expected HouseVotesData Noise");
        TrainClassLoss trainHouseVotesNoise = new TrainClassLoss(sA2Noise);
        //END OF #1., #2., & #3. 
       
@@ -149,6 +151,7 @@ public class DataMain {
        
 //GLASS DATA NORMAL
        //#1., #2., & #3. 
+       System.out.println("Expected GlassData Normal");
        TrainClassLoss trainGlass = new TrainClassLoss(sA3);
        //END OF #1., #2., & #3. 
       
@@ -156,6 +159,7 @@ public class DataMain {
        
 //GLASS DATA NOISE
        //#1., #2., & #3. 
+       System.out.println("Expected GlassData Noise");
        TrainClassLoss glassNoise = new TrainClassLoss(sA3Noise);
        //END OF #1., #2., & #3. 
       
@@ -164,7 +168,7 @@ public class DataMain {
        
 //CROSS VALIDATION
        //Breast Cancer Data Normal
-       System.out.println("\nBreast Cancer Data Cross Validation:");
+       System.out.println("\n Cross Validation Breast Cancer Data:");
        
        TrainClassLoss  Trainer = new TrainClassLoss();
        
@@ -273,13 +277,14 @@ public class DataMain {
     		   lossData[i++] = d/= 10;
     	   }
 
-    	   Trainer.printLossData(lossData);
+    	   //Trainer.printLossData(lossData);
       }
+       Trainer.printLossData(lossData);
      //END Breast Cancer Data Normal
      
      //Breast Cancer Data Noise
        //TrainClassLoss  Trainer = new TrainClassLoss();
-       System.out.println("\nBreast Cancer Noise Data Cross Validation:");
+       System.out.println("\nCross Validation Breast Cancer Noise Data:");
        
        BreastCancerDataNoise[] trainN = new BreastCancerDataNoise[630]; //had to make breast cancer data even
        
@@ -384,13 +389,14 @@ public class DataMain {
     		   lossDataN[i++] = d/= 10;
     	   }
 
-    	   Trainer.printLossData(lossDataN);
+    	   //Trainer.printLossData(lossDataN);
       }
+       Trainer.printLossData(lossDataN);
      //END Breast Cancer Noise
        
      //House Votes Data Normal
        
-       System.out.println("\nHouse Votes Data Cross Validation:");
+       System.out.println("\nCross Validation House Votes Data:");
        
        HouseVotesData[] train2 = new HouseVotesData[400]; //had to make breast cancer data even
  
@@ -513,15 +519,17 @@ public class DataMain {
     		   lossData2[i++] = d/= 10;
     	   }
 
-    	   Trainer.printLossData(lossData2);
+    	   //Trainer.printLossData(lossData2);
       }   
  
+       Trainer.printLossData(lossData2);
+       
      //END House Votes Normal
        
      //House Votes Data Noise
        
        
-       System.out.println("\nHouse Votes Noise Data Cross Validation:");
+       System.out.println("\n Cross Validation House Votes Noise Data:");
        
        HouseVotesDataNoise[] train2N = new HouseVotesDataNoise[400]; //had to make breast cancer data even
  
@@ -644,16 +652,16 @@ public class DataMain {
     		   lossData2N[i++] = d/= 10;
     	   }
 
-    	   Trainer.printLossData(lossData2N);
+    	   //Trainer.printLossData(lossData2N);
       }   
- 
+       Trainer.printLossData(lossData2N);
        
      //END House Votes Noise
        
      //Glass Data Normal
        
        
-       System.out.println("\nGlass Data Cross Validation:");
+       System.out.println("\n Cross Validation Glass Data:");
        
        GlassData[] train3 = new GlassData[200]; //had to make breast cancer data even
  
@@ -845,15 +853,15 @@ public class DataMain {
     		   lossData3[i++] = d/= 10;
     	   }
 
-    	   Trainer.printLossData(lossData3);
+    	   //Trainer.printLossData(lossData3);
       }   
-        
+       Trainer.printLossData(lossData3);
        
      //END Glass Noise
        
      //Glass Data Normal
        
-       System.out.println("\nGlass Data Cross Validation:");
+       System.out.println("\n Cross Validation Glass Data:");
        
        GlassDataNoise[] train3N = new GlassDataNoise[200]; //had to make breast cancer data even
  
@@ -1045,14 +1053,58 @@ public class DataMain {
     		   lossData3N[i++] = d/= 10;
     	   }
 
-    	   Trainer.printLossData(lossData3N);
+    	   //Trainer.printLossData(lossData3N);
       }   
         
-              
+       Trainer.printLossData(lossData3N);     
 
      //END Glass Noise
       
-         
+     //Iris Data
+       Train trainIris= new Train("C:\\Users\\gdari\\Desktop\\Important\\School\\CSCI 447\\Projects\\src\\project_1\\data-sets\\iris.data"); //Model()
+       Train trainIrisNoise = new Train("C:\\Users\\gdari\\Desktop\\Important\\School\\CSCI 447\\Projects\\src\\project_1\\data-sets\\iris-noise.txt");
+
+       System.out.println("Iris-data --------------------------------> train on all data, test on all data");
+       trainIris.printLossData(trainIris.loss(trainIris.alldata, trainIris.alldata));     //-->92%
+
+       System.out.println("\nCross-validate---------------");
+       System.out.println("\n\tRegular data");
+       trainIris.crossValidate(trainIris.alldata);
+       System.out.println("\n\tNoise data");
+       trainIris.crossValidate(trainIrisNoise.alldata);
+
+       System.out.println("\nIris-noise ------------------------------> train on all data, test on all data");
+       trainIrisNoise.printLossData(trainIrisNoise.loss(trainIrisNoise.alldata, trainIrisNoise.alldata));    //-->90%
+
+       System.out.println("\nCross-validate--------------");
+       System.out.println("\n\tRegular data");
+       trainIrisNoise.crossValidate(trainIris.alldata);
+       System.out.println("\n\tNoise data");
+       trainIrisNoise.crossValidate(trainIrisNoise.alldata);
+     //END Iris Data
+    
+     //Soybean Data
+       SoybeanModel soy = new SoybeanModel("C:\\Users\\gdari\\Desktop\\Important\\School\\CSCI 447\\Projects\\src\\project_1\\data-sets\\soybean-small.data");
+       SoybeanModel soyNoise = new SoybeanModel("C:\\Users\\gdari\\Desktop\\Important\\School\\CSCI 447\\Projects\\src\\project_1\\data-sets\\soybean-noise.txt");
+
+       System.out.println("Soybean-data------------------->train on all, test on all");
+       soy.printLossData(soy.loss(soy.alldata, soy.alldata));
+
+       System.out.println("\nCross-validate-----------");
+       System.out.println("\n\tRegular data");
+       soy.crossValidate(soy.alldata);
+       System.out.println("\n\tNoise data");
+       soy.crossValidate(soyNoise.alldata);
+
+       System.out.println("\nSoybean-noise------------------>train on all, test on all");
+       soyNoise.printLossData(soyNoise.loss(soyNoise.alldata, soyNoise.alldata));
+
+       System.out.println("\nCross-validate-----------");
+       System.out.println("\n\tRegular data");
+       soyNoise.crossValidate(soy.alldata);
+       System.out.println("\n\tNoise data");
+       soyNoise.crossValidate(soyNoise.alldata);
+     //END Soybean Data
 //END CROSS VALIDATION
     }
 }

@@ -322,6 +322,7 @@ public class Train {
             System.out.println("Pmicro:   "+ lossData[3]);
             System.out.println("Rmacro:   "+ lossData[4]);
             System.out.println("Rmicro:   "+ lossData[5]);
+            System.out.println("\n");
         }
     }
 

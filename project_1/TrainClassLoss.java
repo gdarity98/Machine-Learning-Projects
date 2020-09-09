@@ -142,7 +142,8 @@ public class TrainClassLoss{
         //Classifying one set of data for one set of data
         	//double c1 = xBen*(trainDataBen[0][4] * trainDataBen[1][0] * trainDataBen[2][0] * trainDataBen[3][0] * trainDataBen[4][1] * trainDataBen[5][0] * trainDataBen[6][1] * trainDataBen[7][0] * trainDataBen[8][0]);
         	//double c2 = xMal*(trainDataMal[0][4] * trainDataMal[1][0] * trainDataMal[2][0] * trainDataMal[3][0] * trainDataMal[4][1] * trainDataMal[5][0] * trainDataMal[6][1] * trainDataMal[7][0] * trainDataMal[8][0]);
-        loss(sA,xBen,xMal,trainDataBen,trainDataMal);
+        double[] lossArray = loss(sA,xBen,xMal,trainDataBen,trainDataMal);
+        printLossData(lossArray);
         
 	}
 		
@@ -225,7 +226,7 @@ public class TrainClassLoss{
 	    int FP = 0, FPsum= 0;
 	    int i = 0;
 	    for (int[] row: confusionMatrix) {
-	        System.out.println(Arrays.toString(row));
+	       // System.out.println(Arrays.toString(row));
 	        TP = row[i];
 	        FP = row[(i+1)%2] + row[(i+2)%2];
 
@@ -310,8 +311,8 @@ public class TrainClassLoss{
         //Classifying one set of data for one set of data
         	//double c1 = xBen*(trainDataBen[0][4] * trainDataBen[1][0] * trainDataBen[2][0] * trainDataBen[3][0] * trainDataBen[4][1] * trainDataBen[5][0] * trainDataBen[6][1] * trainDataBen[7][0] * trainDataBen[8][0]);
         	//double c2 = xMal*(trainDataMal[0][4] * trainDataMal[1][0] * trainDataMal[2][0] * trainDataMal[3][0] * trainDataMal[4][1] * trainDataMal[5][0] * trainDataMal[6][1] * trainDataMal[7][0] * trainDataMal[8][0]);
-        loss(sA,xBenNoise,xMalNoise,trainDataBenNoise,trainDataMalNoise);
-        
+        double[] lossArray = loss(sA,xBenNoise,xMalNoise,trainDataBenNoise,trainDataMalNoise);
+        printLossData(lossArray);
 	}
 	
 	public float train(BreastCancerDataNoise[] classSpecificData, int targetInstance, int feature) {
@@ -374,7 +375,7 @@ public class TrainClassLoss{
 	    int FP = 0, FPsum= 0;
 	    int i = 0;
 	    for (int[] row: confusionMatrix) {
-	        System.out.println(Arrays.toString(row));
+	        //System.out.println(Arrays.toString(row));
 	        TP = row[i];
 	        FP = row[(i+1)%2] + row[(i+2)%2];
 
@@ -471,8 +472,8 @@ public class TrainClassLoss{
         	}
         }
         
-        loss(sA,xDemo,xRepub,trainDataDemo,trainDataRepub);
-        
+        double[] lossArray = loss(sA,xDemo,xRepub,trainDataDemo,trainDataRepub);
+        printLossData(lossArray);
 	}
 			
 	public float train(HouseVotesData[] classSpecificData, String targetInstance, int feature) {
@@ -535,7 +536,7 @@ public class TrainClassLoss{
 	    int FP = 0, FPsum= 0;
 	    int i = 0;
 	    for (int[] row: confusionMatrix) {
-	        System.out.println(Arrays.toString(row));
+	        //System.out.println(Arrays.toString(row));
 	        TP = row[i];
 	        FP = row[(i+1)%2] + row[(i+2)%2];
 
@@ -631,8 +632,8 @@ public class TrainClassLoss{
         	}
         }
         
-        loss(sA,xDemoNoise,xRepubNoise,trainDataDemoNoise,trainDataRepubNoise);
-        
+        double[] lossArray = loss(sA,xDemoNoise,xRepubNoise,trainDataDemoNoise,trainDataRepubNoise);
+        printLossData(lossArray);
 	}
 	
 	public float train(HouseVotesDataNoise[] classSpecificData, String targetInstance, int feature) {
@@ -695,7 +696,7 @@ public class TrainClassLoss{
 	    int FP = 0, FPsum= 0;
 	    int i = 0;
 	    for (int[] row: confusionMatrix) {
-	        System.out.println(Arrays.toString(row));
+	        //System.out.println(Arrays.toString(row));
 	        TP = row[i];
 	        FP = row[(i+1)%2] + row[(i+2)%2];
 
@@ -826,13 +827,13 @@ public class TrainClassLoss{
         //Classifying one set of data for one set of data
         	//double c1 = xBen*(trainDataBen[0][4] * trainDataBen[1][0] * trainDataBen[2][0] * trainDataBen[3][0] * trainDataBen[4][1] * trainDataBen[5][0] * trainDataBen[6][1] * trainDataBen[7][0] * trainDataBen[8][0]);
         	//double c2 = xMal*(trainDataMal[0][4] * trainDataMal[1][0] * trainDataMal[2][0] * trainDataMal[3][0] * trainDataMal[4][1] * trainDataMal[5][0] * trainDataMal[6][1] * trainDataMal[7][0] * trainDataMal[8][0]);
-        loss(sA,xBWFP,xBWNFP,xVWFP,xCont,xTableW,xHeadL,trainDataBWFP,
+        double[] lossArray = loss(sA,xBWFP,xBWNFP,xVWFP,xCont,xTableW,xHeadL,trainDataBWFP,
         		trainDataBWNFP,
         		trainDataVWFP,
         		trainDataCont,
         		trainDataTableW,
         		trainDataHeadL);
-        
+        printLossData(lossArray);
 	}
 		
 	public double train(GlassData[] classSpecificData, int targetInstance, int feature) {
@@ -1008,7 +1009,7 @@ public class TrainClassLoss{
 	    int FP = 0, FPsum= 0;
 	    int i = 0;
 	    for (int[] row: confusionMatrix) {
-	        System.out.println(Arrays.toString(row));
+	        //System.out.println(Arrays.toString(row));
 	        TP = row[i];
 	        FP = row[(i+1)%2] + row[(i+2)%2];
 
@@ -1137,13 +1138,13 @@ public class TrainClassLoss{
      //Classifying one set of data for one set of data
      	//double c1 = xBen*(trainDataBen[0][4] * trainDataBen[1][0] * trainDataBen[2][0] * trainDataBen[3][0] * trainDataBen[4][1] * trainDataBen[5][0] * trainDataBen[6][1] * trainDataBen[7][0] * trainDataBen[8][0]);
      	//double c2 = xMal*(trainDataMal[0][4] * trainDataMal[1][0] * trainDataMal[2][0] * trainDataMal[3][0] * trainDataMal[4][1] * trainDataMal[5][0] * trainDataMal[6][1] * trainDataMal[7][0] * trainDataMal[8][0]);
-     loss(sA,xBWFPN,xBWNFPN,xVWFPN,xContN,xTableWN,xHeadLN,trainDataBWFPN,
+     double[] lossArray = loss(sA,xBWFPN,xBWNFPN,xVWFPN,xContN,xTableWN,xHeadLN,trainDataBWFPN,
      		trainDataBWNFPN,
      		trainDataVWFPN,
      		trainDataContN,
      		trainDataTableWN,
      		trainDataHeadLN);
-     
+     printLossData(lossArray);
 	}
 		
 	public double train(GlassDataNoise[] classSpecificData, int targetInstance, int feature) {
@@ -1319,7 +1320,7 @@ public class TrainClassLoss{
 	    int FP = 0, FPsum= 0;
 	    int i = 0;
 	    for (int[] row: confusionMatrix) {
-	        System.out.println(Arrays.toString(row));
+	        //System.out.println(Arrays.toString(row));
 	        TP = row[i];
 	        FP = row[(i+1)%2] + row[(i+2)%2];
 
@@ -1525,6 +1526,7 @@ public class TrainClassLoss{
             System.out.println("Pmicro:   "+ lossData[3]);
             System.out.println("Rmacro:   "+ lossData[4]);
             System.out.println("Rmicro:   "+ lossData[5]);
+            System.out.println("\n");
         }
     }
 

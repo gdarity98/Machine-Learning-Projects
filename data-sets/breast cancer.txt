@@ -1,3 +1,0 @@
-missing attributes denoted by ?
-Make an ? a random number between 1-10
-	unless ? is the last number in line.
