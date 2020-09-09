@@ -1,0 +1,228 @@
+Expected BreastCancerData Normal
+Accuracy: 0.9728183118741058
+Error:    0.027181688125894166
+Pmacro:   0.4910243719122648
+Pmicro:   0.49311094996374183
+Rmacro:   0.9763086847016615
+Rmicro:   0.9728183118741058
+
+
+Expected BreastCancerData Noise
+Accuracy: 0.9628040057224606
+Error:    0.03719599427753939
+Pmacro:   0.4886389886389887
+Pmicro:   0.4905247813411079
+Rmacro:   0.9627688488648101
+Rmicro:   0.9628040057224606
+
+
+Expected HouseVotesData Normal
+Accuracy: 0.9103448275862069
+Error:    0.08965517241379306
+Pmacro:   0.4739909345996115
+Pmicro:   0.47653429602888087
+Rmacro:   0.9137239165329053
+Rmicro:   0.9103448275862069
+
+
+Expected HouseVotesData Noise
+Accuracy: 0.903448275862069
+Error:    0.096551724137931
+Pmacro:   0.31476931476931475
+Pmicro:   0.4746376811594203
+Rmacro:   0.9047953451043338
+Rmicro:   0.903448275862069
+
+
+Expected GlassData Normal
+Accuracy: 0.602803738317757
+Error:    0.397196261682243
+Pmacro:   0.5903221833783568
+Pmicro:   0.4690909090909091
+Rmacro:   0.06678532078989745
+Rmicro:   0.21164021164021163
+
+
+Expected GlassData Noise
+Accuracy: 0.5467289719626168
+Error:    0.4532710280373832
+Pmacro:   0.5746409829825917
+Pmicro:   0.47560975609756095
+Rmacro:   0.06506147540983606
+Rmicro:   0.21100917431192662
+
+
+
+ Cross Validation Breast Cancer Data:
+Accuracy: 0.009728183118741058
+Error:    0.09027181688125893
+Pmacro:   0.04895833333333334
+Pmicro:   0.04927536231884058
+Rmacro:   0.09787234042553192
+Rmicro:   0.09714285714285714
+
+
+
+Cross Validation Breast Cancer Noise Data:
+Accuracy: 0.009728183118741058
+Error:    0.09027181688125893
+Pmacro:   0.04943181818181818
+Pmicro:   0.04927536231884058
+Rmacro:   0.0962962962962963
+Rmicro:   0.09714285714285714
+
+
+
+Cross Validation House Votes Data:
+Accuracy: 0.009885057471264367
+Error:    0.09011494252873563
+Pmacro:   0.049193548387096775
+Pmicro:   0.04942528735632184
+Rmacro:   0.09827586206896552
+Rmicro:   0.09772727272727273
+
+
+
+ Cross Validation House Votes Noise Data:
+Accuracy: 0.009195402298850575
+Error:    0.09080459770114943
+Pmacro:   0.03165064102564103
+Pmicro:   0.047619047619047616
+Rmacro:   0.09041394335511983
+Rmicro:   0.09090909090909091
+
+
+
+ Cross Validation Glass Data:
+Accuracy: 0.006074766355140187
+Error:    0.09392523364485982
+Pmacro:   NaN
+Pmicro:   0.043333333333333335
+Rmacro:   0.007407407407407407
+Rmicro:   0.02777777777777778
+
+
+
+ Cross Validation Glass Data:
+Accuracy: 0.0051401869158878505
+Error:    0.09485981308411215
+Pmacro:   NaN
+Pmicro:   0.044
+Rmacro:   0.006481481481481481
+Rmicro:   0.019444444444444445
+
+
+Iris-data --------------------------------> train on all data, test on all data
+Accuracy: 0.9266666666666666
+Error:    0.07333333333333336
+Pmacro:   0.9292929292929294
+Pmicro:   0.9266666666666666
+Rmacro:   0.9266666666666666
+Rmicro:   0.9266666666666666
+
+
+
+Cross-validate---------------
+
+	Regular data
+Accuracy: 0.9200000000000002
+Error:    0.07999999999999999
+Pmacro:   0.9088888888888889
+Pmicro:   0.9200000000000002
+Rmacro:   0.9173280423280424
+Rmicro:   0.9200000000000002
+
+
+
+	Noise data
+Accuracy: 0.9066666666666668
+Error:    0.09333333333333331
+Pmacro:   0.8957142857142857
+Pmicro:   0.9066666666666668
+Rmacro:   0.9061772486772487
+Rmicro:   0.9066666666666668
+
+
+
+Iris-noise ------------------------------> train on all data, test on all data
+Accuracy: 0.9266666666666666
+Error:    0.07333333333333336
+Pmacro:   0.9312621380290554
+Pmicro:   0.9266666666666666
+Rmacro:   0.9266666666666666
+Rmicro:   0.9266666666666666
+
+
+
+Cross-validate--------------
+
+	Regular data
+Accuracy: 0.9199999999999999
+Error:    0.07999999999999999
+Pmacro:   0.9406349206349207
+Pmicro:   0.9199999999999999
+Rmacro:   0.9209523809523809
+Rmicro:   0.9199999999999999
+
+
+
+	Noise data
+Accuracy: 0.9066666666666666
+Error:    0.09333333333333334
+Pmacro:   0.9255555555555557
+Pmicro:   0.9066666666666666
+Rmacro:   0.920674603174603
+Rmicro:   0.9066666666666666
+
+
+Soybean-data------------------->train on all, test on all
+Accuracy: 1.0
+Error:    0.0
+Pmacro:   1.0
+Pmicro:   1.0
+Rmacro:   1.0
+Rmicro:   1.0
+
+Cross-validate-----------
+
+	Regular data
+Accuracy: 0.7
+Error:    0.3
+Pmacro:   NaN
+Pmicro:   0.76
+Rmacro:   NaN
+Rmicro:   0.76
+
+	Noise data
+Accuracy: 0.44000000000000006
+Error:    0.5600000000000002
+Pmacro:   NaN
+Pmicro:   0.44000000000000006
+Rmacro:   NaN
+Rmicro:   0.44000000000000006
+
+Soybean-noise------------------>train on all, test on all
+Accuracy: 1.0
+Error:    0.0
+Pmacro:   1.0
+Pmicro:   1.0
+Rmacro:   1.0
+Rmicro:   1.0
+
+Cross-validate-----------
+
+	Regular data
+Accuracy: 0.7799999999999999
+Error:    0.22000000000000003
+Pmacro:   NaN
+Pmicro:   0.8099999999999999
+Rmacro:   NaN
+Rmicro:   0.8099999999999999
+
+	Noise data
+Accuracy: 0.44000000000000006
+Error:    0.56
+Pmacro:   NaN
+Pmicro:   0.44000000000000006
+Rmacro:   NaN
+Rmicro:   0.44000000000000006
