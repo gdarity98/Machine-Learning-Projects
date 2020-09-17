@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Comparator;
 
 /*
     1. Load data
@@ -23,7 +24,7 @@ import java.util.Arrays;
  */
 public class KNearestNeighbor {
 
-    public GlassData[] data;
+    public Data[] data;
 
     /*
         Need to make constructor such that you can give it any of the data sets and
@@ -31,8 +32,8 @@ public class KNearestNeighbor {
      */
     public KNearestNeighbor(String fileName) {
         BufferedReader reader; //creates a buffered reader
-        GlassData gData;
-        GlassData[] glassArray= new GlassData[214];
+        Data data;
+        Data[] dataArray= new Data[214];
 
         try { //Reads in the file and checks for exception
             reader = new BufferedReader(new FileReader(fileName));
@@ -42,10 +43,10 @@ public class KNearestNeighbor {
             //While we are not at the end of the file do things in the while loop
             while(line != null) {
                 //This creates a sData class with the one line from the file
-                gData = new GlassData(line);
-                glassArray[lineNo++] = gData;
+                data = new Data(line, lineNo+1);
+                dataArray[lineNo++] = data;
 
-                System.out.println(lineNo + " " + Arrays.toString(gData.getFeat()) + " " + gData.getCl());
+                System.out.println(lineNo + " " + Arrays.toString(data.getFeatures()) + " " + data.getClassLabel());
 
                 line = reader.readLine();
             }
@@ -54,7 +55,7 @@ public class KNearestNeighbor {
             e.printStackTrace();
         }
 
-        data = glassArray;
+        this.data = dataArray;
 
     }
 
@@ -81,32 +82,64 @@ public class KNearestNeighbor {
         vote from the neighbors' classes. (Working (I think))
      */
     public String classify(double[] query) {
-        int k = 1;
-        GlassData[] nearestNeighbors = new GlassData[k];
+        int k = 3;
+        Data[] nearestNeighbors = new Data[k];
+        double[][] distArray = new double[data.length][2];
 
-        double min = Double.POSITIVE_INFINITY;
+        //fill distArray[i][0] w/ distance between query point and point i
+        //fill distArray[i][1] w/ id of point i
         double dist;
         int i= 0;
-        for (GlassData gData: data) {
-            dist = getDistance(gData.getFeat(), query);
-            if (dist < min) {
-                min = dist;
-                nearestNeighbors[0] = gData;
+        for (Data d: data) {
+            dist = getDistance(d.getFeatures(), query);
+            distArray[i][0] = dist;
+            distArray[i++][1] = d.getID();
+        }
+
+        //sort distances using this trash to sort 2D array
+        //https://stackoverflow.com/questions/4907683/sort-a-two-dimensional-array-based-on-one-column
+        Arrays.sort(distArray, new Comparator<double[]>() {
+            @Override
+            public int compare(double[] o1, double[] o2) {
+                Double dist1 = o1[0];
+                Double dist2 = o2[0];
+                return dist1.compareTo(dist2);
+            }
+        });
+
+        //fill nearestNeighbors[]
+        for (int j= 0; j< nearestNeighbors.length; j++) {
+            nearestNeighbors[j] = data[(int) distArray[j][1]-1];
+        }
+
+        //print class labels of nearest neighbors
+//        for (Data d: nearestNeighbors) {
+//            System.out.println(d.getClassLabel());
+//        }
+
+        //take majority of nearest neighbor classes as cl
+        String cl;
+        boolean same = true;
+        for (int j= 0; j< nearestNeighbors.length-1; j++) {
+            //if they are not all the same
+            if (!nearestNeighbors[j].getClassLabel().contentEquals(nearestNeighbors[j+1].getClassLabel())) {
+                same = false;
             }
         }
 
-        String cl = nearestNeighbors[0].getCl();
+        //need to figure out a good way to get majority vote
+        cl = nearestNeighbors[0].getClassLabel();
 
         return cl;
     }
 
     /*
-
+        L O S S --> test on whole data set
      */
     public void loss() {
         int count = 0;
-        for (GlassData gData: data) {
-            if (classify(gData.getFeat()).contentEquals(gData.getCl())) {
+        for (Data d: data) {
+            if (classify(d.getFeatures()).contentEquals(d.getClassLabel())) {
                 count++;
             }
         }
@@ -119,7 +152,8 @@ public class KNearestNeighbor {
 
     public static void main(String[] args) {
         KNearestNeighbor kNearestNeighbor = new KNearestNeighbor("data-sets/glass.data");
-
+//        double[] test = {1.51761,12.81,3.54,1.23,73.24,0.58,8.39,0.00,0.00};
+//        kNearestNeighbor.classify(test);
         kNearestNeighbor.loss();    //--> 100% accuracy when test on training data
     }
 
