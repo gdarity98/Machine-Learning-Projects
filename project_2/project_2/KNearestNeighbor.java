@@ -11,15 +11,24 @@ import java.util.Arrays;
     3. For each example e in the data, for query q:
         a. Call getDistance(e, q)
         b. Store the distance and id of example in an array
-    4. Sort the array by distance
+    4. Sort the array by distance --> O(nlog(n))
     5. Take the K smallest elements
     6. Return majority class as the classification of q
+
+    OR
+
+    3b. Put the distance and id of example in k-dimensional tree
+    4. Find nearest neighbors in O(log(n)) time
 
  */
 public class KNearestNeighbor {
 
     public GlassData[] data;
 
+    /*
+        Need to make constructor such that you can give it any of the data sets and
+        KNearestNeighbor will work
+     */
     public KNearestNeighbor(String fileName) {
         BufferedReader reader; //creates a buffered reader
         GlassData gData;
@@ -67,38 +76,51 @@ public class KNearestNeighbor {
     }
 
     /*
-        Need to a way to sort distArray such that we can get the ID
-        of the k smallest distances
+        Takes a query point (feature vector) and gets its distance between every other point
+        in the data set, then finds its k nearest neighbors and classifies it based on a plurality
+        vote from the neighbors' classes. (Working (I think))
      */
-    public void classify(double[] query) {
+    public String classify(double[] query) {
         int k = 1;
+        GlassData[] nearestNeighbors = new GlassData[k];
 
-        double[][] distArray = new double[data.length][2];
-        double[] temp = new double[2];
+        double min = Double.POSITIVE_INFINITY;
+        double dist;
         int i= 0;
         for (GlassData gData: data) {
-            temp[0] = getDistance(gData.getFeat(), query);
-            temp[1] = Double.parseDouble(gData.getID());
-            distArray[i++] = temp;
+            dist = getDistance(gData.getFeat(), query);
+            if (dist < min) {
+                min = dist;
+                nearestNeighbors[0] = gData;
+            }
         }
 
-        Arrays.sort(distArray);
-        GlassData[] nearestNeighbors = new GlassData[k];
-        for (int j = 0; j < k; j++) {
-            nearestNeighbors[j] = data[(int) distArray[j][1]];
+        String cl = nearestNeighbors[0].getCl();
+
+        return cl;
+    }
+
+    /*
+
+     */
+    public void loss() {
+        int count = 0;
+        for (GlassData gData: data) {
+            if (classify(gData.getFeat()).contentEquals(gData.getCl())) {
+                count++;
+            }
         }
 
-        for (GlassData gData: nearestNeighbors) {
-            System.out.println(gData.getCl());
-        }
+        double accuracy = (double) count / data.length;
 
+        System.out.println("Accuracy: " + accuracy);
     }
 
 
     public static void main(String[] args) {
         KNearestNeighbor kNearestNeighbor = new KNearestNeighbor("data-sets/glass.data");
-        double[] test = {1.51711,14.23,0.00,2.08,73.36,0.00,8.62,1.67,0.00};
-        kNearestNeighbor.classify(test);
+
+        kNearestNeighbor.loss();    //--> 100% accuracy when test on training data
     }
 
 }
