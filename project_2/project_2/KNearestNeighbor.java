@@ -46,7 +46,7 @@ public class KNearestNeighbor {
                 data = new Data(line, lineNo+1);
                 dataArray[lineNo++] = data;
 
-                System.out.println(lineNo + " " + Arrays.toString(data.getFeatures()) + " " + data.getClassLabel());
+//                System.out.println(lineNo + " " + Arrays.toString(data.getFeatures()) + " " + data.getClassLabel());
 
                 line = reader.readLine();
             }
@@ -96,9 +96,9 @@ public class KNearestNeighbor {
             distArray[i++][1] = d.getID();
         }
 
-        //sort distances using this trash to sort 2D array
+        //sort distances using this madness to sort 2D array
         //https://stackoverflow.com/questions/4907683/sort-a-two-dimensional-array-based-on-one-column
-        Arrays.sort(distArray, new Comparator<double[]>() {
+        Arrays.sort(distArray, new Comparator<>() {
             @Override
             public int compare(double[] o1, double[] o2) {
                 Double dist1 = o1[0];
@@ -117,18 +117,22 @@ public class KNearestNeighbor {
 //            System.out.println(d.getClassLabel());
 //        }
 
-        //take majority of nearest neighbor classes as cl
+        //take majority of nearest neighbor classes as max
+        //w/ int vote[] where it increments vote[classNo]
         String cl;
+        int[] vote = new int[8];    //--> need to not hardwire this but Data object does not know numClasses
+        int max = -1;
         boolean same = true;
-        for (int j= 0; j< nearestNeighbors.length-1; j++) {
-            //if they are not all the same
-            if (!nearestNeighbors[j].getClassLabel().contentEquals(nearestNeighbors[j+1].getClassLabel())) {
-                same = false;
+        for (Data nearestNeighbor : nearestNeighbors) {
+            int classLabel = Integer.parseInt(nearestNeighbor.getClassLabel());
+            vote[classLabel]++;
+            if (vote[classLabel] > max) {
+                max = classLabel;
             }
         }
 
-        //need to figure out a good way to get majority vote
-        cl = nearestNeighbors[0].getClassLabel();
+        System.out.println(Arrays.toString(vote));
+        cl = String.valueOf(max);
 
         return cl;
     }
@@ -152,9 +156,11 @@ public class KNearestNeighbor {
 
     public static void main(String[] args) {
         KNearestNeighbor kNearestNeighbor = new KNearestNeighbor("data-sets/glass.data");
-//        double[] test = {1.51761,12.81,3.54,1.23,73.24,0.58,8.39,0.00,0.00};
+//        double[] test = {1.51651, 14.38, 0.0, 1.94, 73.61, 0.0, 8.48, 1.57, 0.0};
 //        kNearestNeighbor.classify(test);
-        kNearestNeighbor.loss();    //--> 100% accuracy when test on training data
+        kNearestNeighbor.loss();    //--> 100% accuracy when test on training data (when k = 1)
+                                    //--> 97% when k = 3, but k=1 is so good because each query's nearest neighbor
+                                    //--> is itself (probably)
     }
 
 }
