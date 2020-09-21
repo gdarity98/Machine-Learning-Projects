@@ -24,38 +24,16 @@ import java.util.Comparator;
  */
 public class KNearestNeighbor {
 
-    public Data[] data;
-
+    public DataC[] data;
+    public int numClasses = 0;
+   
     /*
         Need to make constructor such that you can give it any of the data sets and
         KNearestNeighbor will work
      */
-    public KNearestNeighbor(String fileName) {
-        BufferedReader reader; //creates a buffered reader
-        Data data;
-        Data[] dataArray= new Data[214];
-
-        try { //Reads in the file and checks for exception
-            reader = new BufferedReader(new FileReader(fileName));
-            //reads the file in line by line
-            String line = reader.readLine();
-            int lineNo = 0;
-            //While we are not at the end of the file do things in the while loop
-            while(line != null) {
-                //This creates a sData class with the one line from the file
-                data = new Data(line, lineNo+1);
-                dataArray[lineNo++] = data;
-
-//                System.out.println(lineNo + " " + Arrays.toString(data.getFeatures()) + " " + data.getClassLabel());
-
-                line = reader.readLine();
-            }
-
-        }catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        this.data = dataArray;
+    public KNearestNeighbor(DataC[] dataIn, int num) {
+    	this.data = dataIn;
+    	this.numClasses = num;
 
     }
 
@@ -83,14 +61,14 @@ public class KNearestNeighbor {
      */
     public String classify(double[] query) {
         int k = 3;
-        Data[] nearestNeighbors = new Data[k];
+        DataC[] nearestNeighbors = new DataC[k];
         double[][] distArray = new double[data.length][2];
 
         //fill distArray[i][0] w/ distance between query point and point i
         //fill distArray[i][1] w/ id of point i
         double dist;
         int i= 0;
-        for (Data d: data) {
+        for (DataC d: data) {
             dist = getDistance(d.getFeatures(), query);
             distArray[i][0] = dist;
             distArray[i++][1] = d.getID();
@@ -98,7 +76,7 @@ public class KNearestNeighbor {
 
         //sort distances using this madness to sort 2D array
         //https://stackoverflow.com/questions/4907683/sort-a-two-dimensional-array-based-on-one-column
-        Arrays.sort(distArray, new Comparator<>() {
+        Arrays.sort(distArray, new Comparator<double[]>(){
             @Override
             public int compare(double[] o1, double[] o2) {
                 Double dist1 = o1[0];
@@ -123,7 +101,7 @@ public class KNearestNeighbor {
         int[] vote = new int[8];    //--> need to not hardwire this but Data object does not know numClasses
         int max = -1;
         boolean same = true;
-        for (Data nearestNeighbor : nearestNeighbors) {
+        for (DataC nearestNeighbor : nearestNeighbors) {
             int classLabel = Integer.parseInt(nearestNeighbor.getClassLabel());
             vote[classLabel]++;
             if (vote[classLabel] > max) {
@@ -142,7 +120,7 @@ public class KNearestNeighbor {
      */
     public void loss() {
         int count = 0;
-        for (Data d: data) {
+        for (DataC d: data) {
             if (classify(d.getFeatures()).contentEquals(d.getClassLabel())) {
                 count++;
             }
@@ -152,15 +130,8 @@ public class KNearestNeighbor {
 
         System.out.println("Accuracy: " + accuracy);
     }
-
-
+    
     public static void main(String[] args) {
-        KNearestNeighbor kNearestNeighbor = new KNearestNeighbor("data-sets/glass.data");
-//        double[] test = {1.51651, 14.38, 0.0, 1.94, 73.61, 0.0, 8.48, 1.57, 0.0};
-//        kNearestNeighbor.classify(test);
-        kNearestNeighbor.loss();    //--> 100% accuracy when test on training data (when k = 1)
-                                    //--> 97% when k = 3, but k=1 is so good because each query's nearest neighbor
-                                    //--> is itself (probably)
+    	
     }
-
 }
