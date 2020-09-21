@@ -9,7 +9,7 @@ public class Main {
 	public static void main(String[] args) {
 
 		String gdFileName = "data-sets/glass.data";
-		DataSetUp gdSetUp = new DataSetUp(gdFileName, "end");
+		DataSetUp gdSetUp = new DataSetUp(gdFileName, "end","classification");
 		
         KNearestNeighbor glassKNearestNeighbor = new KNearestNeighbor(gdSetUp.getAllData(), gdSetUp.numClasses());
 //      double[] test = {1.51651, 14.38, 0.0, 1.94, 73.61, 0.0, 8.48, 1.57, 0.0};
@@ -20,7 +20,7 @@ public class Main {
         
 
 		String hvdFileName = "data-sets/house-votes-84.data";
-		DataSetUp hvdSetUp = new DataSetUp(hvdFileName, "beg");
+		DataSetUp hvdSetUp = new DataSetUp(hvdFileName, "beg","classification");
 		
         KNearestNeighbor houseKNearestNeighbor = new KNearestNeighbor(hvdSetUp.getAllData(), hvdSetUp.numClasses());
 //      double[] test = {1.51651, 14.38, 0.0, 1.94, 73.61, 0.0, 8.48, 1.57, 0.0};
@@ -30,7 +30,7 @@ public class Main {
                                   //--> is itself (probably)
         
 		String sdFileName = "data-sets/segmentation.data";
-		DataSetUp sdSetUp = new DataSetUp(sdFileName, "beg");
+		DataSetUp sdSetUp = new DataSetUp(sdFileName, "beg","classification");
 		
         KNearestNeighbor segmentationKNearestNeighbor = new KNearestNeighbor(sdSetUp.getAllData(), sdSetUp.numClasses());
 //      double[] test = {1.51651, 14.38, 0.0, 1.94, 73.61, 0.0, 8.48, 1.57, 0.0};
