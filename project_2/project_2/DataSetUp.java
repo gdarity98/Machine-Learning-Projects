@@ -7,11 +7,20 @@ import java.io.IOException;
 public class DataSetUp {
 	public DataC[] data;
     public int numClasses = 0;
-    String prevClass = "";
+    public String prevClass = "";
+    public Boolean clOrReg = false;
     
-	public DataSetUp(String fileName, String classPos) {
-	 	BufferedReader reader; //creates a buffered reader
+	public DataSetUp(String fileName, String classPos, String clOrReg) {
+	 	
+		if(clOrReg.equals("classification")) {
+			this.clOrReg = true;
+		}else if(clOrReg.equals("regression")) {
+			this.clOrReg = false;
+		}
+		
+		BufferedReader reader; //creates a buffered reader
         DataC data;
+        
         int length = 0;
         
         try { // Reads in the file and checks for exception
@@ -41,7 +50,7 @@ public class DataSetUp {
             //While we are not at the end of the file do things in the while loop
             while(line != null) {
                 //This creates a sData class with the one line from the file
-                data = new DataC(line, lineNo+1, classPos);
+                data = new DataC(line, lineNo+1, classPos, clOrReg);
                 dataArray[lineNo++] = data;
                 
                 if(!prevClass.equals(data.getClassLabel())) { //this is wrong
@@ -68,6 +77,10 @@ public class DataSetUp {
 	public int numClasses() {
 		// TODO Auto-generated method stub
 		return numClasses;
+	}
+	
+	public Boolean getClassOrReg() {
+		return clOrReg;
 	}
 
 }
