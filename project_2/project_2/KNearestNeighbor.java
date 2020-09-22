@@ -1,5 +1,6 @@
 package project_2;
 
+import javax.xml.crypto.Data;
 import java.util.*;
 
 /*
@@ -11,7 +12,7 @@ import java.util.*;
     4. Sort the array by distance --> O(nlog(n))
     5. Take the K smallest elements
     6.
-        a. Return majority class as the classification of q
+        a. Return majority class OR weighted vote as the classification of q
         b. Return 1/d weighted average of nearest neighbors for regression
 
     OR
@@ -33,7 +34,7 @@ public class KNearestNeighbor {
     public KNearestNeighbor(DataC[] dataIn, int num) {
     	this.data = dataIn;
     	this.numClasses = num;
-        this.k = 1;
+        this.k = 11;
     }
 
     /*
@@ -86,6 +87,7 @@ public class KNearestNeighbor {
         });
 
         //fill nearestNeighbors[]
+
         int j= 0, n= 0;
         while (n < nearestNeighbors.length) {
             if (distArray[j][1] > 0) {
@@ -94,14 +96,26 @@ public class KNearestNeighbor {
             j++;
         }
 
-        //print class labels of nearest neighbors
-//        for (Data d: nearestNeighbors) {
-//            System.out.println(d.getClassLabel());
+        //fill weightedVote[] ---> WEIGHTED VOTING
+//        double[] weightedVote = new double[numClasses+2];
+//        int max = -1;
+//        int k= 1;
+//        for (DataC nearestNeighbor : nearestNeighbors) {
+//            String c = nearestNeighbor.getClassLabel();
+//            int classLabel = Integer.parseInt(c);
+//            weightedVote[classLabel] += ((double) 1 / k++);
+//            if (weightedVote[classLabel] > max) {
+//                max = classLabel;
+//            }
 //        }
+
+//        System.out.println(Arrays.toString(weightedVote));
+
+
+        //OR ---> MAJORITY VOTING
 
         //take majority of nearest neighbor classes as max
         //w/ int vote[] where it increments vote[classNo]
-        String cl;
         int[] vote = new int[numClasses+2];
         int max = -1;
         for (DataC nearestNeighbor : nearestNeighbors) {
@@ -111,6 +125,9 @@ public class KNearestNeighbor {
                 max = classLabel;
             }
         }
+
+
+        String cl;
 
 //        System.out.println(Arrays.toString(vote));
         cl = String.valueOf(max);
@@ -127,12 +144,15 @@ public class KNearestNeighbor {
             if (d != null) {
                 String trueClass = d.getClassLabel();
                 double[] test = d.getFeatures();
-                if (classify(dataSet, test).contentEquals(trueClass)) {
+                String guess = classify(dataSet, test);
+                if (guess.contentEquals(trueClass)) {
                     count++;
                 }
+//                System.out.println(trueClass + " - " + guess + " -> " + count);
             }
         }
 
+//        System.out.println(count + " / " + testSet.length);
         double accuracy = (double) count / testSet.length;
 
         return accuracy;
@@ -151,6 +171,7 @@ public class KNearestNeighbor {
         Collections.shuffle(temp);
         DataC[] shuffled = new DataC[data.length];
         temp.toArray(shuffled);
+//        shuffled = data;
 
         //split into 10 arrays
         int c= 0;
@@ -191,6 +212,10 @@ public class KNearestNeighbor {
         return loss;
     }
 
+    /*
+        Tune k by cross-validating w/ k up to 20, takes best k loss statistics,
+        and sets it as a class variable
+     */
     public void tune() {
         double max= -1;
         int bestK= 1;
@@ -216,9 +241,37 @@ public class KNearestNeighbor {
         String gdFileName = "data-sets/glass.data";
         DataSetUp gdSetUp = new DataSetUp(gdFileName, "end","classification");
 
-        KNearestNeighbor glassKNearestNeighbor = new KNearestNeighbor(gdSetUp.getAllData(), gdSetUp.numClasses());
-        glassKNearestNeighbor.tune();
-        glassKNearestNeighbor.crossValidate();
+//        KNearestNeighbor glassKNearestNeighbor = new KNearestNeighbor(gdSetUp.getAllData(), gdSetUp.numClasses());
+//        glassKNearestNeighbor.tune();
+//        glassKNearestNeighbor.crossValidate();
 //        System.out.println(glassKNearestNeighbor.loss(glassKNearestNeighbor.data, glassKNearestNeighbor.data));
+
+        /*
+            Bad performance on both House and Glass w/ crossValidate()
+                ~0.3 for glass
+                ~0.56 for house
+
+            weightedVoting seems to perform about the same as majorityVoting,
+            I think one is probably better than the other for each data set
+
+            Tuning works well, usually k = ~10
+         */
+
+        String hvdFileName = "data-sets/house-votes-84.data";
+        DataSetUp hvdSetUp = new DataSetUp(hvdFileName, "beg","classification");
+
+//        KNearestNeighbor houseKNearestNeighbor = new KNearestNeighbor(hvdSetUp.getAllData(), hvdSetUp.numClasses());
+//        System.out.println(houseKNearestNeighbor.loss(houseKNearestNeighbor.data, houseKNearestNeighbor.data));
+//        houseKNearestNeighbor.tune();
+//        houseKNearestNeighbor.crossValidate();
+
+        String sdFileName = "data-sets/segmentation.data";
+        DataSetUp sdSetUp = new DataSetUp(sdFileName, "beg","classification");
+
+//        KNearestNeighbor segmentationKNearestNeighbor = new KNearestNeighbor(sdSetUp.getAllData(), sdSetUp.numClasses());
+//        System.out.println(segmentationKNearestNeighbor.loss(segmentationKNearestNeighbor.data, segmentationKNearestNeighbor.data));
+
+        //^not working
+
     }
 }
