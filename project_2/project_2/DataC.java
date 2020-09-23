@@ -91,6 +91,98 @@ public class DataC {
 		        this.id = id;
 	    	}
     	}
+    	if(clOrReg.equals("regression")){
+    		//This is for FOREST FIRES DATA
+    		if(classLoc.equals("endF")) {
+			 	this.allData = fullData;
+		        String[] tokens = fullData.split(",");
+		
+		        features = new double[tokens.length-1];
+		        
+		       //This is for when we read in the Regression Forest Fires Data to change categorical data into numbers
+		        for(int i = 1; i < tokens.length; i++) {
+		        	if(tokens[i].equals("jan")) {
+		        		tokens[i] = Integer.toString(0);
+		        	}else if (tokens[i].equals("feb")) {
+		        		tokens[i] = Integer.toString(1);
+		        	}else if (tokens[i].equals("mar")) {
+		        		tokens[i] = Integer.toString(2);
+		        	}else if (tokens[i].equals("apr")) {
+		        		tokens[i] = Integer.toString(3);
+		        	}else if (tokens[i].equals("may")) {
+		        		tokens[i] = Integer.toString(4);
+		        	}else if (tokens[i].equals("jun")) {
+		        		tokens[i] = Integer.toString(5);
+		        	}else if (tokens[i].equals("jul")) {
+		        		tokens[i] = Integer.toString(6);
+		        	}else if (tokens[i].equals("aug")) {
+		        		tokens[i] = Integer.toString(7);
+		        	}else if (tokens[i].equals("sep")) {
+		        		tokens[i] = Integer.toString(8);
+		        	}else if (tokens[i].equals("oct")) {
+		        		tokens[i] = Integer.toString(9);
+		        	}else if (tokens[i].equals("nov")) {
+		        		tokens[i] = Integer.toString(10);
+		        	}else if (tokens[i].equals("dec")) {
+		        		tokens[i] = Integer.toString(11);
+		        	}
+		        }
+		        
+		      //This is for when we read in the Regression Forest Fires Data to change categorical data into numbers
+		        for(int i = 1; i < tokens.length; i++) {
+		        	if(tokens[i].equals("mon")) {
+		        		tokens[i] = Integer.toString(0);
+		        	}else if (tokens[i].equals("tue")) {
+		        		tokens[i] = Integer.toString(1);
+		        	}else if (tokens[i].equals("wed")) {
+		        		tokens[i] = Integer.toString(2);
+		        	}else if (tokens[i].equals("thu")) {
+		        		tokens[i] = Integer.toString(3);
+		        	}else if (tokens[i].equals("fri")) {
+		        		tokens[i] = Integer.toString(4);
+		        	}else if (tokens[i].equals("sat")) {
+		        		tokens[i] = Integer.toString(5);
+		        	}else if (tokens[i].equals("sun")) {
+		        		tokens[i] = Integer.toString(6);
+		        	}
+		        }
+		        
+		        for (int i= 0; i< tokens.length -1; i++) {
+		            features[i] = Double.parseDouble(tokens[i]);
+		        }
+		
+		        classLabel = tokens[tokens.length-1];
+		        this.id = id;
+		    //THIS IS FOR ABALONE DATA   
+    		}else if(classLoc.equals("endA")) {
+    			
+			 	this.allData = fullData;
+		        String[] tokens = fullData.split(",");
+		
+		        features = new double[tokens.length-2];
+
+		        for (int i= 1; i< tokens.length-1; i++) {
+		            features[i-1] = Double.parseDouble(tokens[i]);
+		        }
+		
+		        classLabel = tokens[tokens.length-1];
+		        this.id = id;
+		    //THIS IS FOR MACHINE DATA    
+    		}else {
+    			
+			 	this.allData = fullData;
+		        String[] tokens = fullData.split(",");
+		
+		        features = new double[tokens.length-4];
+
+		        for (int i= 2; i< tokens.length-2; i++) {
+		            features[i-2] = Double.parseDouble(tokens[i]);
+		        }
+		
+		        classLabel = tokens[tokens.length-2];
+		        this.id = id;
+    		}
+    	}
     }
     
 
