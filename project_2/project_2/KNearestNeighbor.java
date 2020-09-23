@@ -268,9 +268,9 @@ public class KNearestNeighbor {
         String sdFileName = "data-sets/segmentation.data";
         DataSetUp sdSetUp = new DataSetUp(sdFileName, "beg","classification");
 
-//        KNearestNeighbor segmentationKNearestNeighbor = new KNearestNeighbor(sdSetUp.getAllData(), sdSetUp.numClasses());
+        KNearestNeighbor segmentationKNearestNeighbor = new KNearestNeighbor(sdSetUp.getAllData(), sdSetUp.numClasses());
 //        System.out.println(segmentationKNearestNeighbor.loss(segmentationKNearestNeighbor.data, segmentationKNearestNeighbor.data));
-
+        segmentationKNearestNeighbor.tune();
         //^not working
 
     }
