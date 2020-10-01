@@ -14,7 +14,8 @@ public class Main {
         KNearestNeighbor glassKNearestNeighbor = new KNearestNeighbor(gdSetUp.getAllData(), gdSetUp.numClasses());
 //      double[] test = {1.51651, 14.38, 0.0, 1.94, 73.61, 0.0, 8.48, 1.57, 0.0};
 //      kNearestNeighbor.classify(test);
-        glassKNearestNeighbor.loss();    //--> 100% accuracy when test on training data (when k = 1)
+		System.out.println(glassKNearestNeighbor.loss(glassKNearestNeighbor.data, glassKNearestNeighbor.data));
+        							//--> 100% accuracy when test on training data (when k = 1)
                                   //--> 97% when k = 3, but k=1 is so good because each query's nearest neighbor
                                   //--> is itself (probably)
         
@@ -25,7 +26,7 @@ public class Main {
         KNearestNeighbor houseKNearestNeighbor = new KNearestNeighbor(hvdSetUp.getAllData(), hvdSetUp.numClasses());
 //      double[] test = {1.51651, 14.38, 0.0, 1.94, 73.61, 0.0, 8.48, 1.57, 0.0};
 //      kNearestNeighbor.classify(test);
-        houseKNearestNeighbor.loss();    //--> 100% accuracy when test on training data (when k = 1)
+		System.out.println(houseKNearestNeighbor.loss(houseKNearestNeighbor.data, houseKNearestNeighbor.data));    //--> 100% accuracy when test on training data (when k = 1)
                                   //--> 97% when k = 3, but k=1 is so good because each query's nearest neighbor
                                   //--> is itself (probably)
         
@@ -35,7 +36,7 @@ public class Main {
         KNearestNeighbor segmentationKNearestNeighbor = new KNearestNeighbor(sdSetUp.getAllData(), sdSetUp.numClasses());
 //      double[] test = {1.51651, 14.38, 0.0, 1.94, 73.61, 0.0, 8.48, 1.57, 0.0};
 //      kNearestNeighbor.classify(test);
-        segmentationKNearestNeighbor.loss();    //--> 100% accuracy when test on training data (when k = 1)
+		System.out.println(segmentationKNearestNeighbor.loss(segmentationKNearestNeighbor.data, segmentationKNearestNeighbor.data));    //--> 100% accuracy when test on training data (when k = 1)
                                   //--> 97% when k = 3, but k=1 is so good because each query's nearest neighbor
                                   //--> is itself (probably)
         

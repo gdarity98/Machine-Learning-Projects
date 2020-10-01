@@ -165,10 +165,10 @@ public class KNearestNeighbor {
             }
         }
 
-        for(int[] row: confusionMatrix) {
-            System.out.println(Arrays.toString(row));
-        }
-        System.out.println("---------------------");
+//        for(int[] row: confusionMatrix) {
+//            System.out.println(Arrays.toString(row));
+//        }
+//        System.out.println("---------------------");
 
 
         System.out.println(count + " / " + testSet.length);
