@@ -8,46 +8,53 @@ public class Main {
 
 	public static void main(String[] args) {
 
+//-------------------------------------------GLASS
+		System.out.println("GLASS-------------------------");
 		String gdFileName = "data-sets/glass.data";
 		DataSetUp gdSetUp = new DataSetUp(gdFileName, "end","classification");
 		
-        KNearestNeighbor glassKNearestNeighbor = new KNearestNeighbor(gdSetUp.getAllData(), gdSetUp.numClasses());
-//      double[] test = {1.51651, 14.38, 0.0, 1.94, 73.61, 0.0, 8.48, 1.57, 0.0};
-//      kNearestNeighbor.classify(test);
+        KNearestNeighbor glassKNearestNeighbor = new KNearestNeighbor(gdSetUp.getAllData(), gdSetUp.numClasses(), true);
 		System.out.println(glassKNearestNeighbor.loss(glassKNearestNeighbor.data, glassKNearestNeighbor.data));
-        							//--> 100% accuracy when test on training data (when k = 1)
-                                  //--> 97% when k = 3, but k=1 is so good because each query's nearest neighbor
-                                  //--> is itself (probably)
         
-
+//-------------------------------------------HOUSE VOTES
+		System.out.println("HOUSE VOTES-------------------------");
 		String hvdFileName = "data-sets/house-votes-84.data";
 		DataSetUp hvdSetUp = new DataSetUp(hvdFileName, "beg","classification");
 		
-        KNearestNeighbor houseKNearestNeighbor = new KNearestNeighbor(hvdSetUp.getAllData(), hvdSetUp.numClasses());
-//      double[] test = {1.51651, 14.38, 0.0, 1.94, 73.61, 0.0, 8.48, 1.57, 0.0};
-//      kNearestNeighbor.classify(test);
-		System.out.println(houseKNearestNeighbor.loss(houseKNearestNeighbor.data, houseKNearestNeighbor.data));    //--> 100% accuracy when test on training data (when k = 1)
-                                  //--> 97% when k = 3, but k=1 is so good because each query's nearest neighbor
-                                  //--> is itself (probably)
-        
+        KNearestNeighbor houseKNearestNeighbor = new KNearestNeighbor(hvdSetUp.getAllData(), hvdSetUp.numClasses(), true);
+		System.out.println(houseKNearestNeighbor.loss(houseKNearestNeighbor.data, houseKNearestNeighbor.data));
+
+//-------------------------------------------SEGMENTATION
+		System.out.println("SEGMENTATION-------------------------");
 		String sdFileName = "data-sets/segmentation.data";
 		DataSetUp sdSetUp = new DataSetUp(sdFileName, "beg","classification");
 		
-        KNearestNeighbor segmentationKNearestNeighbor = new KNearestNeighbor(sdSetUp.getAllData(), sdSetUp.numClasses());
-//      double[] test = {1.51651, 14.38, 0.0, 1.94, 73.61, 0.0, 8.48, 1.57, 0.0};
-//      kNearestNeighbor.classify(test);
-		System.out.println(segmentationKNearestNeighbor.loss(segmentationKNearestNeighbor.data, segmentationKNearestNeighbor.data));    //--> 100% accuracy when test on training data (when k = 1)
-                                  //--> 97% when k = 3, but k=1 is so good because each query's nearest neighbor
-                                  //--> is itself (probably)
-        
+        KNearestNeighbor segmentationKNearestNeighbor = new KNearestNeighbor(sdSetUp.getAllData(), sdSetUp.numClasses(), true);
+		System.out.println(segmentationKNearestNeighbor.loss(segmentationKNearestNeighbor.data, segmentationKNearestNeighbor.data));
+
+//-------------------------------------------ABALONE
+		System.out.println("ABALONE-------------------------");
 		String adFileName = "data-sets/abalone.data";
 		DataSetUp adSetUp = new DataSetUp(adFileName, "endA","regression");
-		
+
+		KNearestNeighbor abaloneKNN = new KNearestNeighbor(adSetUp.getAllData(), adSetUp.numClasses(), false);
+		System.out.println(abaloneKNN.loss(abaloneKNN.data, abaloneKNN.data));
+
+//------------------------------------------FOREST FIRES
+		System.out.println("FOREST FIRES-------------------------");
 		String ffdFileName = "data-sets/forestfires.data";
 		DataSetUp ffdSetUp = new DataSetUp(ffdFileName, "endF","regression");
-		
+
+		KNearestNeighbor forestFireKNN = new KNearestNeighbor(ffdSetUp.data, ffdSetUp.numClasses, false);
+		System.out.println(forestFireKNN.loss(forestFireKNN.data, forestFireKNN.data));
+
+//------------------------------------------MACHINE
+		System.out.println("MACHINE-------------------------");
 		String mdFileName = "data-sets/machine.data";
 		DataSetUp mdSetUp = new DataSetUp(mdFileName, "endM","regression");
+
+		KNearestNeighbor machineKNN = new KNearestNeighbor(mdSetUp.data, mdSetUp.numClasses, false);
+		System.out.println(machineKNN.loss(machineKNN.data, machineKNN.data));
 
 	}
 

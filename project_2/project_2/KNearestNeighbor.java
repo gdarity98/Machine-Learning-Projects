@@ -1,6 +1,5 @@
 package project_2;
 
-import javax.xml.crypto.Data;
 import java.util.*;
 
 /*
@@ -26,15 +25,18 @@ public class KNearestNeighbor {
     public DataC[] data;
     public int numClasses;
     public int k;
+    public double epsilon;
+    public boolean classification;
    
     /*
-        Need to make constructor such that you can give it any of the data sets and
-        KNearestNeighbor will work
+        Constructor takes any of the data sets we are working with
      */
-    public KNearestNeighbor(DataC[] dataIn, int num) {
+    public KNearestNeighbor(DataC[] dataIn, int num, boolean classification) {
     	this.data = dataIn;
     	this.numClasses = num;
         this.k = 8;
+        this.epsilon = 1.0;
+        this.classification = classification;
     }
 
     /*
@@ -52,6 +54,42 @@ public class KNearestNeighbor {
         }
 
         return Math.pow(sum, 1.0/2);
+    }
+
+    /*
+        Gets root mean squared error for x = predicted values, y = actual values
+        Bigger penalty for bigger error compared to MAE
+     */
+    public double RMSE(double[] x, double[] y) {
+        if (x.length != y.length) {
+            return -1;
+        }
+
+        double sum = 0;
+        for (int i= 0; i< x.length; i++) {
+            sum += Math.pow((x[i] - y[i]), 2);
+        }
+
+        sum /= x.length;
+
+        return Math.pow(sum, 0.5);
+    }
+
+    /*
+        Gives mean absolute error where x = predicted values, y = actual values
+        Basically, how far off a predicted value usually is from the actual value
+     */
+    public double MAE(double[] x, double[] y) {
+        if (x.length != y.length) {
+            return -1;
+        }
+
+        double sum = 0;
+        for (int i= 0; i< x.length; i++) {
+            sum += Math.abs(x[i] - y[i]);
+        }
+
+        return sum / x.length;
     }
 
     /*
@@ -86,50 +124,69 @@ public class KNearestNeighbor {
             }
         });
 
-        //fill nearestNeighbors[]
+        //fill nearestNeighbors[] and nearestDist[]
+        double[] nearestDist = new double[k];
         int j= 0, n= 0;
         while (n < nearestNeighbors.length) {
             if (distArray[j][1] > 0) {
+                nearestDist[n] = distArray[j][1];
                 nearestNeighbors[n++] = data[(int) distArray[j][1]-1];
             }
             j++;
         }
 
-        //fill weightedVote[] ---> WEIGHTED VOTING
-        double[] weightedVote = new double[numClasses+2];
-        int max = -1;
-        int k= 1;
-        for (DataC nearestNeighbor : nearestNeighbors) {
-            String c = nearestNeighbor.getClassLabel();
-            int classLabel = Integer.parseInt(c);
-            weightedVote[classLabel] += ((double) 1 / k++);
-            if (weightedVote[classLabel] > max) {
-                max = classLabel;
-            }
-        }
-
-//        System.out.println(Arrays.toString(weightedVote));
-
-
-        //OR ---> MAJORITY VOTING
-
-        //take majority of nearest neighbor classes as max
-        //w/ int vote[] where it increments vote[classNo]
-//        int[] vote = new int[numClasses+2];
-//        int max = -1;
-//        for (DataC nearestNeighbor : nearestNeighbors) {
-//            int classLabel = Integer.parseInt(nearestNeighbor.getClassLabel());
-//            vote[classLabel]++;
-//            if (vote[classLabel] > max) {
-//                max = classLabel;
-//            }
-//        }
-
-
         String cl;
 
-//        System.out.println(Arrays.toString(vote));
-        cl = String.valueOf(max);
+        //CLASSIFICATION
+        if (this.classification) {
+
+            //WEIGHTED VOTING
+            double[] weightedVote = new double[numClasses + 2];
+            int max = -1;
+            int k = 1;
+            for (DataC nearestNeighbor : nearestNeighbors) {
+                String c = nearestNeighbor.getClassLabel();
+                int classLabel = Integer.parseInt(c);
+                weightedVote[classLabel] += ((double) 1 / k++);
+                if (weightedVote[classLabel] > max) {
+                    max = classLabel;
+                }
+            }
+
+            //OR ---> MAJORITY VOTING
+            //UNCOMMENT BELOW, COMMENT ABOVE FOR MAJORITY VOTING
+
+            //take majority of nearest neighbor classes as max
+            //w/ int vote[] where it increments vote[classNo]
+//            int[] vote = new int[numClasses+2];
+//            int max = -1;
+//            for (DataC nearestNeighbor : nearestNeighbors) {
+//                int classLabel = Integer.parseInt(nearestNeighbor.getClassLabel());
+//                vote[classLabel]++;
+//                if (vote[classLabel] > max) {
+//                    max = classLabel;
+//                }
+//            }
+
+            cl = String.valueOf(max);
+
+        }
+
+        //REGRESSION
+        else {
+            double weightedAvg= 0;
+            double weightSum= 0;
+            int c= 0;
+            for (DataC d: nearestNeighbors) {
+                double responseVar = Double.parseDouble(d.getClassLabel());
+                weightedAvg += (responseVar / nearestDist[c]);
+                weightSum += (1 / nearestDist[c++]);
+            }
+
+            weightedAvg /= weightSum;
+
+            cl = String.valueOf(weightedAvg);
+        }
 
         return cl;
     }
@@ -137,7 +194,7 @@ public class KNearestNeighbor {
     /*
         L O S S -->
 
-        Makes a confusion matrix (FP / FN are in context of c1)
+        Makes a confusion matrix (FP / FN are in context of c1) for classification
         ----trueClass------
                c1  c2  c3  c4
       |    c1  TP  FP  FP  FP
@@ -145,24 +202,57 @@ public class KNearestNeighbor {
       |    c3  FN      TP
       |    c4  FN          TP
 
+        For regression, accuracy, root mean squared error, and mean absolute error
+        are calculated
+
      */
     public double loss(DataC[] dataSet, DataC[] testSet) {
 
         int[][] confusionMatrix = new int[numClasses+1][numClasses+1];
         int count= 0;
 
-        for (DataC d: testSet) {
-            if (d != null) {
-                double[] test = d.getFeatures();
-                String trueClass = d.getClassLabel();
-                String guess = classify(dataSet, test);
-                int guessNum = Integer.parseInt(guess) - 1;
-                int trueNum = Integer.parseInt(trueClass) - 1;
+        //CLASSIFICATION
+        if (this.classification) {
+            for (DataC d : testSet) {
+                if (d != null) {
+                    double[] test = d.getFeatures();
+                    String trueClass = d.getClassLabel();
+                    String guess = classify(dataSet, test);
+                    int guessNum = Integer.parseInt(guess) - 1;
+                    int trueNum = Integer.parseInt(trueClass) - 1;
 
-                confusionMatrix[guessNum][trueNum]++;
-                if (guessNum == trueNum) { count++; }
+                    confusionMatrix[guessNum][trueNum]++;
+                    if (guessNum == trueNum) {
+                        count++;
+                    }
 
+                }
             }
+        }
+
+        //REGRESSION
+        else {
+            double[] predicted = new double[testSet.length];
+            double[] actual = new double[testSet.length];
+            int c= 0;
+
+            for (DataC d: testSet) {
+                if (d != null) {
+                    double[] test = d.getFeatures();
+                    double trueResponseVar = Double.parseDouble(d.getClassLabel());
+                    double guess = Double.parseDouble(classify(dataSet, test));
+
+                    predicted[c] = guess;
+                    actual[c++] = trueResponseVar;
+
+                    if (Math.abs(trueResponseVar - guess) < this.epsilon) {
+                        count++;
+                    }
+                }
+            }
+
+            System.out.println("RMSE: " + RMSE(predicted, actual));
+            System.out.println("MAE:  " + MAE(predicted, actual));
         }
 
 //        for(int[] row: confusionMatrix) {
@@ -177,6 +267,9 @@ public class KNearestNeighbor {
         return accuracy;
     }
 
+    /*
+        Test performance by 10-fold cross-validation
+     */
     public double crossValidate() {
         int trainLen = (int)(0.9 * data.length)+1;
         int testLen = data.length - trainLen;
@@ -234,6 +327,8 @@ public class KNearestNeighbor {
     /*
         Tune k by cross-validating w/ k up to 20, takes best k loss statistics,
         and sets it as a class variable
+
+        NEED TO ADD this.epsilon
      */
     public void tune() {
         double max= -1;
@@ -261,7 +356,7 @@ public class KNearestNeighbor {
         String gdFileName = "data-sets/glass.data";
         DataSetUp gdSetUp = new DataSetUp(gdFileName, "end","classification");
 
-        KNearestNeighbor glassKNearestNeighbor = new KNearestNeighbor(gdSetUp.getAllData(), gdSetUp.numClasses());
+        KNearestNeighbor glassKNearestNeighbor = new KNearestNeighbor(gdSetUp.getAllData(), gdSetUp.numClasses(), true);
 //        glassKNearestNeighbor.tune();
         glassKNearestNeighbor.crossValidate();
 //        System.out.println(glassKNearestNeighbor.loss(glassKNearestNeighbor.data, glassKNearestNeighbor.data));
@@ -288,7 +383,7 @@ public class KNearestNeighbor {
         String sdFileName = "data-sets/segmentation.data";
         DataSetUp sdSetUp = new DataSetUp(sdFileName, "beg","classification");
 
-        KNearestNeighbor segmentationKNearestNeighbor = new KNearestNeighbor(sdSetUp.getAllData(), sdSetUp.numClasses());
+        KNearestNeighbor segmentationKNearestNeighbor = new KNearestNeighbor(sdSetUp.getAllData(), sdSetUp.numClasses(), true);
 //        System.out.println(segmentationKNearestNeighbor.loss(segmentationKNearestNeighbor.data, segmentationKNearestNeighbor.data));
 //        segmentationKNearestNeighbor.tune();
 
