@@ -38,6 +38,15 @@ public class Main {
         segmentationKNearestNeighbor.loss();    //--> 100% accuracy when test on training data (when k = 1)
                                   //--> 97% when k = 3, but k=1 is so good because each query's nearest neighbor
                                   //--> is itself (probably)
+        
+		String adFileName = "data-sets/abalone.data";
+		DataSetUp adSetUp = new DataSetUp(adFileName, "endA","regression");
+		
+		String ffdFileName = "data-sets/forestfires.data";
+		DataSetUp ffdSetUp = new DataSetUp(ffdFileName, "endF","regression");
+		
+		String mdFileName = "data-sets/machine.data";
+		DataSetUp mdSetUp = new DataSetUp(mdFileName, "endM","regression");
 
 	}
 
