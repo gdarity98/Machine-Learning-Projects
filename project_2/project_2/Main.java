@@ -63,22 +63,22 @@ public class Main {
 		
 		//I just set it to 5 cause I don't know what k needs to be at the moment
 		
-//		double[][] gMeans = clustering.kMeansCluster(gdSetUp.getAllData(), (int) Math.sqrt(gdSetUp.getAllData().length));
-//		Printer gPrint = new Printer (gMeans);
+		double[][] gMeans = clustering.kMeansCluster(gdSetUp.getAllData(), (int) Math.sqrt(gdSetUp.getAllData().length));
+		//Printer gPrint = new Printer (gMeans);
 		
-//		double[][] hvMeans = clustering.kMeansCluster(hvdSetUp.getAllData(), (int) Math.sqrt(hvdSetUp.getAllData().length));		
-//		Printer hvPrint = new Printer (hvMeans);
+		double[][] hvMeans = clustering.kMeansCluster(hvdSetUp.getAllData(), (int) Math.sqrt(hvdSetUp.getAllData().length));		
+		//Printer hvPrint = new Printer (hvMeans);
 		
-//		double[][] sMeans = clustering.kMeansCluster(sdSetUp.getAllData(), (int) Math.sqrt(sdSetUp.getAllData().length));		
+		double[][] sMeans = clustering.kMeansCluster(sdSetUp.getAllData(), (int) Math.sqrt(sdSetUp.getAllData().length));		
 //		Printer sPrint = new Printer(sMeans);
 		
 //		double[][] aMeans = clustering.kMeansCluster(adSetUp.getAllData(), (int) Math.sqrt(adSetUp.getAllData().length));		
 //		Printer aPrint = new Printer(aMeans);
 		
-//		double[][] ffMeans = clustering.kMeansCluster(ffdSetUp.getAllData(), (int) Math.sqrt(ffdSetUp.getAllData().length));		
+		double[][] ffMeans = clustering.kMeansCluster(ffdSetUp.getAllData(), (int) Math.sqrt(ffdSetUp.getAllData().length));		
 //		Printer ffPrint = new Printer(ffMeans);
 		
-//		double[][] mMeans = clustering.kMeansCluster(mdSetUp.getAllData(), (int) Math.sqrt(mdSetUp.getAllData().length));		
+		double[][] mMeans = clustering.kMeansCluster(mdSetUp.getAllData(), (int) Math.sqrt(mdSetUp.getAllData().length));		
 		//Printer Print = new Printer(mMeans);
 		
 		
