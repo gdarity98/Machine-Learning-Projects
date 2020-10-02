@@ -41,7 +41,7 @@ public class Clustering {
 		
 		boolean first = true;
 		int numTimes = 0;
-		while(isDif(means, newMeans, dataSet[0].numFeatures()) || numTimes < 10000) {
+		while((isDif(means, newMeans, dataSet[0].numFeatures())) && (numTimes < 10000)) {
 			if(!first) {
 				//set means = newMeans after the first time through
 				for(int i = 0; i < means.length; i++) {
