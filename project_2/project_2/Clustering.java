@@ -39,10 +39,10 @@ public class Clustering {
 			}
 		}
 		
-		boolean first = true;
+		boolean notFirst = false;
 		int numTimes = 0;
-		while((isDif(means, newMeans, dataSet[0].numFeatures())) && (numTimes < 10000)) {
-			if(!first) {
+		while(isDif(means, newMeans, dataSet[0].numFeatures()) && numTimes < 1000) {
+			if(notFirst) {
 				//set means = newMeans after the first time through
 				for(int i = 0; i < means.length; i++) {
 					for(int j = 0; j < dataSet[0].numFeatures(); j++) {
@@ -55,28 +55,54 @@ public class Clustering {
 				// take data find which of the means/centroids is closest to that data
 				// assign that data to that mean/centroid which makes it a part of that cluster
 				
-				double[] meansDistances = new double[k];
 				
-				//this is going to get the distances for all the features 
+				double[][] meansDistances = new double[k][dataSet[0].numFeatures()];
+				
+				//gets all the distances for all the means
 				for(int i = 0; i < means.length; i++) {
 					meansDistances[i] = dist(data.getFeatures(), means[i]);
 				}
 				
-				//Finds the smallest
-				double minNumMean = Double.POSITIVE_INFINITY;
-				int indexMinMean = 0;
-				for(int i = 0; i < meansDistances.length; i++) {
-					if(meansDistances[i] < minNumMean) {
-						indexMinMean = i;
-						minNumMean = meansDistances[i];
+				//makes a minimum mean dist array to hold the min numbers is one of the meansDistances randomly to start
+				Random r = new Random();
+				int ranNum = r.nextInt(meansDistances.length);
+				double[] minMeanDist = meansDistances[ranNum];
+				
+				//this is an array that will hold the number of min features a mean has
+				int[] finalNumMin = new int[k];
+				
+				//this walks through and checks each feature for each mean. If the feature is less then all other features from all means then
+				// update the smallest number and increases the number of min feature up by one. IDK If what I have works c:
+				for(int i = 0; i < dataSet[0].numFeatures(); i++) {
+					int[] numMin = new int[k];
+					for(int j = 0; j < means.length; j++) {
+						if(meansDistances[j][i] < minMeanDist[i]) {
+							minMeanDist[i] = meansDistances[j][i];
+							//Arrays.fill(numMin, 0);
+							numMin[j]++;
+						}else if(meansDistances[j][i] == minMeanDist[i]) {
+							numMin[j]++;
+						}
+					}
+					for(int g = 0; g < finalNumMin.length; g++) {
+						finalNumMin[g] += numMin[g];
 					}
 				}
 				
-			
+				//Finds the highest number of changed features 
+				int minNumMean = 0;
+				int indexMinMean = 0;
+				for(int i = 0; i < finalNumMin.length; i++) {
+					if(finalNumMin[i] > minNumMean) {
+						indexMinMean = i;
+						minNumMean = finalNumMin[i];
+					}
+				}
+				
 				//counts how many means have that number of changed features
 				int numMax = 0;
-				for(int i = 0; i < meansDistances.length; i++) {
-					if(meansDistances[i] == minNumMean) {
+				for(int i = 0; i < finalNumMin.length; i++) {
+					if(finalNumMin[i] == minNumMean) {
 						numMax++;
 					}
 				}
@@ -87,8 +113,8 @@ public class Clustering {
 				if(numMax > 1) {
 					int[] indexes = new int[numMax];
 					int i = 0;
-					for(int j = 0; j < meansDistances.length; j++) {
-						if(meansDistances[j] == minNumMean) {
+					for(int j = 0; j < finalNumMin.length; j++) {
+						if(finalNumMin[j] == minNumMean) {
 							indexes[i] = j;
 							i++;
 						}
@@ -134,7 +160,7 @@ public class Clustering {
 				}
 			}
 			
-			first = false;
+			notFirst = true;
 			numTimes++;
 		}
 		System.out.println(numTimes);
@@ -164,17 +190,11 @@ public class Clustering {
 	}
 	
 	//Calculates the distance
-	public double dist(double[] x, double[] y) {
-        //error checking - x and y need to have same dimensionality
-        if (x.length != y.length) {
-            return -1;
-        }
-
-        double sum = 0;
-        for (int i = 0; i< x.length; i++) {
-            sum += Math.pow((x[i] - y[i]), 2);
-        }
-
-        return Math.pow(sum, 1.0/2);
+	public double[] dist(double[] feat, double[] mean) {
+		double[] distance = new double[mean.length];
+		for(int i = 0; i < mean.length ; i++) {
+			distance[i] = (Math.abs(feat[i] - mean[i]));
+		}
+		return distance; //CHANGE THIS LATER
 	}
 }

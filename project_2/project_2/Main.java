@@ -63,7 +63,7 @@ public class Main {
 		
 		//I just set it to 5 cause I don't know what k needs to be at the moment
 		
-		double[][] gMeans = clustering.kMeansCluster(gdSetUp.getAllData(), (int) Math.sqrt(gdSetUp.getAllData().length));
+		double[][] gMeans = clustering.kMeansCluster(gdSetUp.getAllData(), (int) Math.sqrt(hvdSetUp.getAllData().length));
 		//Printer gPrint = new Printer (gMeans);
 		
 		double[][] hvMeans = clustering.kMeansCluster(hvdSetUp.getAllData(), (int) Math.sqrt(hvdSetUp.getAllData().length));		
