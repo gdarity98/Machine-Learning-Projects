@@ -60,27 +60,28 @@ public class Main {
 		System.out.println("Clustering-------------------------");
 		//Testing stuff
 		Clustering clustering = new Clustering();
+		ConvertToData convertMeans = new ConvertToData();
 		
-		//I just set it to 5 cause I don't know what k needs to be at the moment
+		double[][] gMeans = clustering.kMeansCluster(gdSetUp.getAllData(), 7);
+		DataC[] gMeansDataC = convertMeans.convertToData(gMeans);
 		
-		double[][] gMeans = clustering.kMeansCluster(gdSetUp.getAllData(), (int) Math.sqrt(hvdSetUp.getAllData().length));
-		//Printer gPrint = new Printer (gMeans);
+		KNearestNeighbor gMeanKNN = new KNearestNeighbor(gMeansDataC,7, true);
+		System.out.println(gMeanKNN.loss(gMeanKNN.data,gMeanKNN.data));
 		
-		double[][] hvMeans = clustering.kMeansCluster(hvdSetUp.getAllData(), (int) Math.sqrt(hvdSetUp.getAllData().length));		
+		//double[][] hvMeans = clustering.kMeansCluster(hvdSetUp.getAllData(), 2);		
 		//Printer hvPrint = new Printer (hvMeans);
 		
-		double[][] sMeans = clustering.kMeansCluster(sdSetUp.getAllData(), (int) Math.sqrt(sdSetUp.getAllData().length));		
+		//double[][] sMeans = clustering.kMeansCluster(sdSetUp.getAllData(), 7);		
 		//Printer sPrint = new Printer(sMeans);
 		
-		double[][] aMeans = clustering.kMeansCluster(adSetUp.getAllData(), (int) Math.sqrt(adSetUp.getAllData().length));		
+		//double[][] aMeans = clustering.kMeansCluster(adSetUp.getAllData(), (int) Math.sqrt(adSetUp.getAllData().length));		
 		//Printer aPrint = new Printer(aMeans);
 		
-		double[][] ffMeans = clustering.kMeansCluster(ffdSetUp.getAllData(), (int) Math.sqrt(ffdSetUp.getAllData().length));		
+		//double[][] ffMeans = clustering.kMeansCluster(ffdSetUp.getAllData(), (int) Math.sqrt(ffdSetUp.getAllData().length));		
 		//Printer ffPrint = new Printer(ffMeans);
 		
-		double[][] mMeans = clustering.kMeansCluster(mdSetUp.getAllData(), (int) Math.sqrt(mdSetUp.getAllData().length));		
+		//double[][] mMeans = clustering.kMeansCluster(mdSetUp.getAllData(), (int) Math.sqrt(mdSetUp.getAllData().length));		
 		//Printer Print = new Printer(mMeans);
-		
 		
 	}
 

@@ -188,7 +188,12 @@ public class DataC {
     }
     
 
-    public String getAllData() { return allData; }
+    public DataC(double[] meanFeatures) {
+    	features = meanFeatures;
+	}
+
+
+	public String getAllData() { return allData; }
 
     public double[] getFeatures() {
         return features;

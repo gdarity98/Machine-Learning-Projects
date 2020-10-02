@@ -163,7 +163,7 @@ public class Clustering {
 			notFirst = true;
 			numTimes++;
 		}
-		System.out.println(numTimes);
+		//System.out.println(numTimes);
 		return means;
 	}
 	
