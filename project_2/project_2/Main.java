@@ -45,7 +45,7 @@ public class Main {
 		String ffdFileName = "data-sets/forestfires.data";
 		DataSetUp ffdSetUp = new DataSetUp(ffdFileName, "endF","regression");
 
-		KNearestNeighbor forestFireKNN = new KNearestNeighbor(ffdSetUp.data, ffdSetUp.numClasses, false);
+		KNearestNeighbor forestFireKNN = new KNearestNeighbor(ffdSetUp.getAllData(), ffdSetUp.numClasses(), false);
 		System.out.println(forestFireKNN.loss(forestFireKNN.data, forestFireKNN.data));
 
 //------------------------------------------MACHINE
@@ -53,9 +53,35 @@ public class Main {
 		String mdFileName = "data-sets/machine.data";
 		DataSetUp mdSetUp = new DataSetUp(mdFileName, "endM","regression");
 
-		KNearestNeighbor machineKNN = new KNearestNeighbor(mdSetUp.data, mdSetUp.numClasses, false);
+		KNearestNeighbor machineKNN = new KNearestNeighbor(mdSetUp.getAllData(), mdSetUp.numClasses(), false);
 		System.out.println(machineKNN.loss(machineKNN.data, machineKNN.data));
-
+		
+//------------------------------------------Clustering
+		System.out.println("Clustering-------------------------");
+		//Testing stuff
+		Clustering clustering = new Clustering();
+		
+		//I just set it to 5 cause I don't know what k needs to be at the moment
+		
+//		double[][] gMeans = clustering.kMeansCluster(gdSetUp.getAllData(), (int) Math.sqrt(gdSetUp.getAllData().length));
+//		Printer gPrint = new Printer (gMeans);
+		
+//		double[][] hvMeans = clustering.kMeansCluster(hvdSetUp.getAllData(), (int) Math.sqrt(hvdSetUp.getAllData().length));		
+//		Printer hvPrint = new Printer (hvMeans);
+		
+//		double[][] sMeans = clustering.kMeansCluster(sdSetUp.getAllData(), (int) Math.sqrt(sdSetUp.getAllData().length));		
+//		Printer sPrint = new Printer(sMeans);
+		
+//		double[][] aMeans = clustering.kMeansCluster(adSetUp.getAllData(), (int) Math.sqrt(adSetUp.getAllData().length));		
+//		Printer aPrint = new Printer(aMeans);
+		
+//		double[][] ffMeans = clustering.kMeansCluster(ffdSetUp.getAllData(), (int) Math.sqrt(ffdSetUp.getAllData().length));		
+//		Printer ffPrint = new Printer(ffMeans);
+		
+//		double[][] mMeans = clustering.kMeansCluster(mdSetUp.getAllData(), (int) Math.sqrt(mdSetUp.getAllData().length));		
+		//Printer Print = new Printer(mMeans);
+		
+		
 	}
 
 }

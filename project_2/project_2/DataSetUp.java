@@ -5,10 +5,10 @@ import java.io.FileReader;
 import java.io.IOException;
 
 public class DataSetUp {
-	public DataC[] data;
-    public int numClasses = 0;
-    public String prevClass = "";
-    public Boolean clOrReg = false;
+	private DataC[] data;
+    private int numClasses = 0;
+    private String prevClass = "";
+    private Boolean clOrReg = false;
     
 	public DataSetUp(String fileName, String classPos, String clOrReg) {
 	 	

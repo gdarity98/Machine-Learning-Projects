@@ -12,7 +12,9 @@ public class DataC {
     private double[] features;
     private String classLabel;
     private int id;
-    String classLoc;
+    private String classLoc;
+    private double clusterID;
+    
 
     //could add a boolean id flag to constructor so that we can work w/ the data sets as they are now
     //id=true --> skip tokens[0] when filling feature vector
@@ -202,6 +204,14 @@ public class DataC {
 
     public int getID() {
         return id;
+    }
+    
+    public double getClusterID() {
+    	return clusterID;
+    }
+    
+    public void setClusterID(double cID) {
+    	clusterID = cID;
     }
 
 
