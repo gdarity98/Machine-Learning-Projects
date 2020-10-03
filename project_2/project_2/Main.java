@@ -62,11 +62,13 @@ public class Main {
 		Clustering clustering = new Clustering();
 		ConvertToData convertMeans = new ConvertToData();
 		
+		System.out.println("KMeans-------------------------\n");
 		double[][] gMeans = clustering.kMeansCluster(gdSetUp.getAllData(), 7);
+		//Printer gPrint = new Printer (gMeans);
 		DataC[] gMeansDataC = convertMeans.convertToData(gMeans);
 		
-		KNearestNeighbor gMeanKNN = new KNearestNeighbor(gMeansDataC,7, true);
-		System.out.println(gMeanKNN.loss(gMeanKNN.data,gMeanKNN.data));
+		//KNearestNeighbor gMeanKNN = new KNearestNeighbor(gMeansDataC,7, true);
+		//System.out.println(gMeanKNN.loss(gMeanKNN.data,gMeanKNN.data));
 		
 		//double[][] hvMeans = clustering.kMeansCluster(hvdSetUp.getAllData(), 2);		
 		//Printer hvPrint = new Printer (hvMeans);
@@ -82,6 +84,25 @@ public class Main {
 		
 		//double[][] mMeans = clustering.kMeansCluster(mdSetUp.getAllData(), (int) Math.sqrt(mdSetUp.getAllData().length));		
 		//Printer Print = new Printer(mMeans);
+		
+		System.out.println("KMedoids-------------------------\n");
+		//double[][] gMedoids = clustering.kMedoidsCluster(gdSetUp.getAllData(), 7);
+		//Printer gPrint = new Printer(gMedoids);
+		
+		//double[][] hvMedoids = clustering.kMedoidsCluster(hvdSetUp.getAllData(), 2);		
+		//Printer hvPrint = new Printer (hvMedoids);
+		
+		//double[][] sMedoids = clustering.kMedoidsCluster(sdSetUp.getAllData(), 7);	//SOME OF THE CLUSTER DATA POINTS ARE WEIRD	JUST FYI
+		//Printer sPrint = new Printer(sMedoids);
+		
+		//double[][] aMedoids = clustering.kMedoidsCluster(adSetUp.getAllData(), (int) Math.sqrt(adSetUp.getAllData().length));	//THIS ONE GOES INF? To large of dataset?	
+		//Printer aPrint = new Printer(aMedoids);
+		
+		//double[][] ffMedoids = clustering.kMedoidsCluster(ffdSetUp.getAllData(), (int) Math.sqrt(ffdSetUp.getAllData().length)); //Runs on a lower NumTimes	
+		//Printer ffPrint = new Printer(ffMedoids);
+		
+		//double[][] mMedoids = clustering.kMedoidsCluster(mdSetUp.getAllData(), (int) Math.sqrt(mdSetUp.getAllData().length));	//This one completed at numTimes 1000 after awhile	
+		//Printer Print = new Printer(mMedoids);
 		
 	}
 
