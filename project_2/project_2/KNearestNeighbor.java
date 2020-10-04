@@ -254,10 +254,15 @@ public class KNearestNeighbor {
         For regression, accuracy, root mean squared error, and mean absolute error
         are calculated
 
-     */
-    public double loss(DataC[] dataSet, DataC[] testSet) {
+        Returns performance[] = 3 loss stats
+            Precision, recall, F1 for classification
+            RSME, MAE, accuracy for regression
 
-        int[][] confusionMatrix = new int[numClasses+1][numClasses+1];
+     */
+    public double[] loss(DataC[] dataSet, DataC[] testSet) {
+
+        int[][] confusionMatrix = new int[numClasses][numClasses];
+        double[] performance = new double[3];
         int count= 0;
 
         //CLASSIFICATION
@@ -277,6 +282,53 @@ public class KNearestNeighbor {
 
                 }
             }
+
+            //get precision and recall
+            double precision;
+            int TP, TPsum= 0;
+            int FP, FPsum= 0;
+            int i= 0;
+            for (int[] row: confusionMatrix) {
+                FP = 0;
+                TP = row[i];
+
+                for (int j= 1; j< numClasses; j++) {
+                    FP += row[(i+j)%numClasses];
+                }
+
+                TPsum += TP;
+                FPsum += (FP + TP);
+                i++;
+            }
+
+            precision = (double)TPsum / FPsum;
+//            System.out.println("Precision: "+ precision);
+
+            double recall;
+            TPsum = 0;
+            int FN, FNsum = 0;
+            for (int j= 0; j< numClasses; j++) {
+                FN = 0;
+                TP = confusionMatrix[j][j];
+
+                for (int k= 1; k< numClasses; k++) {
+                    FN += confusionMatrix[(j+k)%numClasses][j];
+                }
+
+                TPsum += TP;
+                FNsum += (FN + TP);
+            }
+
+            recall = (double)TPsum / FNsum;
+//            System.out.println("Recall: "+ recall);
+
+            //F1 score - harmonic mean of precision and recall
+            double F1 = (2 * precision * recall) / (precision + recall);
+//            System.out.println("F1: "+ F1);
+
+            performance[0] = precision;
+            performance[1] = recall;
+            performance[2] = F1;
         }
 
         //REGRESSION
@@ -300,8 +352,12 @@ public class KNearestNeighbor {
                 }
             }
 
-            System.out.println("RMSE: " + RMSE(predicted, actual));
-            System.out.println("MAE:  " + MAE(predicted, actual));
+//            System.out.println("RMSE: " + RMSE(predicted, actual));
+//            System.out.println("MAE:  " + MAE(predicted, actual));
+
+            performance[0] = RMSE(predicted, actual);
+            performance[1] = MAE(predicted, actual);
+            performance[2] = (double)count / testSet.length;
         }
 
 //        for(int[] row: confusionMatrix) {
@@ -311,14 +367,18 @@ public class KNearestNeighbor {
 
 
 //        System.out.println(count + " / " + testSet.length);
+//        double accuracy = (double) count / testSet.length;
+//        System.out.println(accuracy);
 
-        return (double) count / testSet.length;
+        return performance;
     }
 
     /*
         Test performance by 10-fold cross-validation
+
+        Returns an array of averaged loss stats (see loss() for metrics)
      */
-    public double crossValidate() {
+    public double[] crossValidate() {
         int trainLen = (int)(0.9 * data.length)+1;
         int testLen = data.length - trainLen;
         System.out.println("Train: " + trainLen);
@@ -326,7 +386,7 @@ public class KNearestNeighbor {
         DataC[] train = new DataC[trainLen];
         DataC[] test;
         DataC[][] split = new DataC[10][testLen];
-        double loss= 0;
+        double[] lossStats = new double[3];
 
         //shuffle
         List<DataC> temp = Arrays.asList(data);
@@ -363,15 +423,40 @@ public class KNearestNeighbor {
             test = split[(fold+9)%10];
 
             //get loss data
-            loss += loss(train, test);
+            int i = 0;
+            double[] lossTemp = loss(train, test);
+            for (double d: lossTemp) {
+                lossStats[i++] += d;
+            }
         }
 
         //average loss data
-        loss /= 10;
+        int l = 0;
+        for (double d: lossStats) {
+            lossStats[l++] = d / 10;
+        }
 
-        System.out.println("Accuracy: " + loss);
+        //print lossStats
+        printLossStats(lossStats);
 
-        return loss;
+        return lossStats;
+    }
+
+    /*
+        A little helper function to print loss
+        metrics nicely.
+     */
+    public void printLossStats(double[] stats) {
+        if (this.classification) {
+            System.out.println("Precision: "+ stats[0]);
+            System.out.println("Recall:    "+ stats[1]);
+            System.out.println("F1 score:  "+ stats[2]);
+        }
+        else {
+            System.out.println("RSME:     "+ stats[0]);
+            System.out.println("MAE:      "+ stats[1]);
+            System.out.println("Accuracy: "+ stats[2]);
+        }
     }
 
     /*
@@ -383,16 +468,18 @@ public class KNearestNeighbor {
     public void tune() {
         double max= -1;
         int bestK= 1;
-        double accuracy;
+        double[] lossStats;
+        double F1;
 
         //test k up to 20, take best and set it
         for (int k= 1; k <= 20; k++) {
             this.k = k;
 
             System.out.println("k = " + k);
-            accuracy = crossValidate();
-            if (accuracy > max) {
-                max = accuracy;
+            lossStats = crossValidate();
+            F1 = lossStats[2];
+            if (F1 > max) {
+                max = F1;
                 bestK = k;
             }
         }
@@ -535,8 +622,8 @@ public class KNearestNeighbor {
         String gdFileName = "data-sets/glass.data";
         DataSetUp gdSetUp = new DataSetUp(gdFileName, "end","classification");
 
-        KNearestNeighbor glassKNN = new KNearestNeighbor(gdSetUp.getAllData(), gdSetUp.numClasses(), true);
-//        System.out.println(glassKNN.loss(glassKNN.data, glassKNN.data));
+        KNearestNeighbor glassKNN = new KNearestNeighbor(gdSetUp.getAllData(), 7, true);
+//        glassKNN.printLossStats(glassKNN.loss(glassKNN.data, glassKNN.data));
 //
 ////        glassKNN.editDataSet();
 ////        glassKNN.condenseDataSet();   //<--ALL STATS ARE BAD W/ GLASS
@@ -549,10 +636,10 @@ public class KNearestNeighbor {
         DataSetUp hvdSetUp = new DataSetUp(hvdFileName, "beg","classification");
 
         KNearestNeighbor houseKNN = new KNearestNeighbor(hvdSetUp.getAllData(), 2, true);
-//        System.out.println(houseKNN.loss(houseKNN.data, houseKNN.data));
+//        houseKNN.loss(houseKNN.data, houseKNN.data);
 //
 ////        houseKNN.editDataSet();
-//        houseKNN.condenseDataSet();     //<---AMAZING
+////        houseKNN.condenseDataSet();     //<---AMAZING
 //
 //        houseKNN.crossValidate();
 
@@ -561,11 +648,11 @@ public class KNearestNeighbor {
         String sdFileName = "data-sets/segmentation.data";
         DataSetUp sdSetUp = new DataSetUp(sdFileName, "beg","classification");
 
-        KNearestNeighbor segmentationKNN = new KNearestNeighbor(sdSetUp.getAllData(), sdSetUp.numClasses(), true);
-//        System.out.println(segmentationKNN.loss(segmentationKNN.data, segmentationKNN.data));
+        KNearestNeighbor segmentationKNN = new KNearestNeighbor(sdSetUp.getAllData(), 7, true);
+//        segmentationKNN.printLossStats(segmentationKNN.loss(segmentationKNN.data, segmentationKNN.data));
 //
 ////        segmentationKNN.editDataSet();
-//        segmentationKNN.condenseDataSet();  //<--pretty good
+////        segmentationKNN.condenseDataSet();  //<--pretty good
 //
 //        segmentationKNN.crossValidate();
 
@@ -575,9 +662,9 @@ public class KNearestNeighbor {
         DataSetUp adSetUp = new DataSetUp(adFileName, "endA","regression");
 
         KNearestNeighbor abaloneKNN = new KNearestNeighbor(adSetUp.getAllData(), adSetUp.numClasses(), false);
-//		System.out.println(abaloneKNN.loss(abaloneKNN.data, abaloneKNN.data));
+//		abaloneKNN.printLossStats(abaloneKNN.loss(abaloneKNN.data, abaloneKNN.data));
 //
-//		abaloneKNN.editDataSet();   //<-- pretty good
+////		abaloneKNN.editDataSet();   //<-- pretty good
 ////		abaloneKNN.condenseDataSet();
 //
 //        abaloneKNN.crossValidate();
@@ -588,11 +675,11 @@ public class KNearestNeighbor {
         DataSetUp ffdSetUp = new DataSetUp(ffdFileName, "endF","regression");
 
         KNearestNeighbor forestFireKNN = new KNearestNeighbor(ffdSetUp.getAllData(), ffdSetUp.numClasses(), false);
-//		System.out.println(forestFireKNN.loss(forestFireKNN.data, forestFireKNN.data));
+//		forestFireKNN.printLossStats(forestFireKNN.loss(forestFireKNN.data, forestFireKNN.data));
 //
-//        forestFireKNN.editDataSet();  //<-- REALLY GOOD PERFORMANCE
+////        forestFireKNN.editDataSet();  //<-- REALLY GOOD PERFORMANCE
 ////        forestFireKNN.condenseDataSet();
-
+//
 //        forestFireKNN.crossValidate();
 
         //------------------------------------------MACHINE
@@ -601,10 +688,10 @@ public class KNearestNeighbor {
         DataSetUp mdSetUp = new DataSetUp(mdFileName, "endM","regression");
 
         KNearestNeighbor machineKNN = new KNearestNeighbor(mdSetUp.getAllData(), mdSetUp.numClasses(), false);
-//		System.out.println(machineKNN.loss(machineKNN.data, machineKNN.data));
+//		machineKNN.printLossStats(machineKNN.loss(machineKNN.data, machineKNN.data));
 //
-////		machineKNN.editDataSet();
-//		machineKNN.condenseDataSet();
+////		machineKNN.editDataSet();       //<-- does not work
+////		machineKNN.condenseDataSet();
 //
 //		machineKNN.crossValidate();
 
