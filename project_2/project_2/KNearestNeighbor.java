@@ -34,9 +34,13 @@ public class KNearestNeighbor {
     public KNearestNeighbor(DataC[] dataIn, int num, boolean classification) {
     	this.data = dataIn;
     	this.numClasses = num;
-        this.k = 8;
+        this.k = 4;
         this.epsilon = 1.0;
         this.classification = classification;
+
+        if (dataIn.length < k) {
+            this.k = data.length-1;
+        }
     }
 
     /*
@@ -261,7 +265,7 @@ public class KNearestNeighbor {
 //        System.out.println("---------------------");
 
 
-        System.out.println(count + " / " + testSet.length);
+//        System.out.println(count + " / " + testSet.length);
         double accuracy = (double) count / testSet.length;
 
         return accuracy;
@@ -273,6 +277,8 @@ public class KNearestNeighbor {
     public double crossValidate() {
         int trainLen = (int)(0.9 * data.length)+1;
         int testLen = data.length - trainLen;
+        System.out.println("Train: " + trainLen);
+        System.out.println("Test:  " + testLen);
         DataC[] train = new DataC[trainLen];
         DataC[] test;
         DataC[][] split = new DataC[10][testLen];
@@ -351,6 +357,124 @@ public class KNearestNeighbor {
         System.out.println("Accuracy: " + max);
         this.k = bestK;
     }
+
+    /*
+        Remove bad samples from the data set
+     */
+    public void editDataSet() {
+        List<DataC> editedSet = Arrays.asList(this.data);
+        boolean dataDeleted;
+
+        do {
+            DataC[] editedSetArr = new DataC[editedSet.size()];
+            editedSet.toArray(editedSetArr);
+            System.out.println(editedSet.size());
+
+            int i = 0;
+            dataDeleted = false;
+            for (DataC d : editedSet) {
+                double trueClass = Double.parseDouble(d.getClassLabel());
+                double guess = Double.parseDouble(classify(editedSetArr, d.getFeatures()));
+
+                if (this.classification) {
+                    if (guess != trueClass) {
+                        editedSetArr[i] = null;
+                        dataDeleted = true;
+                    }
+                } else {
+                    if (Math.abs(trueClass - guess) > this.epsilon) {
+                        editedSetArr[i] = null;
+                        dataDeleted = true;
+                    }
+                }
+                i++;
+            }
+
+            List<DataC> list = new ArrayList<>();
+            for (DataC d : editedSetArr) {
+                if (d != null) {
+                    list.add(d);
+                }
+            }
+
+            editedSet = list;
+        } while (dataDeleted);
+
+        this.data = new DataC[editedSet.size()];
+        editedSet.toArray(this.data);
+
+        //need to set new id numbers to avoid array out of bounds error
+        int i= 1;
+        for (DataC d: this.data) {
+            d.setID(i++);
+        }
+    }
+
+    /*
+        Select the smallest subset Z of this.data such that
+        using Z in place of this.data does not degrade performance
+
+        Really weird behavior w/ house votes
+     */
+    public void condenseDataSet() {
+        List<DataC> condensedSet = new ArrayList<>();
+        DataC[] condensedArr = this.data;
+        int rand = (int)(Math.random()*this.data.length);
+        condensedSet.add(this.data[rand]);
+        condensedArr[rand] = null;
+
+        boolean changed = true;
+
+        while(changed && condensedSet.size() < this.data.length) {
+            changed = false;
+
+            //shuffle condensed arr
+            List<DataC> temp = Arrays.asList(condensedArr);
+            Collections.shuffle(temp);
+            DataC[] shuffled = new DataC[data.length];
+            temp.toArray(shuffled);
+            condensedArr = shuffled;
+
+            //for each d in the data set, find d' in Z s.t. it is the closest neighbor of d
+            //if class(d) != class(d') add d to condensedSet
+            for (DataC d: condensedArr) {
+                double minDist = Double.POSITIVE_INFINITY;
+                DataC min = null;
+                double dist;
+
+                if (d != null) {
+                    for (DataC x : condensedSet) {
+                        dist = getDistance(d.getFeatures(), x.getFeatures());
+
+                        if (dist < minDist) {
+                            minDist = dist;
+                            min = x;
+                        }
+                    }
+                }
+
+                if (min != null) {
+                    if (!d.getClassLabel().contentEquals(min.getClassLabel())) {
+                        condensedSet.add(d);
+                        changed = true;
+                    }
+                    d = null;
+                }
+
+            }
+//            System.out.println("Size of condensed: "+ condensedSet.size());
+
+        }
+
+        this.data = new DataC[condensedSet.size()];
+        condensedSet.toArray(this.data);
+
+        //need to set new id numbers to avoid array out of bounds error
+        int i= 1;
+        for (DataC d: this.data) {
+            d.setID(i++);
+        }
+    }
     
     public static void main(String[] args) {
         String gdFileName = "data-sets/glass.data";
@@ -358,6 +482,11 @@ public class KNearestNeighbor {
 
         KNearestNeighbor glassKNearestNeighbor = new KNearestNeighbor(gdSetUp.getAllData(), gdSetUp.numClasses(), true);
 //        glassKNearestNeighbor.tune();
+        glassKNearestNeighbor.crossValidate();
+//        System.out.println(glassKNearestNeighbor.loss(glassKNearestNeighbor.data, glassKNearestNeighbor.data));
+//        glassKNearestNeighbor.crossValidate();
+//        glassKNearestNeighbor.editDataSet();
+        glassKNearestNeighbor.condenseDataSet();
         glassKNearestNeighbor.crossValidate();
 //        System.out.println(glassKNearestNeighbor.loss(glassKNearestNeighbor.data, glassKNearestNeighbor.data));
 
@@ -375,15 +504,19 @@ public class KNearestNeighbor {
         String hvdFileName = "data-sets/house-votes-84.data";
         DataSetUp hvdSetUp = new DataSetUp(hvdFileName, "beg","classification");
 
-//        KNearestNeighbor houseKNearestNeighbor = new KNearestNeighbor(hvdSetUp.getAllData(), hvdSetUp.numClasses());
+        KNearestNeighbor houseKNearestNeighbor = new KNearestNeighbor(hvdSetUp.getAllData(), 2, true);
+        houseKNearestNeighbor.crossValidate();
+//        System.out.println(houseKNearestNeighbor.loss(houseKNearestNeighbor.data, houseKNearestNeighbor.data));
+//        houseKNearestNeighbor.editDataSet();
+        houseKNearestNeighbor.condenseDataSet();
 //        System.out.println(houseKNearestNeighbor.loss(houseKNearestNeighbor.data, houseKNearestNeighbor.data));
 //        houseKNearestNeighbor.tune();
-//        houseKNearestNeighbor.crossValidate();
+        houseKNearestNeighbor.crossValidate();
 
         String sdFileName = "data-sets/segmentation.data";
         DataSetUp sdSetUp = new DataSetUp(sdFileName, "beg","classification");
 
-        KNearestNeighbor segmentationKNearestNeighbor = new KNearestNeighbor(sdSetUp.getAllData(), sdSetUp.numClasses(), true);
+//        KNearestNeighbor segmentationKNearestNeighbor = new KNearestNeighbor(sdSetUp.getAllData(), sdSetUp.numClasses(), true);
 //        System.out.println(segmentationKNearestNeighbor.loss(segmentationKNearestNeighbor.data, segmentationKNearestNeighbor.data));
 //        segmentationKNearestNeighbor.tune();
 
