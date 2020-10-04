@@ -52,7 +52,7 @@ public class DataSetUp {
                 //This creates a sData class with the one line from the file
                 data = new DataC(line, lineNo+1, classPos, clOrReg);
                 dataArray[lineNo++] = data;
-                
+
                 if(!prevClass.equals(data.getClassLabel())) { //this is wrong
                 	numClasses++;
                 	prevClass = data.getClassLabel();
@@ -70,12 +70,10 @@ public class DataSetUp {
 	}
 
 	public DataC[] getAllData() {
-		// TODO Auto-generated method stub
 		return data;
 	}
 
 	public int numClasses() {
-		// TODO Auto-generated method stub
 		return numClasses;
 	}
 	

@@ -16,9 +16,6 @@ public class DataC {
     private double clusterID;
     
 
-    //could add a boolean id flag to constructor so that we can work w/ the data sets as they are now
-    //id=true --> skip tokens[0] when filling feature vector
-    //id=false --> don't skip tokens[0]
     public DataC(String fullData, int id, String classLoc, String clOrReg) { 
     	if(clOrReg.equals("classification")){
 	    	if(classLoc.equals("end")) {
@@ -41,23 +38,23 @@ public class DataC {
 		        
 		        //This is for when we read in the Classification House Votes Data This also Randomizes Missing Attributes
 		        for(int i = 1; i < tokens.length; i++) {
-		        	if(tokens[i].equals("n")) {
-		        		tokens[i] = Integer.toString(0);
-		        	}else if (tokens[i].equals("y")) {
-		        		tokens[i] = Integer.toString(1);
-		        	}else if (tokens[i].equals("?")) {
-		        		Random random = new Random();
-						int randomNum = 0;
-						while(true) {
-							randomNum = random.nextInt(3);
-							if (randomNum != 0) break;
+					switch (tokens[i]) {
+						case "n" -> tokens[i] = Integer.toString(0);
+						case "y" -> tokens[i] = Integer.toString(1);
+						case "?" -> {
+							Random random = new Random();
+							int randomNum = 0;
+							while (true) {
+								randomNum = random.nextInt(3);
+								if (randomNum != 0) break;
+							}
+							if (randomNum == 1) {
+								tokens[i] = Integer.toString(1);
+							} else {
+								tokens[i] = Integer.toString(0);
+							}
 						}
-						if(randomNum == 1) {
-							tokens[i] = Integer.toString(1);
-						}else {
-							tokens[i] = Integer.toString(0);
-						}
-		        	}
+					}
 		        }
 		        
 		        for (int i= 1; i< tokens.length; i++) {
@@ -74,21 +71,15 @@ public class DataC {
 		        }
 		        
 		        //This edits the classLabel to be a number version rather than a string for Segmentation Data
-		        if(classLabel.equals("BRICKFACE")) {
-		        	classLabel = "1";
-		        }else if (classLabel.equals("SKY")) {
-		        	classLabel = "2";
-		        }else if (classLabel.equals("FOLIAGE")) {
-		        	classLabel = "3";
-		        }else if (classLabel.equals("CEMENT")) {
-		        	classLabel = "4";
-		        }else if (classLabel.equals("WINDOW")) {
-		        	classLabel = "5";
-		        }else if (classLabel.equals("PATH")) {
-		        	classLabel = "6";
-		        }else if (classLabel.equals("GRASS")) {
-		        	classLabel = "7";
-		        }
+				switch (classLabel) {
+					case "BRICKFACE" -> classLabel = "1";
+					case "SKY" -> classLabel = "2";
+					case "FOLIAGE" -> classLabel = "3";
+					case "CEMENT" -> classLabel = "4";
+					case "WINDOW" -> classLabel = "5";
+					case "PATH" -> classLabel = "6";
+					case "GRASS" -> classLabel = "7";
+				}
 		        
 		        this.id = id;
 	    	}
@@ -103,50 +94,33 @@ public class DataC {
 		        
 		       //This is for when we read in the Regression Forest Fires Data to change categorical data into numbers
 		        for(int i = 1; i < tokens.length; i++) {
-		        	if(tokens[i].equals("jan")) {
-		        		tokens[i] = Integer.toString(0);
-		        	}else if (tokens[i].equals("feb")) {
-		        		tokens[i] = Integer.toString(1);
-		        	}else if (tokens[i].equals("mar")) {
-		        		tokens[i] = Integer.toString(2);
-		        	}else if (tokens[i].equals("apr")) {
-		        		tokens[i] = Integer.toString(3);
-		        	}else if (tokens[i].equals("may")) {
-		        		tokens[i] = Integer.toString(4);
-		        	}else if (tokens[i].equals("jun")) {
-		        		tokens[i] = Integer.toString(5);
-		        	}else if (tokens[i].equals("jul")) {
-		        		tokens[i] = Integer.toString(6);
-		        	}else if (tokens[i].equals("aug")) {
-		        		tokens[i] = Integer.toString(7);
-		        	}else if (tokens[i].equals("sep")) {
-		        		tokens[i] = Integer.toString(8);
-		        	}else if (tokens[i].equals("oct")) {
-		        		tokens[i] = Integer.toString(9);
-		        	}else if (tokens[i].equals("nov")) {
-		        		tokens[i] = Integer.toString(10);
-		        	}else if (tokens[i].equals("dec")) {
-		        		tokens[i] = Integer.toString(11);
-		        	}
+					switch (tokens[i]) {
+						case "jan" -> tokens[i] = Integer.toString(0);
+						case "feb" -> tokens[i] = Integer.toString(1);
+						case "mar" -> tokens[i] = Integer.toString(2);
+						case "apr" -> tokens[i] = Integer.toString(3);
+						case "may" -> tokens[i] = Integer.toString(4);
+						case "jun" -> tokens[i] = Integer.toString(5);
+						case "jul" -> tokens[i] = Integer.toString(6);
+						case "aug" -> tokens[i] = Integer.toString(7);
+						case "sep" -> tokens[i] = Integer.toString(8);
+						case "oct" -> tokens[i] = Integer.toString(9);
+						case "nov" -> tokens[i] = Integer.toString(10);
+						case "dec" -> tokens[i] = Integer.toString(11);
+					}
 		        }
 		        
 		      //This is for when we read in the Regression Forest Fires Data to change categorical data into numbers
 		        for(int i = 1; i < tokens.length; i++) {
-		        	if(tokens[i].equals("mon")) {
-		        		tokens[i] = Integer.toString(0);
-		        	}else if (tokens[i].equals("tue")) {
-		        		tokens[i] = Integer.toString(1);
-		        	}else if (tokens[i].equals("wed")) {
-		        		tokens[i] = Integer.toString(2);
-		        	}else if (tokens[i].equals("thu")) {
-		        		tokens[i] = Integer.toString(3);
-		        	}else if (tokens[i].equals("fri")) {
-		        		tokens[i] = Integer.toString(4);
-		        	}else if (tokens[i].equals("sat")) {
-		        		tokens[i] = Integer.toString(5);
-		        	}else if (tokens[i].equals("sun")) {
-		        		tokens[i] = Integer.toString(6);
-		        	}
+					switch (tokens[i]) {
+						case "mon" -> tokens[i] = Integer.toString(0);
+						case "tue" -> tokens[i] = Integer.toString(1);
+						case "wed" -> tokens[i] = Integer.toString(2);
+						case "thu" -> tokens[i] = Integer.toString(3);
+						case "fri" -> tokens[i] = Integer.toString(4);
+						case "sat" -> tokens[i] = Integer.toString(5);
+						case "sun" -> tokens[i] = Integer.toString(6);
+					}
 		        }
 		        
 		        for (int i= 0; i< tokens.length -1; i++) {
@@ -188,7 +162,9 @@ public class DataC {
     }
     
 
-    public DataC(double[] meanFeatures) {
+    public DataC(double[] meanFeatures, int clusterID) {
+    	this.classLabel = String.valueOf(clusterID);
+    	this.id = clusterID;
     	features = meanFeatures;
 	}
 
@@ -210,6 +186,8 @@ public class DataC {
     public int getID() {
         return id;
     }
+
+    public void setID(int id) { this.id = id; }
     
     public double getClusterID() {
     	return clusterID;

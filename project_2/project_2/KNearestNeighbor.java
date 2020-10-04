@@ -26,6 +26,7 @@ public class KNearestNeighbor {
     public int numClasses;
     public int k;
     public double epsilon;
+    public double sigma;
     public boolean classification;
    
     /*
@@ -36,6 +37,7 @@ public class KNearestNeighbor {
     	this.numClasses = num;
         this.k = 4;
         this.epsilon = 1.0;
+        this.sigma = 1.0;
         this.classification = classification;
 
         if (dataIn.length < k) {
@@ -97,9 +99,36 @@ public class KNearestNeighbor {
     }
 
     /*
-        Takes a query point (feature vector) and gets its distance between every other point
-        in the data set, then finds its k nearest neighbors and classifies it based on a plurality
-        vote from the neighbors' classes. (Working (I think))
+        Corresponds to gaussian kernel function for getting weights
+        for regression
+     */
+    public double kernelFunc(double[] x, double[] y) {
+        if (x.length != y.length) {
+            return -1;
+        }
+
+        //get mean
+        double xsum = 0, ysum = 0;
+        for (int i= 0; i< x.length; i++) {
+            xsum += x[i];
+            ysum += y[i];
+        }
+
+        double mean = (xsum + ysum) / 2;
+        mean = Math.pow(mean, 2);
+        double sigma = 2 * Math.pow(this.sigma, 2);
+
+        return Math.exp(-(mean / sigma));
+    }
+
+    /*
+        Takes a DataC[] training set and a double[] query of features that
+        make up a DataC object. Classifies the query point to a class for
+        classification or a response value for regression.
+
+        You can choose (see comments below)
+            Majority voting OR weighted voting for classification
+            Weighted average OR Gaussian kernel for regression
      */
     public String classify(DataC[] dataSet, double[] query) {
         DataC[] nearestNeighbors = new DataC[k];
@@ -178,6 +207,8 @@ public class KNearestNeighbor {
 
         //REGRESSION
         else {
+
+            //WEIGHTED AVERAGE
             double weightedAvg= 0;
             double weightSum= 0;
             int c= 0;
@@ -189,6 +220,21 @@ public class KNearestNeighbor {
 
             weightedAvg /= weightSum;
 
+
+            //OR --> GAUSSIAN KERNEL
+            //UNCOMMENT BELOW, COMMENT ABOVE FOR GAUSSIAN KERNEL
+
+//            double weightedAvg = 0;
+//            double weightSum = 0;
+//            int c = 0;
+//            for (DataC d: nearestNeighbors) {
+//                double responseVar = Double.parseDouble(d.getClassLabel());
+//                weightedAvg += (responseVar * kernelFunc(d.getFeatures(), query));
+//                weightSum += kernelFunc(d.getFeatures(), query);
+//            }
+//
+//            weightedAvg /= weightSum;
+
             cl = String.valueOf(weightedAvg);
         }
 
@@ -199,12 +245,11 @@ public class KNearestNeighbor {
         L O S S -->
 
         Makes a confusion matrix (FP / FN are in context of c1) for classification
-        ----trueClass------
-               c1  c2  c3  c4
-      |    c1  TP  FP  FP  FP
-    guess  c2  FN  TP
-      |    c3  FN      TP
-      |    c4  FN          TP
+        ----trueClass----
+               c1  ..  cN
+      |    c1  TP  FP  FP
+    guess  ..  FN  TP
+      |    cN  FN      TP
 
         For regression, accuracy, root mean squared error, and mean absolute error
         are calculated
@@ -266,9 +311,8 @@ public class KNearestNeighbor {
 
 
 //        System.out.println(count + " / " + testSet.length);
-        double accuracy = (double) count / testSet.length;
 
-        return accuracy;
+        return (double) count / testSet.length;
     }
 
     /*
@@ -359,7 +403,8 @@ public class KNearestNeighbor {
     }
 
     /*
-        Remove bad samples from the data set
+        Continue removing bad / useless samples that classify incorrectly
+        until no more are removed.
      */
     public void editDataSet() {
         List<DataC> editedSet = Arrays.asList(this.data);
@@ -475,50 +520,93 @@ public class KNearestNeighbor {
             d.setID(i++);
         }
     }
-    
+
+    /*
+        Uncomment the one(s) you want to look at (I would recommend 1 at a time).
+        Choose
+            1. Regular KNN by commenting both KNN.editDataSet and KNN.condenseDataSet
+            2. Edited KNN by uncommenting KNN.editDataSet
+            3. Condensed KNN by uncommenting KNN.condenseDataSet
+     */
     public static void main(String[] args) {
+
+        //-------------------------------------------GLASS
+        System.out.println("GLASS-------------------------");
         String gdFileName = "data-sets/glass.data";
         DataSetUp gdSetUp = new DataSetUp(gdFileName, "end","classification");
 
-        KNearestNeighbor glassKNearestNeighbor = new KNearestNeighbor(gdSetUp.getAllData(), gdSetUp.numClasses(), true);
-//        glassKNearestNeighbor.tune();
-        glassKNearestNeighbor.crossValidate();
-//        System.out.println(glassKNearestNeighbor.loss(glassKNearestNeighbor.data, glassKNearestNeighbor.data));
-//        glassKNearestNeighbor.crossValidate();
-//        glassKNearestNeighbor.editDataSet();
-        glassKNearestNeighbor.condenseDataSet();
-        glassKNearestNeighbor.crossValidate();
-//        System.out.println(glassKNearestNeighbor.loss(glassKNearestNeighbor.data, glassKNearestNeighbor.data));
+        KNearestNeighbor glassKNN = new KNearestNeighbor(gdSetUp.getAllData(), gdSetUp.numClasses(), true);
+//        System.out.println(glassKNN.loss(glassKNN.data, glassKNN.data));
+//
+////        glassKNN.editDataSet();
+////        glassKNN.condenseDataSet();   //<--ALL STATS ARE BAD W/ GLASS
+//
+//        glassKNN.crossValidate();
 
-        /*
-            Bad performance on both House and Glass w/ crossValidate()
-                ~0.3 for glass
-                ~0.56 for house
-
-            weightedVoting seems to perform about the same as majorityVoting,
-            I think one is probably better than the other for each data set
-
-            Tuning works well, usually k = ~10
-         */
-
+        //-------------------------------------------HOUSE VOTES
+        System.out.println("HOUSE VOTES-------------------------");
         String hvdFileName = "data-sets/house-votes-84.data";
         DataSetUp hvdSetUp = new DataSetUp(hvdFileName, "beg","classification");
 
-        KNearestNeighbor houseKNearestNeighbor = new KNearestNeighbor(hvdSetUp.getAllData(), 2, true);
-        houseKNearestNeighbor.crossValidate();
-//        System.out.println(houseKNearestNeighbor.loss(houseKNearestNeighbor.data, houseKNearestNeighbor.data));
-//        houseKNearestNeighbor.editDataSet();
-        houseKNearestNeighbor.condenseDataSet();
-//        System.out.println(houseKNearestNeighbor.loss(houseKNearestNeighbor.data, houseKNearestNeighbor.data));
-//        houseKNearestNeighbor.tune();
-        houseKNearestNeighbor.crossValidate();
+        KNearestNeighbor houseKNN = new KNearestNeighbor(hvdSetUp.getAllData(), 2, true);
+//        System.out.println(houseKNN.loss(houseKNN.data, houseKNN.data));
+//
+////        houseKNN.editDataSet();
+//        houseKNN.condenseDataSet();     //<---AMAZING
+//
+//        houseKNN.crossValidate();
 
+        //-------------------------------------------SEGMENTATION
+        System.out.println("SEGMENTATION-------------------------");
         String sdFileName = "data-sets/segmentation.data";
         DataSetUp sdSetUp = new DataSetUp(sdFileName, "beg","classification");
 
-//        KNearestNeighbor segmentationKNearestNeighbor = new KNearestNeighbor(sdSetUp.getAllData(), sdSetUp.numClasses(), true);
-//        System.out.println(segmentationKNearestNeighbor.loss(segmentationKNearestNeighbor.data, segmentationKNearestNeighbor.data));
-//        segmentationKNearestNeighbor.tune();
+        KNearestNeighbor segmentationKNN = new KNearestNeighbor(sdSetUp.getAllData(), sdSetUp.numClasses(), true);
+//        System.out.println(segmentationKNN.loss(segmentationKNN.data, segmentationKNN.data));
+//
+////        segmentationKNN.editDataSet();
+//        segmentationKNN.condenseDataSet();  //<--pretty good
+//
+//        segmentationKNN.crossValidate();
+
+        //-------------------------------------------ABALONE
+        System.out.println("ABALONE-------------------------");
+        String adFileName = "data-sets/abalone.data";
+        DataSetUp adSetUp = new DataSetUp(adFileName, "endA","regression");
+
+        KNearestNeighbor abaloneKNN = new KNearestNeighbor(adSetUp.getAllData(), adSetUp.numClasses(), false);
+//		System.out.println(abaloneKNN.loss(abaloneKNN.data, abaloneKNN.data));
+//
+//		abaloneKNN.editDataSet();   //<-- pretty good
+////		abaloneKNN.condenseDataSet();
+//
+//        abaloneKNN.crossValidate();
+
+        //------------------------------------------FOREST FIRES
+        System.out.println("FOREST FIRES-------------------------");
+        String ffdFileName = "data-sets/forestfires.data";
+        DataSetUp ffdSetUp = new DataSetUp(ffdFileName, "endF","regression");
+
+        KNearestNeighbor forestFireKNN = new KNearestNeighbor(ffdSetUp.getAllData(), ffdSetUp.numClasses(), false);
+//		System.out.println(forestFireKNN.loss(forestFireKNN.data, forestFireKNN.data));
+//
+//        forestFireKNN.editDataSet();  //<-- REALLY GOOD PERFORMANCE
+////        forestFireKNN.condenseDataSet();
+
+//        forestFireKNN.crossValidate();
+
+        //------------------------------------------MACHINE
+        System.out.println("MACHINE-------------------------");
+        String mdFileName = "data-sets/machine.data";
+        DataSetUp mdSetUp = new DataSetUp(mdFileName, "endM","regression");
+
+        KNearestNeighbor machineKNN = new KNearestNeighbor(mdSetUp.getAllData(), mdSetUp.numClasses(), false);
+//		System.out.println(machineKNN.loss(machineKNN.data, machineKNN.data));
+//
+////		machineKNN.editDataSet();
+//		machineKNN.condenseDataSet();
+//
+//		machineKNN.crossValidate();
 
     }
 }
