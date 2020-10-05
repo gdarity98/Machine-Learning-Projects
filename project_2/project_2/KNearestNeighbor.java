@@ -481,7 +481,15 @@ public class KNearestNeighbor {
         this.epsilon = bestParams[1];
         this.sigma = bestParams[2];
 
-        double F1best = crossValidate()[2];
+        double lossMetricBest;
+        if (this.classification) {
+            //use F1 for classification
+            lossMetricBest = crossValidate()[2];
+        }
+        else {
+            //use RSME for regression
+            lossMetricBest = crossValidate()[0];
+        }
 
         for (int i= 0; i< 10; i++) {
             double[] newParams = new double[3];
@@ -493,19 +501,35 @@ public class KNearestNeighbor {
             this.epsilon = newParams[1];
             this.sigma = newParams[2];
 
-            //using F1 as loss metric
-            double F1new = crossValidate()[2];
-
-            if (F1new > F1best) {
-                bestParams = newParams;
-                F1best = F1new;
+            double lossMetric;
+            if (this.classification) {
+                //use F1 for classification
+                lossMetric = crossValidate()[2];
+                if (lossMetric > lossMetricBest) {
+                    bestParams = newParams;
+                    lossMetricBest = lossMetric;
+                }
             }
+            else {
+                //use RSME for regression
+                lossMetric = crossValidate()[0];
+                if (lossMetric < lossMetricBest) {
+                    bestParams = newParams;
+                    lossMetricBest = lossMetric;
+                }
+            }
+
         }
 
         System.out.println("Best k:       "+ bestParams[0]);
         System.out.println("Best epsilon: "+ bestParams[1]);
         System.out.println("Best sigma:   "+ bestParams[2]);
-        System.out.println("F1 score:     "+ F1best);
+        if (this.classification) {
+            System.out.println("F1 score:     " + lossMetricBest);
+        }
+        else {
+            System.out.println("RSME:         " + lossMetricBest);
+        }
 
         this.k = (int) bestParams[0];
         this.epsilon = bestParams[1];
@@ -680,6 +704,7 @@ public class KNearestNeighbor {
                     KNN.numClasses for classification
                     (int) Math.sqrt(KNN.data.length) for regression
 
+        Leave tune() uncommented to see performance.
      */
     public static void main(String[] args) {
 
@@ -689,14 +714,13 @@ public class KNearestNeighbor {
         DataSetUp gdSetUp = new DataSetUp(gdFileName, "end","classification", false);
 
         KNearestNeighbor glassKNN = new KNearestNeighbor(gdSetUp.getAllData(), 7, true);
-//        glassKNN.tune();
-//
+
 //        glassKNN.editDataSet();       //<-- BEST BY FAR
-////        glassKNN.condenseDataSet();   //<--ALL STATS ARE BAD W/ GLASS (slightly better)
-////        glassKNN.kMeansClusters(glassKNN.numClasses); //<-- ONLY ONE CLUSTER
-////        glassKNN.kMedoidsClusters(glassKNN.numClasses);   //<-- better
-//
-//        glassKNN.crossValidate();
+//        glassKNN.condenseDataSet();   //<--ALL STATS ARE BAD W/ GLASS (slightly better)
+//        glassKNN.kMeansClusters(glassKNN.numClasses); //<-- ONLY ONE CLUSTER
+//        glassKNN.kMedoidsClusters(glassKNN.numClasses);   //<-- better
+
+//        glassKNN.tune();
 
         //-------------------------------------------HOUSE VOTES
         System.out.println("HOUSE VOTES-------------------------");
@@ -704,14 +728,13 @@ public class KNearestNeighbor {
         DataSetUp hvdSetUp = new DataSetUp(hvdFileName, "beg","classification", false);
 
         KNearestNeighbor houseKNN = new KNearestNeighbor(hvdSetUp.getAllData(), 2, true);
+
+//        houseKNN.editDataSet();                           //<-- ?
+//        houseKNN.condenseDataSet();                       //<---AMAZING sometimes?
+//        houseKNN.kMeansClusters(houseKNN.numClasses);     //<-- better
+//        houseKNN.kMedoidsClusters(houseKNN.numClasses);   //<-- better
+
 //        houseKNN.tune();
-//
-////        houseKNN.editDataSet();                           //<-- ?
-////        houseKNN.condenseDataSet();                       //<---AMAZING sometimes?
-////        houseKNN.kMeansClusters(houseKNN.numClasses);     //<-- better
-////        houseKNN.kMedoidsClusters(houseKNN.numClasses);   //<-- better
-//
-//        houseKNN.crossValidate();
 
         //-------------------------------------------SEGMENTATION
         System.out.println("SEGMENTATION-------------------------");
@@ -719,14 +742,13 @@ public class KNearestNeighbor {
         DataSetUp sdSetUp = new DataSetUp(sdFileName, "beg","classification", false);
 
         KNearestNeighbor segmentationKNN = new KNearestNeighbor(sdSetUp.getAllData(), 7, true);
+
+//        segmentationKNN.editDataSet();                                    //<-- better
+//        segmentationKNN.condenseDataSet();                                //<-- better
+//        segmentationKNN.kMeansClusters(segmentationKNN.numClasses);       //<-- slightly better
+//        segmentationKNN.kMedoidsClusters(segmentationKNN.numClasses);     //<-- better
+
 //        segmentationKNN.tune();
-//
-////        segmentationKNN.editDataSet();                                    //<-- better
-////        segmentationKNN.condenseDataSet();                                //<-- better
-////        segmentationKNN.kMeansClusters(segmentationKNN.numClasses);       //<-- slightly better
-////        segmentationKNN.kMedoidsClusters(segmentationKNN.numClasses);     //<-- better
-//
-//        segmentationKNN.crossValidate();
 
         //-------------------------------------------ABALONE
         System.out.println("ABALONE-------------------------");
@@ -734,14 +756,13 @@ public class KNearestNeighbor {
         DataSetUp adSetUp = new DataSetUp(adFileName, "endA","regression", false);
 
         KNearestNeighbor abaloneKNN = new KNearestNeighbor(adSetUp.getAllData(), 0, false);
+
+//		abaloneKNN.editDataSet();                                                   //<-- BEST
+//		abaloneKNN.condenseDataSet();                                               //<-- slightly worse
+//        abaloneKNN.kMeansClusters((int) Math.sqrt(abaloneKNN.data.length));       //<-- same
+//        abaloneKNN.kMedoidsClusters((int) Math.sqrt(abaloneKNN.data.length));     //<-- slightly better
+
 //        abaloneKNN.tune();
-//
-////		abaloneKNN.editDataSet();                                                   //<-- BEST
-////		abaloneKNN.condenseDataSet();                                               //<-- slightly worse
-////        abaloneKNN.kMeansClusters((int) Math.sqrt(abaloneKNN.data.length));       //<-- same
-////        abaloneKNN.kMedoidsClusters((int) Math.sqrt(abaloneKNN.data.length));     //<-- slightly better
-//
-//        abaloneKNN.crossValidate();
 
         //------------------------------------------FOREST FIRES
         System.out.println("FOREST FIRES-------------------------");
@@ -749,14 +770,13 @@ public class KNearestNeighbor {
         DataSetUp ffdSetUp = new DataSetUp(ffdFileName, "endF","regression", false);
 
         KNearestNeighbor forestFireKNN = new KNearestNeighbor(ffdSetUp.getAllData(), 0, false);
-//		forestFireKNN.tune();
-//
-////        forestFireKNN.editDataSet();                                                    //<-- REALLY GOOD PERFORMANCE
-////        forestFireKNN.condenseDataSet();                                                //<-- slightly worse
-////        forestFireKNN.kMeansClusters((int) Math.sqrt(forestFireKNN.data.length));       //<-- slightly worse
-////        forestFireKNN.kMedoidsClusters((int) Math.sqrt(forestFireKNN.data.length));     //<-- worse
-//
-//        forestFireKNN.crossValidate();
+
+//        forestFireKNN.editDataSet();                                                    //<-- REALLY GOOD PERFORMANCE
+//        forestFireKNN.condenseDataSet();                                                //<-- slightly worse
+//        forestFireKNN.kMeansClusters((int) Math.sqrt(forestFireKNN.data.length));       //<-- slightly worse
+//        forestFireKNN.kMedoidsClusters((int) Math.sqrt(forestFireKNN.data.length));     //<-- worse
+
+//        forestFireKNN.tune();
 
         //------------------------------------------MACHINE
         System.out.println("MACHINE-------------------------");
@@ -764,15 +784,14 @@ public class KNearestNeighbor {
         DataSetUp mdSetUp = new DataSetUp(mdFileName, "endM","regression", true);
 
         KNearestNeighbor machineKNN = new KNearestNeighbor(mdSetUp.getAllData(), 0, false);
-//		machineKNN.tune();
-//
-//		//MACHINE IS NOT WORKING
-////		machineKNN.editDataSet();       //<-- does not work
-////		machineKNN.condenseDataSet();   //<-- better?
-////        machineKNN.kMeansClusters((int) Math.sqrt(machineKNN.data.length));     //<-- worse
-////        machineKNN.kMedoidsClusters((int) Math.sqrt(machineKNN.data.length));   //<-- better?
-//
-//		machineKNN.crossValidate();
+
+		//MACHINE IS NOT WORKING
+//		machineKNN.editDataSet();       //<-- does not work
+//		machineKNN.condenseDataSet();   //<-- better?
+//        machineKNN.kMeansClusters((int) Math.sqrt(machineKNN.data.length));     //<-- worse
+//        machineKNN.kMedoidsClusters((int) Math.sqrt(machineKNN.data.length));   //<-- better?
+
+//        machineKNN.tune();
 
     }
 }
