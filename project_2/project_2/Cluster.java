@@ -1,7 +1,6 @@
 package project_2;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -38,7 +37,7 @@ public class Cluster {
         }
 
         for(int i = 0; i < means.length; i++) {
-            //randomly pick means from the "data space" not the data set... whatever that means
+            //randomly initialize means from the data space
             //Unformed sampling
             for(int j = 0; j < dataSet[0].numFeatures(); j++) {
                 Random r = new Random();
@@ -99,10 +98,10 @@ public class Cluster {
                 }
             }
 
-            for (int j = 0; j< k; j++) {
-                System.out.println(Arrays.toString(newMeans[j]));
-            }
-            System.out.println("-------------");
+//            for (int j = 0; j< k; j++) {
+//                System.out.println(Arrays.toString(newMeans[j]));
+//            }
+//            System.out.println("-------------");
 
             first = false;
             iterations++;
@@ -137,8 +136,7 @@ public class Cluster {
         }
 
         for(int i = 0; i < medoids.length; i++) {
-            //randomly pick medoids from the "data space" not the data set
-            //Unformed sampling
+            //randomly initialize medoids from the data space
             for(int j = 0; j < dataSet[0].numFeatures(); j++) {
                 Random r = new Random();
                 double ranNum = r.nextInt((int)((max-min)+1)) + min;
@@ -203,10 +201,10 @@ public class Cluster {
                 newMedoids[i] = minCentroid;
             }
 
-            for (int j = 0; j< k; j++) {
-                System.out.println(Arrays.toString(newMedoids[j]));
-            }
-            System.out.println("-------------");
+//            for (int j = 0; j< k; j++) {
+//                System.out.println(Arrays.toString(newMedoids[j]));
+//            }
+//            System.out.println("-------------");
 
             first = false;
             iterations++;
@@ -262,40 +260,4 @@ public class Cluster {
         return cluster;
     }
 
-    public static double[] distortion(DataC[] dataSet, double[][] medoids) {
-        double[] distortedMedoid = new double[dataSet[0].getFeatures().length];
-        for (DataC dataC : dataSet) {
-            for (int j = 0; j < dataSet[0].getFeatures().length - 2; j++) { //for some reason -2?
-                for (int k = 0; k < medoids.length; k++) {
-                    if (dataC.getClusterID() == (double) k) {
-                        double[] feat = dataC.getFeatures();
-                        distortedMedoid[j] += Math.pow((feat[j] - medoids[k][j]), 2);
-                    }
-                }
-            }
-        }
-        return distortedMedoid;
-    }
-
-    public static void swap(double[] m_i, double[] x_j) {
-        //make copy of original m_i
-        double[] originalM = new double[m_i.length];
-
-        System.arraycopy(m_i, 0, originalM, 0, x_j.length);
-
-        //switch m_i to be the x_j
-        System.arraycopy(x_j, 0, m_i, 0, m_i.length);
-
-        //switch the x_j to be the original m_i
-        System.arraycopy(originalM, 0, x_j, 0, m_i.length);
-    }
-
-    public static boolean isLessMedoid(double[] original, double[] newest) {
-        for(int i = 0; i < original.length; i++) {
-            if(original[i] <= newest[i]) {
-                return true;
-            }
-        }
-        return false;
-    }
 }

@@ -13,6 +13,7 @@ import java.util.*;
     6.
         a. Return majority class OR weighted vote as the classification of q
         b. Return 1/d weighted average of nearest neighbors for regression
+           or use Gaussian kernel
 
     OR
 
@@ -24,6 +25,7 @@ public class KNearestNeighbor {
 
     public DataC[] data;
     public DataC[] reducedData;
+    public boolean isReducedData = false;
     public int numClasses;
     public int k;
     public double epsilon;
@@ -36,14 +38,12 @@ public class KNearestNeighbor {
     public KNearestNeighbor(DataC[] dataIn, int num, boolean classification) {
     	this.data = dataIn;
     	this.numClasses = num;
+        this.classification = classification;
+
+        //some initializations for hyperparameters
         this.k = 4;
         this.epsilon = 1.0;
         this.sigma = 1.0;
-        this.classification = classification;
-
-        if (dataIn.length < k) {
-            this.k = data.length-1;
-        }
     }
 
     /*
@@ -100,7 +100,7 @@ public class KNearestNeighbor {
     }
 
     /*
-        Corresponds to gaussian kernel function for getting weights
+        Corresponds to Gaussian kernel function for getting weights
         for regression
      */
     public double kernelFunc(double[] x, double[] y) {
@@ -147,7 +147,7 @@ public class KNearestNeighbor {
             }
         }
 
-        //sort distances using this madness to sort 2D array
+        //sort distances using this to sort 2D array
         //https://stackoverflow.com/questions/4907683/sort-a-two-dimensional-array-based-on-one-column
         Arrays.sort(distArray, new Comparator<double[]>(){
             @Override
@@ -243,7 +243,7 @@ public class KNearestNeighbor {
     }
 
     /*
-        L O S S -->
+        L O S S --> performance of this KNN object
 
         Makes a confusion matrix (FP / FN are in context of c1) for classification
         ----trueClass----
@@ -303,7 +303,6 @@ public class KNearestNeighbor {
             }
 
             precision = (double)TPsum / FPsum;
-//            System.out.println("Precision: "+ precision);
 
             double recall;
             TPsum = 0;
@@ -321,11 +320,9 @@ public class KNearestNeighbor {
             }
 
             recall = (double)TPsum / FNsum;
-//            System.out.println("Recall: "+ recall);
 
             //F1 score - harmonic mean of precision and recall
             double F1 = (2 * precision * recall) / (precision + recall);
-//            System.out.println("F1: "+ F1);
 
             performance[0] = precision;
             performance[1] = recall;
@@ -353,9 +350,6 @@ public class KNearestNeighbor {
                 }
             }
 
-//            System.out.println("RMSE: " + RMSE(predicted, actual));
-//            System.out.println("MAE:  " + MAE(predicted, actual));
-
             performance[0] = RMSE(predicted, actual);
             performance[1] = MAE(predicted, actual);
             performance[2] = (double)count / testSet.length;
@@ -380,7 +374,12 @@ public class KNearestNeighbor {
         Returns an array of averaged loss stats (see loss() for metrics)
      */
     public double[] crossValidate() {
-        int trainLen = (int)(0.9 * data.length)+1;
+        int trainLen = (int)(0.9 * data.length) + 1;
+
+        if (this.isReducedData) {
+            trainLen += this.reducedData.length;
+        }
+
         int testLen = data.length - trainLen;
         System.out.println("Train: " + trainLen);
         System.out.println("Test:  " + testLen);
@@ -394,7 +393,6 @@ public class KNearestNeighbor {
         Collections.shuffle(temp);
         DataC[] shuffled = new DataC[data.length];
         temp.toArray(shuffled);
-//        shuffled = data;
 
         //split into 10 arrays
         int c= 0;
@@ -417,6 +415,10 @@ public class KNearestNeighbor {
             for (int i= 0; i< 9; i++) {
                 //add 1/10 of data to list 9 times
                 list.addAll(Arrays.asList(split[(i+fold)%10]));
+            }
+
+            if (this.isReducedData) {
+                list.addAll(Arrays.asList(this.reducedData));
             }
 
             //fill train[] and test[]
@@ -492,6 +494,7 @@ public class KNearestNeighbor {
     }
 
     /*
+        EDITED KNN
         Continue removing bad / useless samples that classify incorrectly
         until no more are removed.
      */
@@ -545,6 +548,7 @@ public class KNearestNeighbor {
     }
 
     /*
+        CONDENSED KNN
         Select the smallest subset Z of this.data such that
         using Z in place of this.data does not degrade performance
      */
@@ -557,6 +561,7 @@ public class KNearestNeighbor {
 
         boolean changed = true;
 
+        //REPEAT while samples are being added to condensedSet
         while(changed && condensedSet.size() < this.data.length) {
             changed = false;
 
@@ -615,12 +620,13 @@ public class KNearestNeighbor {
     public void kMeansClusters(int k) {
         DataC[] centroids = Cluster.kMeansClusters(this.data, k);
 
-        this.data = new DataC[centroids.length];
-        this.data = centroids;
+        this.reducedData = new DataC[centroids.length];
+        this.reducedData = centroids;
+        this.isReducedData = true;
 
         //need to set new id numbers to avoid array out of bounds error
         int i= 1;
-        for (DataC d: this.data) {
+        for (DataC d: this.reducedData) {
             d.setID(i);
         }
     }
@@ -632,22 +638,31 @@ public class KNearestNeighbor {
     public void kMedoidsClusters(int k) {
         DataC[] centroids = Cluster.kMedoidsClusters(this.data, k);
 
-        this.data = new DataC[centroids.length];
-        this.data = centroids;
+        this.reducedData = new DataC[centroids.length];
+        this.reducedData = centroids;
+        this.isReducedData = true;
 
         //need to set new id numbers to avoid array out of bounds error
         int i= 1;
-        for (DataC d: this.data) {
+        for (DataC d: this.reducedData) {
             d.setID(i);
         }
     }
 
     /*
         Uncomment the one(s) you want to look at (I would recommend 1 at a time).
-        Choose
-            1. Regular KNN by commenting both KNN.editDataSet and KNN.condenseDataSet
+        Choose ONE of the following
+            1. Regular KNN by commenting out all of the calls below
             2. Edited KNN by uncommenting KNN.editDataSet
             3. Condensed KNN by uncommenting KNN.condenseDataSet
+            4. k-Means augmented KNN by uncommenting KNN.kMeansClusters
+            5. k-Medoids augmented KNN by uncommenting KNN.kMedoidsClusters
+                For the last 2, it is recommended that the argument be:
+                    KNN.numClasses for classification
+                    (int) Math.sqrt(KNN.data.length) for regression
+
+        It is useful to uncomment both calls to KNN.crossValidate() to
+        compare performances between regular KNN and the other derivatives.
      */
     public static void main(String[] args) {
 
@@ -658,11 +673,12 @@ public class KNearestNeighbor {
 
         KNearestNeighbor glassKNN = new KNearestNeighbor(gdSetUp.getAllData(), 7, true);
 //        glassKNN.printLossStats(glassKNN.loss(glassKNN.data, glassKNN.data));
+//        glassKNN.crossValidate();
 //
-////        glassKNN.editDataSet();
-////        glassKNN.condenseDataSet();   //<--ALL STATS ARE BAD W/ GLASS
-////        glassKNN.kMeansClusters(glassKNN.numClasses);
-////        glassKNN.kMedoidsClusters(glassKNN.numClasses);
+////        glassKNN.editDataSet();       //<-- BEST BY FAR
+////        glassKNN.condenseDataSet();   //<--ALL STATS ARE BAD W/ GLASS (slightly better)
+////        glassKNN.kMeansClusters(glassKNN.numClasses); //<-- ONLY ONE CLUSTER
+////        glassKNN.kMedoidsClusters(glassKNN.numClasses);   //<-- better
 //
 //        glassKNN.crossValidate();
 
@@ -672,11 +688,13 @@ public class KNearestNeighbor {
         DataSetUp hvdSetUp = new DataSetUp(hvdFileName, "beg","classification");
 
         KNearestNeighbor houseKNN = new KNearestNeighbor(hvdSetUp.getAllData(), 2, true);
-//        houseKNN.loss(houseKNN.data, houseKNN.data);
+//        houseKNN.printLossStats(houseKNN.loss(houseKNN.data, houseKNN.data));
+//        houseKNN.crossValidate();
 //
-////        houseKNN.editDataSet();
-////        houseKNN.condenseDataSet();     //<---AMAZING
-////        houseKNN.kMeansClusters();
+////        houseKNN.editDataSet();                           //<-- ?
+////        houseKNN.condenseDataSet();                       //<---AMAZING sometimes?
+////        houseKNN.kMeansClusters(houseKNN.numClasses);     //<-- better
+////        houseKNN.kMedoidsClusters(houseKNN.numClasses);   //<-- better
 //
 //        houseKNN.crossValidate();
 
@@ -687,9 +705,12 @@ public class KNearestNeighbor {
 
         KNearestNeighbor segmentationKNN = new KNearestNeighbor(sdSetUp.getAllData(), 7, true);
 //        segmentationKNN.printLossStats(segmentationKNN.loss(segmentationKNN.data, segmentationKNN.data));
+//        segmentationKNN.crossValidate();
 //
-////        segmentationKNN.editDataSet();
-////        segmentationKNN.condenseDataSet();  //<--pretty good
+////        segmentationKNN.editDataSet();                                    //<-- better
+////        segmentationKNN.condenseDataSet();                                //<-- better
+////        segmentationKNN.kMeansClusters(segmentationKNN.numClasses);       //<-- slightly better
+////        segmentationKNN.kMedoidsClusters(segmentationKNN.numClasses);     //<-- better
 //
 //        segmentationKNN.crossValidate();
 
@@ -700,9 +721,12 @@ public class KNearestNeighbor {
 
         KNearestNeighbor abaloneKNN = new KNearestNeighbor(adSetUp.getAllData(), adSetUp.numClasses(), false);
 //		abaloneKNN.printLossStats(abaloneKNN.loss(abaloneKNN.data, abaloneKNN.data));
+//		abaloneKNN.crossValidate();
 //
-////		abaloneKNN.editDataSet();   //<-- pretty good
-////		abaloneKNN.condenseDataSet();
+////		abaloneKNN.editDataSet();                                                   //<-- BEST
+////		abaloneKNN.condenseDataSet();                                               //<-- slightly worse
+////        abaloneKNN.kMeansClusters((int) Math.sqrt(abaloneKNN.data.length));       //<-- same
+////        abaloneKNN.kMedoidsClusters((int) Math.sqrt(abaloneKNN.data.length));     //<-- slightly better
 //
 //        abaloneKNN.crossValidate();
 
@@ -713,11 +737,12 @@ public class KNearestNeighbor {
 
         KNearestNeighbor forestFireKNN = new KNearestNeighbor(ffdSetUp.getAllData(), ffdSetUp.numClasses(), false);
 //		forestFireKNN.printLossStats(forestFireKNN.loss(forestFireKNN.data, forestFireKNN.data));
+//		forestFireKNN.crossValidate();
 //
-////        forestFireKNN.editDataSet();  //<-- REALLY GOOD PERFORMANCE
-////        forestFireKNN.condenseDataSet();
-////        forestFireKNN.kMeansClusters((int) Math.sqrt(forestFireKNN.data.length));
-////        forestFireKNN.kMedoidsClusters((int) Math.sqrt(forestFireKNN.data.length));
+////        forestFireKNN.editDataSet();                                                    //<-- REALLY GOOD PERFORMANCE
+////        forestFireKNN.condenseDataSet();                                                //<-- slightly worse
+////        forestFireKNN.kMeansClusters((int) Math.sqrt(forestFireKNN.data.length));       //<-- slightly worse
+////        forestFireKNN.kMedoidsClusters((int) Math.sqrt(forestFireKNN.data.length));     //<-- worse
 //
 //        forestFireKNN.crossValidate();
 
@@ -728,9 +753,13 @@ public class KNearestNeighbor {
 
         KNearestNeighbor machineKNN = new KNearestNeighbor(mdSetUp.getAllData(), mdSetUp.numClasses(), false);
 //		machineKNN.printLossStats(machineKNN.loss(machineKNN.data, machineKNN.data));
+//		machineKNN.crossValidate();
 //
+//		//MACHINE IS NOT WORKING
 ////		machineKNN.editDataSet();       //<-- does not work
-////		machineKNN.condenseDataSet();
+////		machineKNN.condenseDataSet();   //<-- better?
+////        machineKNN.kMeansClusters((int) Math.sqrt(machineKNN.data.length));     //<-- worse
+////        machineKNN.kMedoidsClusters((int) Math.sqrt(machineKNN.data.length));   //<-- better?
 //
 //		machineKNN.crossValidate();
 
