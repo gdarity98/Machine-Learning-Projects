@@ -23,6 +23,7 @@ import java.util.*;
 public class KNearestNeighbor {
 
     public DataC[] data;
+    public DataC[] reducedData;
     public int numClasses;
     public int k;
     public double epsilon;
@@ -464,6 +465,7 @@ public class KNearestNeighbor {
         and sets it as a class variable
 
         NEED TO ADD this.epsilon
+                    this.sigma
      */
     public void tune() {
         double max= -1;
@@ -545,8 +547,6 @@ public class KNearestNeighbor {
     /*
         Select the smallest subset Z of this.data such that
         using Z in place of this.data does not degrade performance
-
-        Really weird behavior w/ house votes
      */
     public void condenseDataSet() {
         List<DataC> condensedSet = new ArrayList<>();
@@ -609,6 +609,40 @@ public class KNearestNeighbor {
     }
 
     /*
+        Reduce the data set to k cluster centroids
+        using k-means clustering
+     */
+    public void kMeansClusters(int k) {
+        DataC[] centroids = Cluster.kMeansClusters(this.data, k);
+
+        this.data = new DataC[centroids.length];
+        this.data = centroids;
+
+        //need to set new id numbers to avoid array out of bounds error
+        int i= 1;
+        for (DataC d: this.data) {
+            d.setID(i);
+        }
+    }
+
+    /*
+        Reduce the data set to k cluster medoids
+        using k-medoids clustering
+     */
+    public void kMedoidsClusters(int k) {
+        DataC[] centroids = Cluster.kMedoidsClusters(this.data, k);
+
+        this.data = new DataC[centroids.length];
+        this.data = centroids;
+
+        //need to set new id numbers to avoid array out of bounds error
+        int i= 1;
+        for (DataC d: this.data) {
+            d.setID(i);
+        }
+    }
+
+    /*
         Uncomment the one(s) you want to look at (I would recommend 1 at a time).
         Choose
             1. Regular KNN by commenting both KNN.editDataSet and KNN.condenseDataSet
@@ -627,6 +661,8 @@ public class KNearestNeighbor {
 //
 ////        glassKNN.editDataSet();
 ////        glassKNN.condenseDataSet();   //<--ALL STATS ARE BAD W/ GLASS
+////        glassKNN.kMeansClusters(glassKNN.numClasses);
+////        glassKNN.kMedoidsClusters(glassKNN.numClasses);
 //
 //        glassKNN.crossValidate();
 
@@ -640,6 +676,7 @@ public class KNearestNeighbor {
 //
 ////        houseKNN.editDataSet();
 ////        houseKNN.condenseDataSet();     //<---AMAZING
+////        houseKNN.kMeansClusters();
 //
 //        houseKNN.crossValidate();
 
@@ -679,6 +716,8 @@ public class KNearestNeighbor {
 //
 ////        forestFireKNN.editDataSet();  //<-- REALLY GOOD PERFORMANCE
 ////        forestFireKNN.condenseDataSet();
+////        forestFireKNN.kMeansClusters((int) Math.sqrt(forestFireKNN.data.length));
+////        forestFireKNN.kMedoidsClusters((int) Math.sqrt(forestFireKNN.data.length));
 //
 //        forestFireKNN.crossValidate();
 
