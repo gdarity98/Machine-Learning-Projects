@@ -627,7 +627,7 @@ public class KNearestNeighbor {
         //need to set new id numbers to avoid array out of bounds error
         int i= 1;
         for (DataC d: this.reducedData) {
-            d.setID(i);
+            d.setID(i++);
         }
     }
 
@@ -645,7 +645,7 @@ public class KNearestNeighbor {
         //need to set new id numbers to avoid array out of bounds error
         int i= 1;
         for (DataC d: this.reducedData) {
-            d.setID(i);
+            d.setID(i++);
         }
     }
 

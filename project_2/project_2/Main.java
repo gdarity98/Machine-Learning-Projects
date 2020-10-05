@@ -3,6 +3,7 @@ package project_2;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Arrays;
 
 public class Main {
 
@@ -14,7 +15,7 @@ public class Main {
 		DataSetUp gdSetUp = new DataSetUp(gdFileName, "end","classification");
 		
         KNearestNeighbor glassKNearestNeighbor = new KNearestNeighbor(gdSetUp.getAllData(), gdSetUp.numClasses(), true);
-		System.out.println(glassKNearestNeighbor.loss(glassKNearestNeighbor.data, glassKNearestNeighbor.data));
+//		System.out.println(glassKNearestNeighbor.loss(glassKNearestNeighbor.data, glassKNearestNeighbor.data));
         
 //-------------------------------------------HOUSE VOTES
 		System.out.println("HOUSE VOTES-------------------------");
@@ -22,7 +23,7 @@ public class Main {
 		DataSetUp hvdSetUp = new DataSetUp(hvdFileName, "beg","classification");
 		
         KNearestNeighbor houseKNearestNeighbor = new KNearestNeighbor(hvdSetUp.getAllData(), hvdSetUp.numClasses(), true);
-		System.out.println(houseKNearestNeighbor.loss(houseKNearestNeighbor.data, houseKNearestNeighbor.data));
+//		System.out.println(houseKNearestNeighbor.loss(houseKNearestNeighbor.data, houseKNearestNeighbor.data));
 
 //-------------------------------------------SEGMENTATION
 		System.out.println("SEGMENTATION-------------------------");
@@ -30,7 +31,7 @@ public class Main {
 		DataSetUp sdSetUp = new DataSetUp(sdFileName, "beg","classification");
 		
         KNearestNeighbor segmentationKNearestNeighbor = new KNearestNeighbor(sdSetUp.getAllData(), sdSetUp.numClasses(), true);
-		System.out.println(segmentationKNearestNeighbor.loss(segmentationKNearestNeighbor.data, segmentationKNearestNeighbor.data));
+//		System.out.println(segmentationKNearestNeighbor.loss(segmentationKNearestNeighbor.data, segmentationKNearestNeighbor.data));
 
 //-------------------------------------------ABALONE
 		System.out.println("ABALONE-------------------------");
@@ -63,12 +64,30 @@ public class Main {
 		ConvertToData convertMeans = new ConvertToData();
 		
 		System.out.println("KMeans-------------------------\n");
-		double[][] gMeans = clustering.kMeansCluster(gdSetUp.getAllData(), 7);
-		//Printer gPrint = new Printer (gMeans);
-		DataC[] gMeansDataC = convertMeans.convertToData(gMeans);
+//		double[][] gMeans = clustering.kMeansCluster(gdSetUp.getAllData(), 7);
+//		Printer gPrint = new Printer (gMeans);
+//		DataC[] gMeansDataC = convertMeans.convertToData(gMeans);
 		
-		//KNearestNeighbor gMeanKNN = new KNearestNeighbor(gMeansDataC,7, true);
-		//System.out.println(gMeanKNN.loss(gMeanKNN.data,gMeanKNN.data));
+//		KNearestNeighbor gMeanKNN = new KNearestNeighbor(gMeansDataC,7, true);
+//		System.out.println(gMeanKNN.loss(gMeanKNN.data, glassKNearestNeighbor.data));
+
+		Cluster cluster = new Cluster();
+//		DataC[] centroids = cluster.kMeansClusters(gdSetUp.getAllData(), 1);
+//		for (DataC d: centroids) {
+//			System.out.println(Arrays.toString(d.getFeatures()));
+//			System.out.println(d.getClusterID());
+//		}
+//		KNearestNeighbor gMeanKNN = new KNearestNeighbor(centroids, 7, true);
+//		System.out.println(gMeanKNN.loss(centroids, glassKNearestNeighbor.data));
+
+//		DataC[] centroids = cluster.kMeansClusters(hvdSetUp.getAllData(), 2);
+//		KNearestNeighbor hvKNN = new KNearestNeighbor(centroids, 2, true);
+//		System.out.println(hvKNN.loss(hvKNN.data, houseKNearestNeighbor.data));
+
+//		DataC[] centroids = cluster.kMeansClusters(ffdSetUp.getAllData(), (int) Math.sqrt(ffdSetUp.getAllData().length));
+//		KNearestNeighbor ffKNN = new KNearestNeighbor(centroids, 7, false);
+//		System.out.println(ffKNN.loss(ffKNN.data, forestFireKNN.data));
+
 		
 		//double[][] hvMeans = clustering.kMeansCluster(hvdSetUp.getAllData(), 2);		
 		//Printer hvPrint = new Printer (hvMeans);

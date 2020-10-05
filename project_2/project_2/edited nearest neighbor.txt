@@ -1,1 +1,0 @@
-Performance value degrades. If the loss measure degrades at all then stop deletion.
