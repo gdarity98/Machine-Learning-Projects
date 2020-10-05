@@ -463,34 +463,53 @@ public class KNearestNeighbor {
     }
 
     /*
-        Tune k by cross-validating w/ k up to 20, takes best k loss statistics,
-        and sets it as a class variable
+        Tune k, epsilon, sigma by random search.
+            Evaluate 10 different sets of hyperparameters
+            and choose the best.
 
-        NEED TO ADD this.epsilon
-                    this.sigma
+        RANGES OF VALUES - defined by me
+            k -> {1, 2, ..., 20}
+            epsilon -> [0.3, 3]
+            sigma -> [0.3, 3]
      */
     public void tune() {
-        double max= -1;
-        int bestK= 1;
-        double[] lossStats;
-        double F1;
+        double[] bestParams = new double[3];
+        bestParams[0] = (int) (Math.random() * 20) + 1;     //initialize k
+        bestParams[1] = (Math.random() * 3) + 0.3;          //initialize epsilon
+        bestParams[2] = (Math.random() * 3) + 0.3;          //initialize sigma
+        this.k = (int)bestParams[0];
+        this.epsilon = bestParams[1];
+        this.sigma = bestParams[2];
 
-        //test k up to 20, take best and set it
-        for (int k= 1; k <= 20; k++) {
-            this.k = k;
+        double F1best = crossValidate()[2];
 
-            System.out.println("k = " + k);
-            lossStats = crossValidate();
-            F1 = lossStats[2];
-            if (F1 > max) {
-                max = F1;
-                bestK = k;
+        for (int i= 0; i< 10; i++) {
+            double[] newParams = new double[3];
+            newParams[0] = (int) (Math.random() * 20) + 1;
+            newParams[1] = (Math.random() * 3) + 0.3;
+            newParams[2] = (Math.random() * 3) + 0.3;
+
+            this.k = (int) newParams[0];
+            this.epsilon = newParams[1];
+            this.sigma = newParams[2];
+
+            //using F1 as loss metric
+            double F1new = crossValidate()[2];
+
+            if (F1new > F1best) {
+                bestParams = newParams;
+                F1best = F1new;
             }
         }
 
-        System.out.println("Best k --> " + bestK);
-        System.out.println("Accuracy: " + max);
-        this.k = bestK;
+        System.out.println("Best k:       "+ bestParams[0]);
+        System.out.println("Best epsilon: "+ bestParams[1]);
+        System.out.println("Best sigma:   "+ bestParams[2]);
+        System.out.println("F1 score:     "+ F1best);
+
+        this.k = (int) bestParams[0];
+        this.epsilon = bestParams[1];
+        this.sigma = bestParams[2];
     }
 
     /*
@@ -614,7 +633,7 @@ public class KNearestNeighbor {
     }
 
     /*
-        Reduce the data set to k cluster centroids
+        Augment the data set with k cluster centroids
         using k-means clustering
      */
     public void kMeansClusters(int k) {
@@ -632,7 +651,7 @@ public class KNearestNeighbor {
     }
 
     /*
-        Reduce the data set to k cluster medoids
+        Augment the data set with k cluster medoids
         using k-medoids clustering
      */
     public void kMedoidsClusters(int k) {
@@ -661,21 +680,18 @@ public class KNearestNeighbor {
                     KNN.numClasses for classification
                     (int) Math.sqrt(KNN.data.length) for regression
 
-        It is useful to uncomment both calls to KNN.crossValidate() to
-        compare performances between regular KNN and the other derivatives.
      */
     public static void main(String[] args) {
 
         //-------------------------------------------GLASS
         System.out.println("GLASS-------------------------");
         String gdFileName = "data-sets/glass.data";
-        DataSetUp gdSetUp = new DataSetUp(gdFileName, "end","classification");
+        DataSetUp gdSetUp = new DataSetUp(gdFileName, "end","classification", false);
 
         KNearestNeighbor glassKNN = new KNearestNeighbor(gdSetUp.getAllData(), 7, true);
-//        glassKNN.printLossStats(glassKNN.loss(glassKNN.data, glassKNN.data));
-//        glassKNN.crossValidate();
+//        glassKNN.tune();
 //
-////        glassKNN.editDataSet();       //<-- BEST BY FAR
+//        glassKNN.editDataSet();       //<-- BEST BY FAR
 ////        glassKNN.condenseDataSet();   //<--ALL STATS ARE BAD W/ GLASS (slightly better)
 ////        glassKNN.kMeansClusters(glassKNN.numClasses); //<-- ONLY ONE CLUSTER
 ////        glassKNN.kMedoidsClusters(glassKNN.numClasses);   //<-- better
@@ -685,11 +701,10 @@ public class KNearestNeighbor {
         //-------------------------------------------HOUSE VOTES
         System.out.println("HOUSE VOTES-------------------------");
         String hvdFileName = "data-sets/house-votes-84.data";
-        DataSetUp hvdSetUp = new DataSetUp(hvdFileName, "beg","classification");
+        DataSetUp hvdSetUp = new DataSetUp(hvdFileName, "beg","classification", false);
 
         KNearestNeighbor houseKNN = new KNearestNeighbor(hvdSetUp.getAllData(), 2, true);
-//        houseKNN.printLossStats(houseKNN.loss(houseKNN.data, houseKNN.data));
-//        houseKNN.crossValidate();
+//        houseKNN.tune();
 //
 ////        houseKNN.editDataSet();                           //<-- ?
 ////        houseKNN.condenseDataSet();                       //<---AMAZING sometimes?
@@ -701,11 +716,10 @@ public class KNearestNeighbor {
         //-------------------------------------------SEGMENTATION
         System.out.println("SEGMENTATION-------------------------");
         String sdFileName = "data-sets/segmentation.data";
-        DataSetUp sdSetUp = new DataSetUp(sdFileName, "beg","classification");
+        DataSetUp sdSetUp = new DataSetUp(sdFileName, "beg","classification", false);
 
         KNearestNeighbor segmentationKNN = new KNearestNeighbor(sdSetUp.getAllData(), 7, true);
-//        segmentationKNN.printLossStats(segmentationKNN.loss(segmentationKNN.data, segmentationKNN.data));
-//        segmentationKNN.crossValidate();
+//        segmentationKNN.tune();
 //
 ////        segmentationKNN.editDataSet();                                    //<-- better
 ////        segmentationKNN.condenseDataSet();                                //<-- better
@@ -717,11 +731,10 @@ public class KNearestNeighbor {
         //-------------------------------------------ABALONE
         System.out.println("ABALONE-------------------------");
         String adFileName = "data-sets/abalone.data";
-        DataSetUp adSetUp = new DataSetUp(adFileName, "endA","regression");
+        DataSetUp adSetUp = new DataSetUp(adFileName, "endA","regression", false);
 
-        KNearestNeighbor abaloneKNN = new KNearestNeighbor(adSetUp.getAllData(), adSetUp.numClasses(), false);
-//		abaloneKNN.printLossStats(abaloneKNN.loss(abaloneKNN.data, abaloneKNN.data));
-//		abaloneKNN.crossValidate();
+        KNearestNeighbor abaloneKNN = new KNearestNeighbor(adSetUp.getAllData(), 0, false);
+//        abaloneKNN.tune();
 //
 ////		abaloneKNN.editDataSet();                                                   //<-- BEST
 ////		abaloneKNN.condenseDataSet();                                               //<-- slightly worse
@@ -733,11 +746,10 @@ public class KNearestNeighbor {
         //------------------------------------------FOREST FIRES
         System.out.println("FOREST FIRES-------------------------");
         String ffdFileName = "data-sets/forestfires.data";
-        DataSetUp ffdSetUp = new DataSetUp(ffdFileName, "endF","regression");
+        DataSetUp ffdSetUp = new DataSetUp(ffdFileName, "endF","regression", false);
 
-        KNearestNeighbor forestFireKNN = new KNearestNeighbor(ffdSetUp.getAllData(), ffdSetUp.numClasses(), false);
-//		forestFireKNN.printLossStats(forestFireKNN.loss(forestFireKNN.data, forestFireKNN.data));
-//		forestFireKNN.crossValidate();
+        KNearestNeighbor forestFireKNN = new KNearestNeighbor(ffdSetUp.getAllData(), 0, false);
+//		forestFireKNN.tune();
 //
 ////        forestFireKNN.editDataSet();                                                    //<-- REALLY GOOD PERFORMANCE
 ////        forestFireKNN.condenseDataSet();                                                //<-- slightly worse
@@ -749,11 +761,10 @@ public class KNearestNeighbor {
         //------------------------------------------MACHINE
         System.out.println("MACHINE-------------------------");
         String mdFileName = "data-sets/machine.data";
-        DataSetUp mdSetUp = new DataSetUp(mdFileName, "endM","regression");
+        DataSetUp mdSetUp = new DataSetUp(mdFileName, "endM","regression", true);
 
-        KNearestNeighbor machineKNN = new KNearestNeighbor(mdSetUp.getAllData(), mdSetUp.numClasses(), false);
-//		machineKNN.printLossStats(machineKNN.loss(machineKNN.data, machineKNN.data));
-//		machineKNN.crossValidate();
+        KNearestNeighbor machineKNN = new KNearestNeighbor(mdSetUp.getAllData(), 0, false);
+//		machineKNN.tune();
 //
 //		//MACHINE IS NOT WORKING
 ////		machineKNN.editDataSet();       //<-- does not work

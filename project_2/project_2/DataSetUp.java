@@ -3,14 +3,15 @@ package project_2;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class DataSetUp {
 	private DataC[] data;
-    private int numClasses = 0;
-    private String prevClass = "";
-    private Boolean clOrReg = false;
+	private Boolean clOrReg = false;
     
-	public DataSetUp(String fileName, String classPos, String clOrReg) {
+	public DataSetUp(String fileName, String classPos, String clOrReg, boolean doVDM) {
 	 	
 		if(clOrReg.equals("classification")) {
 			this.clOrReg = true;
@@ -53,11 +54,6 @@ public class DataSetUp {
                 data = new DataC(line, lineNo+1, classPos, clOrReg);
                 dataArray[lineNo++] = data;
 
-                if(!prevClass.equals(data.getClassLabel())) { //this is wrong
-                	numClasses++;
-                	prevClass = data.getClassLabel();
-                }
-
                 line = reader.readLine();
             }
 
@@ -72,13 +68,28 @@ public class DataSetUp {
 	public DataC[] getAllData() {
 		return data;
 	}
-
-	public int numClasses() {
-		return numClasses;
-	}
 	
 	public Boolean getClassOrReg() {
 		return clOrReg;
+	}
+
+	public static double[][] constructVDM(DataC[] dataSet) {
+		//count how many times each feature occurs
+		int featLength = dataSet[0].getFeatures().length;
+		int[] c_i = new int[featLength];
+		int[][] c_ij = new int[featLength][featLength];
+
+		//count how many different features
+		for (int i= 0; i< featLength; i++) {
+			double prevFeat = 0;
+			for (DataC d : dataSet) {
+				if (d.getFeatures()[i] != prevFeat) {
+					c_i[i]++;
+				}
+			}
+		}
+
+		return null;
 	}
 
 }

@@ -135,10 +135,16 @@ public class DataC {
 			 	this.allData = fullData;
 		        String[] tokens = fullData.split(",");
 		
-		        features = new double[tokens.length-2];
+		        features = new double[tokens.length-1];
+
+		        switch(tokens[0]) {
+		        	case "M" -> features[0] = 1.0;
+		        	case "F" -> features[0] = 2.0;
+		        	case "I" -> features[0] = 3.0;
+				}
 
 		        for (int i= 1; i< tokens.length-1; i++) {
-		            features[i-1] = Double.parseDouble(tokens[i]);
+		            features[i] = Double.parseDouble(tokens[i]);
 		        }
 		
 		        classLabel = tokens[tokens.length-1];
