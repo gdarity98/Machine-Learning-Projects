@@ -29,8 +29,6 @@ public class DataSetUp {
                 list.add(data);
 
                 line = reader.readLine();
-
-				System.out.println(Arrays.toString(data.getFeatures()));
             }
 
         }catch (IOException e) {
@@ -87,8 +85,6 @@ public class DataSetUp {
 				normFeatures[i] = (features[i] - means[i]) / SDs[i];
 			}
 			d.setNormFeatures(normFeatures);
-
-			System.out.println(Arrays.toString(normFeatures));
 		}
 
 	}
