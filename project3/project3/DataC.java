@@ -42,6 +42,25 @@ public class DataC {
 				}
 
 	    		classLabel = tokens[tokens.length-1].split("D")[1];
+			} else if (classLoc.contentEquals("endB")) {
+	    		this.allData = fullData;
+	    		String[] tokens = fullData.split(",");
+
+	    		features = new double[tokens.length - 2];
+
+	    		for (int i= 1; i< tokens.length-1; i++) {
+	    			if (tokens[i].contentEquals("?")) {
+	    				tokens[i] = String.valueOf((int)(Math.random()*5) + 1);
+					}
+	    			features[i-1] = Double.parseDouble(tokens[i]);
+				}
+
+	    		if (tokens[tokens.length-1].contentEquals("2")) {
+	    			classLabel = "1";
+				}
+	    		else if (tokens[tokens.length-1].contentEquals("4")){
+	    			classLabel = "2";
+				}
 			}
 	    	else if (classLoc.equals("beg")) {
 		        this.allData = fullData;

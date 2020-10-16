@@ -178,9 +178,9 @@ public class FeedForwardNet {
     public void backprop() {
 
         double totalError = 0;
-        int miniBatchSize = data.length;
+        int miniBatchSize = data.length / 10;
 
-        for (int epochs= 0; epochs< 10000; epochs++) {
+        for (int epochs= 0; epochs< 1000; epochs++) {
             double[] weightUpdate = new double[network[network.length-1].nodes.length];
 
             List<DataC> temp = Arrays.asList(data);
@@ -217,8 +217,8 @@ public class FeedForwardNet {
     }
 
     /*
-        Updates weights based on performance of mini batch,
-        Not sure if working correctly
+        Updates weights based on performance of mini batch
+        Calls Layer.getUpdates() for each layer, then Layer.updateWeights
      */
     public void updateMiniBatch(double[] weightUpdate) {
         //output layer
@@ -298,15 +298,20 @@ public class FeedForwardNet {
         DataSetUp soybean = new DataSetUp("data-sets/soybean-small.data", "endS", "classification");
         soybean.zScoreNormalize();
 
-//        for (DataC d: soybean.getAllData()) {
-//            System.out.println(Arrays.toString(d.getNormalizedFeatures()));
-//        }
-
         inputLen = soybean.getAllData()[0].getNormalizedFeatures().length;
         int[] layers3 = {inputLen, 20, 4};
-        FeedForwardNet net2 = new FeedForwardNet(soybean.getAllData(), layers3);
-        net2.backprop();
-        net2.evaluate();
+//        FeedForwardNet net2 = new FeedForwardNet(soybean.getAllData(), layers3);
+//        net2.backprop();
+//        net2.evaluate();
+
+        DataSetUp breastCancer = new DataSetUp("data-sets/breast-cancer-wisconsin.data", "endB", "classification");
+        breastCancer.zScoreNormalize();
+
+        inputLen = breastCancer.getAllData()[0].getNormalizedFeatures().length;
+        int[] layersB = {inputLen, 16, 2};
+        FeedForwardNet netB = new FeedForwardNet(breastCancer.getAllData(), layersB);
+        netB.backprop();
+        netB.evaluate();
 
 //        DataSetUp forestFires = new DataSetUp("data-sets/forestfires.data", "endF", "regression");
 //        forestFires.zScoreNormalize();
