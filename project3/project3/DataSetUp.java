@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class DataSetUp {
-	private final DataC[] data;
+	private DataC[] data;
 	private final int length;
     
 	public DataSetUp(String fileName, String classPos, String clOrReg) {
@@ -42,7 +42,7 @@ public class DataSetUp {
 	}
 
 	public DataC[] getAllData() {
-		return data;
+		return this.data;
 	}
 
 	public void zScoreNormalize() {
@@ -77,21 +77,25 @@ public class DataSetUp {
 		}
 
 		//normalize data
-		double[] normFeatures = new double[data[0].getFeatures().length];
-		for (DataC d: data) {
-			double[] features = d.getFeatures();
+		for (DataC datum : data) {
+			double[] normFeatures = new double[data[0].getFeatures().length];
+			double[] features = datum.getFeatures();
 
-			for (int i= 0; i< features.length; i++) {
-				normFeatures[i] = (features[i] - means[i]) / SDs[i];
+			for (int j = 0; j < features.length; j++) {
+				normFeatures[j] = (features[j] - means[j]) / (SDs[j] + 0.01);
 			}
-			d.setNormFeatures(normFeatures);
+			datum.setNormFeatures(normFeatures);
 		}
 
 	}
 
 	public static void main(String[] args) {
-		DataSetUp glass = new DataSetUp("data-sets/glass.data", "end", "classification");
+		DataSetUp glass = new DataSetUp("data-sets/forestfires.data", "endF", "regression");
 		glass.zScoreNormalize();
+
+		for (DataC d: glass.getAllData()) {
+			System.out.println(Arrays.toString(d.getNormalizedFeatures()));
+		}
 	}
 
 }

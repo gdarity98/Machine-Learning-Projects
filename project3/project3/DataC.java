@@ -31,7 +31,19 @@ public class DataC {
 		
 		        classLabel = tokens[tokens.length-1];
 		        this.id = id;
-	    	}else if (classLoc.equals("beg")) {
+	    	} else if (classLoc.contentEquals("endS")) {
+	    		this.allData = fullData;
+	    		String[] tokens = fullData.split(",");
+
+	    		features = new double[tokens.length - 2];
+
+	    		for (int i= 1; i< tokens.length-1; i++) {
+	    			features[i-1] = Double.parseDouble(tokens[i]);
+				}
+
+	    		classLabel = tokens[tokens.length-1].split("D")[1];
+			}
+	    	else if (classLoc.equals("beg")) {
 		        this.allData = fullData;
 		        String[] tokens = fullData.split(",");
 		

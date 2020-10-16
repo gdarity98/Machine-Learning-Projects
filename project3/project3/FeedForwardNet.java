@@ -21,6 +21,7 @@ public class FeedForwardNet {
      */
     private class Layer {
         private double[][] weights;
+        private double[] biases;
         private double[] nodes;
         private double[] output;
 
@@ -38,11 +39,13 @@ public class FeedForwardNet {
             if (nextLayerSize > 0) {
                 weights = new double[nextLayerSize][input.length];
                 output = new double[nextLayerSize];
+                biases = new double[nextLayerSize];
 
-                //randomize weights
+                //randomize weights and biases
                 for (int row = 0; row < weights.length; row++) {
+                    biases[row] = Math.random();
                     for (int col = 0; col < weights[0].length; col++) {
-                        weights[row][col] = Math.random()*2 -1;
+                        weights[row][col] = (Math.random()* 2) -1;
                     }
                 }
                 return feedForward(input);
@@ -64,7 +67,7 @@ public class FeedForwardNet {
             //[output] = [weights] * [nodes]
             for (int i= 0; i< weights.length; i++) {
                 for (int k= 0; k< weights[0].length; k++) {
-                    output[i] += weights[i][k] * nodes[k];
+                    output[i] += (weights[i][k] * nodes[k]);
                 }
             }
 
@@ -80,18 +83,27 @@ public class FeedForwardNet {
             Update weights of this layer given a weightUpdate array of
             length nextLayerSize
          */
-        public double updateWeights(double[] weightUpdates, double eta) {
-            double weightUpdateAvg = 0;
+        public void updateWeights(double[] weightUpdate, double eta) {
             for (int i= 0; i< weights.length; i++) {
                 for (int j= 0; j< weights[0].length; j++) {
-                    weights[i][j] += eta * weightUpdates[i] * nodes[j];
+                    weights[i][j] += (-1 * eta * weightUpdate[i] * nodes[j]);
+                }
+            }
+        }
+
+        public double[] getWeightUpdates(double[] weightUpdate) {
+            double[] nextUpdate = new double[nodes.length];
+            for (int i= 0; i< weights.length; i++) {
+                for (int j= 0; j< weights[0].length; j++) {
+                    nextUpdate[j] += weightUpdate[i] * weights[i][j];
                 }
             }
 
-            for (double weightUpdate : weightUpdates) {
-                weightUpdateAvg += weightUpdate;
+            for (int i= 0; i< nextUpdate.length; i++) {
+                nextUpdate[i] *= nodes[i] * (1 - nodes[i]);
             }
-            return weightUpdateAvg / weightUpdates.length;
+
+            return nextUpdate;
         }
 
         public double sigmoid(double z) {
@@ -115,7 +127,7 @@ public class FeedForwardNet {
      */
     public FeedForwardNet(DataC[] trainingData, int[] layers) {
         this.data = trainingData;
-        this.eta = 1;
+        this.eta = 0.5;
         network = new Layer[layers.length];
 
         //for each layer, make a Layer object of size layers[i]
@@ -127,7 +139,9 @@ public class FeedForwardNet {
     }
 
 
-    //call Layer.init(), first pass through the network
+    /*
+        Calls Layer.init() for each layer in the network
+     */
     public void init() {
         //init() first layer with DataC[] input
         double[] output;
@@ -162,40 +176,42 @@ public class FeedForwardNet {
 
     //update weights
     public void backprop() {
-        double[] weightUpdates = new double[network[network.length-1].nodes.length];
-        double totalError = 0;
-        int miniBatchSize = data.length / 10;
 
-        for (int epochs= 0; epochs< 100; epochs++) {
+        double totalError = 0;
+        int miniBatchSize = data.length;
+
+        for (int epochs= 0; epochs< 10000; epochs++) {
+            double[] weightUpdate = new double[network[network.length-1].nodes.length];
 
             List<DataC> temp = Arrays.asList(data);
-            DataC[] shuffled = new DataC[data.length];
             Collections.shuffle(temp);
-            temp.toArray(shuffled);
 
-            List<DataC> miniBatch = new ArrayList<>(Arrays.asList(shuffled).subList(0, miniBatchSize));
+            List<DataC> miniBatch = new ArrayList<>(temp.subList(0, miniBatchSize));
 
 
             for (DataC d : miniBatch) {
                 double[] output = feedForward(d.getNormalizedFeatures());
                 int target = Integer.parseInt(d.getClassLabel()) - 1;
                 double[] t = new double[output.length];
-                Arrays.fill(t, 0.0);
-                t[target] = 1.0;
+                Arrays.fill(t, 0);
+                t[target] = 1;
 
                 totalError += error(output, t);
-                double[] cost = delta(output, t);
-                for (int i = 0; i < weightUpdates.length; i++) {
-                    weightUpdates[i] += cost[i];
+                double[] deltas = delta(output, t);
+
+                for (int i= 0; i< weightUpdate.length; i++) {
+                    weightUpdate[i] += deltas[i];
                 }
             }
 
-            for (int j = 0; j < weightUpdates.length; j++) {
-                weightUpdates[j] /= miniBatchSize;
-            }
-            updateMiniBatch(weightUpdates);
-
             totalError /= miniBatchSize;
+
+            for (int j= 0; j< weightUpdate.length; j++) {
+                weightUpdate[j] /= miniBatchSize;
+            }
+
+            updateMiniBatch(weightUpdate);
+
             System.out.println("Error: " + totalError);
         }
     }
@@ -204,16 +220,16 @@ public class FeedForwardNet {
         Updates weights based on performance of mini batch,
         Not sure if working correctly
      */
-    public void updateMiniBatch(double[] weightUpdates) {
+    public void updateMiniBatch(double[] weightUpdate) {
         //output layer
-        double prevWeightAvg = network[network.length-2].updateWeights(weightUpdates, eta);
+        double[] newUpdates = network[network.length-2].getWeightUpdates(weightUpdate);
+        network[network.length-2].updateWeights(weightUpdate, eta);
+        network[network.length-3].updateWeights(newUpdates, eta);
 
         //propagate back to input layer
-        for (int i= network.length-3; i >= 0; i--) {
-            double[] newUpdates = new double[network[i+1].nodes.length];
-            Arrays.fill(newUpdates, network[i].nodes[i] * (1 - network[i].nodes[i]) * prevWeightAvg);
-            prevWeightAvg = network[i].updateWeights(newUpdates, eta);
-        }
+//        for (int i= network.length-3; i >= 0; i--) {
+//            newUpdates = network[i].updateWeights(newUpdates, eta);
+//        }
     }
 
     public void evaluate() {
@@ -223,16 +239,19 @@ public class FeedForwardNet {
             int trueClass = Integer.parseInt(d.getClassLabel());
 
             double max = Double.NEGATIVE_INFINITY;
-            int guess= 0;
+            int guess = 0;
+
             for (int i= 0; i< output.length; i++) {
                 if (output[i] > max) {
                     max = output[i];
-                    guess = i + 1;
+                    guess = i+1;
                 }
             }
             if (guess == trueClass) {
                 count++;
             }
+
+            System.out.println("G: "+guess + "\tT: "+trueClass);
         }
         double accuracy = (double)count / data.length;
         System.out.println(count + " / " + data.length + " = " + accuracy);
@@ -255,13 +274,13 @@ public class FeedForwardNet {
         Gives squared error derivative DELTA_j
      */
     public double[] delta(double[] output, double[] target) {
-        double[] deltas = new double[output.length];
+        double[] delta = new double[output.length];
 
         for (int i= 0; i< output.length; i++) {
-            deltas[i] = (target[i] - output[i]) * output[i] * (1 - output[i]);
+            delta[i] = -1 * (target[i] - output[i]);
         }
 
-        return deltas;
+        return delta;
     }
 
 
@@ -271,10 +290,32 @@ public class FeedForwardNet {
         glass.zScoreNormalize();
 
         int inputLen = glass.getAllData()[0].getNormalizedFeatures().length;
-        int[] layers = {inputLen, 20, 7};
-        FeedForwardNet network = new FeedForwardNet(glass.getAllData(), layers);
-        network.backprop();
-        network.evaluate();
+        int[] layers = {inputLen, 16, 7};
+//        FeedForwardNet network = new FeedForwardNet(glass.getAllData(), layers);
+//        network.backprop();
+//        network.evaluate();
+
+        DataSetUp soybean = new DataSetUp("data-sets/soybean-small.data", "endS", "classification");
+        soybean.zScoreNormalize();
+
+//        for (DataC d: soybean.getAllData()) {
+//            System.out.println(Arrays.toString(d.getNormalizedFeatures()));
+//        }
+
+        inputLen = soybean.getAllData()[0].getNormalizedFeatures().length;
+        int[] layers3 = {inputLen, 20, 4};
+        FeedForwardNet net2 = new FeedForwardNet(soybean.getAllData(), layers3);
+        net2.backprop();
+        net2.evaluate();
+
+//        DataSetUp forestFires = new DataSetUp("data-sets/forestfires.data", "endF", "regression");
+//        forestFires.zScoreNormalize();
+//
+//        inputLen = forestFires.getAllData()[0].getNormalizedFeatures().length;
+//        int[] layers2 = {inputLen, 16, 1};
+//        FeedForwardNet net = new FeedForwardNet(forestFires.getAllData(), layers2);
+//        net.backprop();
+//        net.evaluate();
     }
 
 }
