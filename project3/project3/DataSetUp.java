@@ -10,6 +10,7 @@ import java.util.List;
 public class DataSetUp {
 	private DataC[] data;
 	private final int length;
+	private boolean isClassification;
     
 	public DataSetUp(String fileName, String classPos, String clOrReg) {
 		
@@ -38,6 +39,8 @@ public class DataSetUp {
         this.data = new DataC[list.size()];
         this.length = list.size();
 		list.toArray(this.data);
+
+		this.isClassification = clOrReg.contentEquals("classification");
 	        
 	}
 
@@ -77,25 +80,39 @@ public class DataSetUp {
 		}
 
 		//normalize data
-		for (DataC datum : data) {
+		for (DataC d : data) {
 			double[] normFeatures = new double[data[0].getFeatures().length];
-			double[] features = datum.getFeatures();
+			double[] features = d.getFeatures();
 
 			for (int j = 0; j < features.length; j++) {
 				normFeatures[j] = (features[j] - means[j]) / (SDs[j] + 0.01);
 			}
-			datum.setNormFeatures(normFeatures);
+			d.setNormFeatures(normFeatures);
 		}
 
-	}
+		//if regression, normalize the response values
+		if (!isClassification) {
+			//get mean
+			double mean= 0;
+			for (DataC d: data) {
+				mean += Double.parseDouble(d.getClassLabel());
+			}
+			mean /= data.length;
 
-	public static void main(String[] args) {
-		DataSetUp glass = new DataSetUp("data-sets/forestfires.data", "endF", "regression");
-		glass.zScoreNormalize();
+			//get SD
+			double SD= 0;
+			for (DataC d: data) {
+				SD += Math.pow((Double.parseDouble(d.getClassLabel()) - mean), 2);
+			}
+			SD /= data.length;
+			SD = Math.pow(SD, 0.5);
 
-		for (DataC d: glass.getAllData()) {
-			System.out.println(Arrays.toString(d.getNormalizedFeatures()));
+			//update class label
+			for (DataC d: data) {
+				d.setClassLabel(String.valueOf((Double.parseDouble(d.getClassLabel()) - mean) / SD + 0.01));
+			}
 		}
+
 	}
 
 }

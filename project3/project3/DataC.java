@@ -225,6 +225,10 @@ public class DataC {
         return classLabel;
     }
 
+    public void setClassLabel(String cl) {
+    	this.classLabel = cl;
+	}
+
     public int getID() {
         return id;
     }

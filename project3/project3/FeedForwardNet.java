@@ -15,13 +15,13 @@ public class FeedForwardNet {
     //===============================================>LAYER
     /*
         Layer describes a single layer in the network
-        It holds the activations sigmoid(W*X) for the layer,
+        It holds the activations sigmoid(W*X)+B for the layer,
         and the weights associated with connections to the
         next layer.
      */
-    private class Layer {
+    static class Layer {
         private double[][] weights;
-        private double[] biases;
+        private double bias;
         private double[] nodes;
         private double[] output;
 
@@ -37,13 +37,12 @@ public class FeedForwardNet {
         public double[] init(double[] input, int nextLayerSize) {
             //if last layer return input
             if (nextLayerSize > 0) {
-                weights = new double[nextLayerSize][input.length];
+                weights = new double[nextLayerSize][input.length+1];
                 output = new double[nextLayerSize];
-                biases = new double[nextLayerSize];
+                bias = 1.0;
 
                 //randomize weights and biases
                 for (int row = 0; row < weights.length; row++) {
-                    biases[row] = Math.random();
                     for (int col = 0; col < weights[0].length; col++) {
                         weights[row][col] = (Math.random()* 2) -1;
                     }
@@ -66,9 +65,14 @@ public class FeedForwardNet {
             //some matrix multiplication
             //[output] = [weights] * [nodes]
             for (int i= 0; i< weights.length; i++) {
-                for (int k= 0; k< weights[0].length; k++) {
+                for (int k= 0; k< weights[0].length-1; k++) {
                     output[i] += (weights[i][k] * nodes[k]);
                 }
+            }
+
+            //handle bias
+            for (int i= 0; i< weights.length; i++) {
+                output[i] += (weights[i][weights[0].length-1] * bias);
             }
 
             //sigmoid( [output] )
@@ -85,21 +89,35 @@ public class FeedForwardNet {
          */
         public void updateWeights(double[] weightUpdate, double eta) {
             for (int i= 0; i< weights.length; i++) {
-                for (int j= 0; j< weights[0].length; j++) {
+                for (int j= 0; j< weights[0].length-1; j++) {
                     weights[i][j] += (-1 * eta * weightUpdate[i] * nodes[j]);
                 }
             }
+
+            //bias
+            for (int i= 0; i< weights[0].length; i++) {
+                weights[weights.length-1][i] += (-1 * eta * weightUpdate[weightUpdate.length-1]);
+            }
         }
 
+        /*
+            Gets weight updates for previous layer according to backprop
+         */
         public double[] getWeightUpdates(double[] weightUpdate) {
-            double[] nextUpdate = new double[nodes.length];
+            double[] nextUpdate = new double[nodes.length+1];
             for (int i= 0; i< weights.length; i++) {
-                for (int j= 0; j< weights[0].length; j++) {
+                for (int j= 0; j< weights[0].length-1; j++) {
                     nextUpdate[j] += weightUpdate[i] * weights[i][j];
                 }
             }
 
-            for (int i= 0; i< nextUpdate.length; i++) {
+            //bias
+            for (int i= 0; i< weights[0].length; i++) {
+                nextUpdate[nextUpdate.length-1] += weightUpdate[weightUpdate.length-1] * weights[weights.length-1][i];
+            }
+
+            //backprop
+            for (int i= 0; i< nextUpdate.length-1; i++) {
                 nextUpdate[i] *= nodes[i] * (1 - nodes[i]);
             }
 
@@ -117,6 +135,7 @@ public class FeedForwardNet {
     public Layer[] network;
     public DataC[] data;
     public double eta;
+    public boolean isClassification;
 
     /*
         Takes an array of layer sizes for the network i.e
@@ -125,9 +144,10 @@ public class FeedForwardNet {
 
         For classification, layers should be [numFeatures, ..., numClasses]
      */
-    public FeedForwardNet(DataC[] trainingData, int[] layers) {
+    public FeedForwardNet(DataC[] trainingData, int[] layers, boolean isClassification) {
         this.data = trainingData;
         this.eta = 0.5;
+        this.isClassification = isClassification;
         network = new Layer[layers.length];
 
         //for each layer, make a Layer object of size layers[i]
@@ -174,13 +194,16 @@ public class FeedForwardNet {
         return output;
     }
 
-    //update weights
+    /*
+        Update weights over #epochs using backpropagation
+        Uses mini-batch updating, see updateMiniBatch()
+     */
     public void backprop() {
 
         double totalError = 0;
         int miniBatchSize = data.length / 10;
 
-        for (int epochs= 0; epochs< 1000; epochs++) {
+        for (int epochs= 0; epochs< 10000; epochs++) {
             double[] weightUpdate = new double[network[network.length-1].nodes.length];
 
             List<DataC> temp = Arrays.asList(data);
@@ -190,11 +213,25 @@ public class FeedForwardNet {
 
 
             for (DataC d : miniBatch) {
-                double[] output = feedForward(d.getNormalizedFeatures());
-                int target = Integer.parseInt(d.getClassLabel()) - 1;
-                double[] t = new double[output.length];
-                Arrays.fill(t, 0);
-                t[target] = 1;
+                double[] output;
+                double target;
+                double[] t;
+
+                //CLASSIFICATION
+                if (isClassification) {
+                    output = feedForward(d.getNormalizedFeatures());
+                    target = Integer.parseInt(d.getClassLabel()) - 1;
+                    t = new double[output.length];
+                    Arrays.fill(t, 0);
+                    t[(int) target] = 1;
+                }
+                //REGRESSION
+                else {
+                    output = feedForward(d.getNormalizedFeatures());
+                    target = Double.parseDouble(d.getClassLabel());
+                    t = new double[output.length];
+                    Arrays.fill(t, target);
+                }
 
                 totalError += error(output, t);
                 double[] deltas = delta(output, t);
@@ -206,6 +243,7 @@ public class FeedForwardNet {
 
             totalError /= miniBatchSize;
 
+            //average weight updates
             for (int j= 0; j< weightUpdate.length; j++) {
                 weightUpdate[j] /= miniBatchSize;
             }
@@ -218,7 +256,7 @@ public class FeedForwardNet {
 
     /*
         Updates weights based on performance of mini batch
-        Calls Layer.getUpdates() for each layer, then Layer.updateWeights
+        Calls Layer.getUpdates() for each layer, then Layer.updateWeights()
      */
     public void updateMiniBatch(double[] weightUpdate) {
         //output layer
@@ -234,21 +272,37 @@ public class FeedForwardNet {
 
     public void evaluate() {
         int count = 0;
+
         for (DataC d: data) {
+            double guess;
+            double trueClass;
             double[] output = feedForward(d.getNormalizedFeatures());
-            int trueClass = Integer.parseInt(d.getClassLabel());
 
-            double max = Double.NEGATIVE_INFINITY;
-            int guess = 0;
+            //CLASSIFICATION
+            if (isClassification) {
+                trueClass = Integer.parseInt(d.getClassLabel());
 
-            for (int i= 0; i< output.length; i++) {
-                if (output[i] > max) {
-                    max = output[i];
-                    guess = i+1;
+                double max = Double.NEGATIVE_INFINITY;
+                guess = 0;
+
+                for (int i = 0; i < output.length; i++) {
+                    if (output[i] > max) {
+                        max = output[i];
+                        guess = i + 1;
+                    }
+                }
+                if ((int)guess == trueClass) {
+                    count++;
                 }
             }
-            if (guess == trueClass) {
-                count++;
+            //REGRESSION
+            else {
+                trueClass = Double.parseDouble(d.getClassLabel());
+                guess = output[0];
+
+                if (Math.abs(trueClass - guess) < 0.1) {
+                    count++;
+                }
             }
 
             System.out.println("G: "+guess + "\tT: "+trueClass);
@@ -291,7 +345,7 @@ public class FeedForwardNet {
 
         int inputLen = glass.getAllData()[0].getNormalizedFeatures().length;
         int[] layers = {inputLen, 16, 7};
-//        FeedForwardNet network = new FeedForwardNet(glass.getAllData(), layers);
+//        FeedForwardNet network = new FeedForwardNet(glass.getAllData(), layers, true);
 //        network.backprop();
 //        network.evaluate();
 
@@ -300,27 +354,27 @@ public class FeedForwardNet {
 
         inputLen = soybean.getAllData()[0].getNormalizedFeatures().length;
         int[] layers3 = {inputLen, 20, 4};
-//        FeedForwardNet net2 = new FeedForwardNet(soybean.getAllData(), layers3);
-//        net2.backprop();
-//        net2.evaluate();
+//        FeedForwardNet netS = new FeedForwardNet(soybean.getAllData(), layers3, true);
+//        netS.backprop();
+//        netS.evaluate();
 
         DataSetUp breastCancer = new DataSetUp("data-sets/breast-cancer-wisconsin.data", "endB", "classification");
         breastCancer.zScoreNormalize();
 
         inputLen = breastCancer.getAllData()[0].getNormalizedFeatures().length;
         int[] layersB = {inputLen, 16, 2};
-        FeedForwardNet netB = new FeedForwardNet(breastCancer.getAllData(), layersB);
-        netB.backprop();
-        netB.evaluate();
+//        FeedForwardNet netB = new FeedForwardNet(breastCancer.getAllData(), layersB, true);
+//        netB.backprop();
+//        netB.evaluate();
 
-//        DataSetUp forestFires = new DataSetUp("data-sets/forestfires.data", "endF", "regression");
-//        forestFires.zScoreNormalize();
-//
-//        inputLen = forestFires.getAllData()[0].getNormalizedFeatures().length;
-//        int[] layers2 = {inputLen, 16, 1};
-//        FeedForwardNet net = new FeedForwardNet(forestFires.getAllData(), layers2);
-//        net.backprop();
-//        net.evaluate();
+        DataSetUp forestFires = new DataSetUp("data-sets/forestfires.data", "endF", "regression");
+        forestFires.zScoreNormalize();
+
+        inputLen = forestFires.getAllData()[0].getNormalizedFeatures().length;
+        int[] layers2 = {inputLen, 26, 1};
+        FeedForwardNet net = new FeedForwardNet(forestFires.getAllData(), layers2, false);
+        net.backprop();
+        net.evaluate();
     }
 
 }
