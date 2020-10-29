@@ -90,29 +90,20 @@ public class DataSetUp {
 			d.setNormFeatures(normFeatures);
 		}
 
-		//if regression, normalize the response values
+		//if regression, scale response value to [0, 1]
 		if (!isClassification) {
-			//get mean
-			double mean= 0;
+			double max = Double.NEGATIVE_INFINITY;
+			double min = Double.POSITIVE_INFINITY;
 			for (DataC d: data) {
-				mean += Double.parseDouble(d.getClassLabel());
+				double r = Double.parseDouble(d.getClassLabel());
+				if (r > max) { max = r; }
+				if (r < min) { min = r; }
 			}
-			mean /= data.length;
-
-			//get SD
-			double SD= 0;
 			for (DataC d: data) {
-				SD += Math.pow((Double.parseDouble(d.getClassLabel()) - mean), 2);
-			}
-			SD /= data.length;
-			SD = Math.pow(SD, 0.5);
-
-			//update class label
-			for (DataC d: data) {
-				d.setClassLabel(String.valueOf((Double.parseDouble(d.getClassLabel()) - mean) / SD + 0.01));
+				double r = Double.parseDouble(d.getClassLabel());
+				d.setClassLabel(String.valueOf( (r - min) / (max - min) ));
 			}
 		}
-
 	}
 
 }
