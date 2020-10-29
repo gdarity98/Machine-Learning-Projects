@@ -3,8 +3,9 @@ package project3;
 import java.util.Random;
 
 /*
-    A generalized Data object to replace GlassData.java, HouseVotesData.java, etc.
-    Data must be in the form [id, feat_1, feat_2, ..., feat_n, class label]
+    A generalized Data object that corresponds to 1 line in a _.data file
+
+    @Author: Gabe Darity and Dave Miller
  */
 public class DataC {
 
@@ -71,9 +72,9 @@ public class DataC {
 		        //This is for when we read in the Classification House Votes Data This also Randomizes Missing Attributes
 		        for(int i = 1; i < tokens.length; i++) {
 					switch (tokens[i]) {
-						case "n" -> tokens[i] = Integer.toString(0);
-						case "y" -> tokens[i] = Integer.toString(1);
-						case "?" -> {
+						case "n" : tokens[i] = Integer.toString(0);
+						case "y" : tokens[i] = Integer.toString(1);
+						case "?" : {
 							Random random = new Random();
 							int randomNum = 0;
 							while (true) {
@@ -104,13 +105,13 @@ public class DataC {
 		        
 		        //This edits the classLabel to be a number version rather than a string for Segmentation Data
 				switch (classLabel) {
-					case "BRICKFACE" -> classLabel = "1";
-					case "SKY" -> classLabel = "2";
-					case "FOLIAGE" -> classLabel = "3";
-					case "CEMENT" -> classLabel = "4";
-					case "WINDOW" -> classLabel = "5";
-					case "PATH" -> classLabel = "6";
-					case "GRASS" -> classLabel = "7";
+					case "BRICKFACE" : classLabel = "1";
+					case "SKY" : classLabel = "2";
+					case "FOLIAGE" : classLabel = "3";
+					case "CEMENT" : classLabel = "4";
+					case "WINDOW" : classLabel = "5";
+					case "PATH" : classLabel = "6";
+					case "GRASS" : classLabel = "7";
 				}
 		        
 		        this.id = id;
@@ -127,31 +128,31 @@ public class DataC {
 		       //This is for when we read in the Regression Forest Fires Data to change categorical data into numbers
 		        for(int i = 1; i < tokens.length; i++) {
 					switch (tokens[i]) {
-						case "jan" -> tokens[i] = Integer.toString(0);
-						case "feb" -> tokens[i] = Integer.toString(1);
-						case "mar" -> tokens[i] = Integer.toString(2);
-						case "apr" -> tokens[i] = Integer.toString(3);
-						case "may" -> tokens[i] = Integer.toString(4);
-						case "jun" -> tokens[i] = Integer.toString(5);
-						case "jul" -> tokens[i] = Integer.toString(6);
-						case "aug" -> tokens[i] = Integer.toString(7);
-						case "sep" -> tokens[i] = Integer.toString(8);
-						case "oct" -> tokens[i] = Integer.toString(9);
-						case "nov" -> tokens[i] = Integer.toString(10);
-						case "dec" -> tokens[i] = Integer.toString(11);
+						case "jan" : tokens[i] = Integer.toString(0);
+						case "feb" : tokens[i] = Integer.toString(1);
+						case "mar" : tokens[i] = Integer.toString(2);
+						case "apr" : tokens[i] = Integer.toString(3);
+						case "may" : tokens[i] = Integer.toString(4);
+						case "jun" : tokens[i] = Integer.toString(5);
+						case "jul" : tokens[i] = Integer.toString(6);
+						case "aug" : tokens[i] = Integer.toString(7);
+						case "sep" : tokens[i] = Integer.toString(8);
+						case "oct" : tokens[i] = Integer.toString(9);
+						case "nov" : tokens[i] = Integer.toString(10);
+						case "dec" : tokens[i] = Integer.toString(11);
 					}
 		        }
 		        
 		      //This is for when we read in the Regression Forest Fires Data to change categorical data into numbers
 		        for(int i = 1; i < tokens.length; i++) {
 					switch (tokens[i]) {
-						case "mon" -> tokens[i] = Integer.toString(0);
-						case "tue" -> tokens[i] = Integer.toString(1);
-						case "wed" -> tokens[i] = Integer.toString(2);
-						case "thu" -> tokens[i] = Integer.toString(3);
-						case "fri" -> tokens[i] = Integer.toString(4);
-						case "sat" -> tokens[i] = Integer.toString(5);
-						case "sun" -> tokens[i] = Integer.toString(6);
+						case "mon" : tokens[i] = Integer.toString(0);
+						case "tue" : tokens[i] = Integer.toString(1);
+						case "wed" : tokens[i] = Integer.toString(2);
+						case "thu" : tokens[i] = Integer.toString(3);
+						case "fri" : tokens[i] = Integer.toString(4);
+						case "sat" : tokens[i] = Integer.toString(5);
+						case "sun" : tokens[i] = Integer.toString(6);
 					}
 		        }
 		        
@@ -170,9 +171,9 @@ public class DataC {
 		        features = new double[tokens.length-1];
 
 		        switch(tokens[0]) {
-		        	case "M" -> features[0] = 1.0;
-		        	case "F" -> features[0] = 2.0;
-		        	case "I" -> features[0] = 3.0;
+					case "M" : features[0] = 1.0;
+					case "F" : features[0] = 2.0;
+					case "I" : features[0] = 3.0;
 				}
 
 		        for (int i= 1; i< tokens.length-1; i++) {

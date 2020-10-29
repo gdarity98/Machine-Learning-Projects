@@ -4,9 +4,13 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
+/*
+	A class to handle high level data set up
+
+	@Author: Gabe Darity and Dave Miller
+ */
 public class DataSetUp {
 	private DataC[] data;
 	private final int length;
