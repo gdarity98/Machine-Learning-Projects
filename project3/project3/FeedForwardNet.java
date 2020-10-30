@@ -203,7 +203,9 @@ public class FeedForwardNet {
      */
     public void backprop(DataC[] trainingData, int epochs) {
 
-        int miniBatchSize = trainingData.length / 10;
+        //Use first miniBatchSize for regression, 2nd for classification
+//        int miniBatchSize = 1;
+        int miniBatchSize = data.length / 10;
 
         for (int i= 0; i< epochs; i++) {
             double[] weightUpdate = new double[network[network.length-1].nodes.length];
@@ -214,6 +216,7 @@ public class FeedForwardNet {
 
             List<DataC> miniBatch = new ArrayList<>(temp.subList(0, miniBatchSize));
 
+            //get weight update average at output layer for mini batch
             for (DataC d : miniBatch) {
                 double[] output = feedForward(d.getNormalizedFeatures());
                 double target;
@@ -251,7 +254,7 @@ public class FeedForwardNet {
 
             updateMiniBatch(weightUpdate);
 
-            System.out.println("Epoch "+ i+1 + " -->Error: " + totalError);
+            System.out.println("Epoch "+ i + " -->Error: " + totalError);
         }
     }
 
@@ -288,6 +291,7 @@ public class FeedForwardNet {
         int count = 0;
         double error = 0;
 
+        //setting up training & testing sets
         List<DataC> temp = Arrays.asList(data);
         Collections.shuffle(temp);
         int trainSize = (int) (data.length * 0.9);
@@ -403,7 +407,7 @@ public class FeedForwardNet {
         forestFires.zScoreNormalize();
 
         inputLen = forestFires.getAllData()[0].getNormalizedFeatures().length;
-        int[] layersF = {inputLen, 32, 1};
+        int[] layersF = {inputLen, 16, 16, 1};
 //        FeedForwardNet net = new FeedForwardNet(forestFires.getAllData(), layersF, false);
 //        net.evaluate();
 
@@ -412,7 +416,7 @@ public class FeedForwardNet {
         abalone.zScoreNormalize();
 
         inputLen = abalone.getAllData()[0].getNormalizedFeatures().length;
-//        int[] layersA = {inputLen, 12, 1};
+        int[] layersA = {inputLen, 12, 12, 1};
 //        FeedForwardNet netA = new FeedForwardNet(abalone.getAllData(), layersA, false);
 //        netA.evaluate();
 
@@ -421,7 +425,7 @@ public class FeedForwardNet {
         machine.zScoreNormalize();
 
         inputLen = machine.getAllData()[0].getNormalizedFeatures().length;
-        int[] layersM = {inputLen, 16, 1};
+//        int[] layersM = {inputLen, 16, 16, 1};
 //        FeedForwardNet netM = new FeedForwardNet(machine.getAllData(), layersM, false);
 //        netM.evaluate();
     }

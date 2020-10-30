@@ -1,7 +1,5 @@
 package project3;
 
-import java.util.Random;
-
 /*
     A generalized Data object that corresponds to 1 line in a _.data file
 
@@ -14,9 +12,6 @@ public class DataC {
     private double[] normalizedFeatures;
     private String classLabel;
     private int id;
-    private String classLoc;
-    private double clusterID;
-    
 
     public DataC(String fullData, int id, String classLoc, String clOrReg) { 
     	if(clOrReg.equals("classification")){
@@ -32,7 +27,7 @@ public class DataC {
 		
 		        classLabel = tokens[tokens.length-1];
 		        this.id = id;
-	    	} else if (classLoc.contentEquals("endS")) {
+	    	} else if (classLoc.contentEquals("endS")) {		//soybean
 	    		this.allData = fullData;
 	    		String[] tokens = fullData.split(",");
 
@@ -43,7 +38,7 @@ public class DataC {
 				}
 
 	    		classLabel = tokens[tokens.length-1].split("D")[1];
-			} else if (classLoc.contentEquals("endB")) {
+			} else if (classLoc.contentEquals("endB")) {		//breast cancer
 	    		this.allData = fullData;
 	    		String[] tokens = fullData.split(",");
 
@@ -69,50 +64,11 @@ public class DataC {
 		
 		        features = new double[tokens.length-1];
 		        
-		        //This is for when we read in the Classification House Votes Data This also Randomizes Missing Attributes
-		        for(int i = 1; i < tokens.length; i++) {
-					switch (tokens[i]) {
-						case "n" : tokens[i] = Integer.toString(0);
-						case "y" : tokens[i] = Integer.toString(1);
-						case "?" : {
-							Random random = new Random();
-							int randomNum = 0;
-							while (true) {
-								randomNum = random.nextInt(3);
-								if (randomNum != 0) break;
-							}
-							if (randomNum == 1) {
-								tokens[i] = Integer.toString(1);
-							} else {
-								tokens[i] = Integer.toString(0);
-							}
-						}
-					}
-		        }
-		        
 		        for (int i= 1; i< tokens.length; i++) {
 		            features[i-1] = Double.parseDouble(tokens[i]);
 		        }
 		
 		        classLabel = tokens[0];
-		        
-		        //This edits the classLabel to be a number version rather than a string for House Votes Data
-		        if(classLabel.equals("democrat")) {
-		        	classLabel = "1";
-		        }else if (classLabel.equals("republican")) {
-		        	classLabel = "2";
-		        }
-		        
-		        //This edits the classLabel to be a number version rather than a string for Segmentation Data
-				switch (classLabel) {
-					case "BRICKFACE" : classLabel = "1";
-					case "SKY" : classLabel = "2";
-					case "FOLIAGE" : classLabel = "3";
-					case "CEMENT" : classLabel = "4";
-					case "WINDOW" : classLabel = "5";
-					case "PATH" : classLabel = "6";
-					case "GRASS" : classLabel = "7";
-				}
 		        
 		        this.id = id;
 	    	}
@@ -123,7 +79,7 @@ public class DataC {
 			 	this.allData = fullData;
 		        String[] tokens = fullData.split(",");
 		
-		        features = new double[tokens.length-1];
+		        features = new double[tokens.length+1];
 		        
 		       //This is for when we read in the Regression Forest Fires Data to change categorical data into numbers
 		        for(int i = 1; i < tokens.length; i++) {
@@ -155,9 +111,22 @@ public class DataC {
 						case "sun" : tokens[i] = Integer.toString(6);
 					}
 		        }
-		        
-		        for (int i= 0; i< tokens.length -1; i++) {
-		            features[i] = Double.parseDouble(tokens[i]);
+
+		        int j=0;
+		        for (int i= 0; i< tokens.length-1; i++) {
+		        	if (i == 2) {
+		        		//make month cyclical
+						features[j++] = Math.sin(Double.parseDouble(tokens[i]) * (2 * Math.PI / 12));
+						features[j++] = Math.cos(Double.parseDouble(tokens[i]) * (2 * Math.PI / 12));
+					}
+		        	else if (i == 3) {
+		        		//make week cyclical
+		        		features[j++] = Math.sin(Double.parseDouble(tokens[i]) * (2 * Math.PI / 7));
+						features[j++] = Math.cos(Double.parseDouble(tokens[i]) * (2 * Math.PI / 7));
+					}
+		        	else {
+						features[j++] = Double.parseDouble(tokens[i]);
+					}
 		        }
 		
 		        classLabel = tokens[tokens.length-1];
@@ -199,14 +168,6 @@ public class DataC {
     		}
     	}
     }
-    
-
-    public DataC(double[] meanFeatures, int clusterID) {
-    	this.classLabel = String.valueOf(clusterID);
-    	this.id = clusterID;
-    	features = meanFeatures;
-	}
-
 
 	public String getAllData() { return allData; }
 
@@ -217,10 +178,6 @@ public class DataC {
     public void setNormFeatures(double[] normFeatures) { this.normalizedFeatures = normFeatures; }
 
     public double[] getNormalizedFeatures() { return this.normalizedFeatures; }
-
-    public int numFeatures() {
-        return features.length;
-    }
 
     public String getClassLabel() {
         return classLabel;
@@ -235,14 +192,5 @@ public class DataC {
     }
 
     public void setID(int id) { this.id = id; }
-    
-    public double getClusterID() {
-    	return clusterID;
-    }
-    
-    public void setClusterID(double cID) {
-    	clusterID = cID;
-    }
-
 
 }
