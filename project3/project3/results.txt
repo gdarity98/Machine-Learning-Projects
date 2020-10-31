@@ -14,14 +14,14 @@ breast-----------------
 	1 HIDDEN, 16 nodes: 1.0, 100,000
 	2 HIDDEN, 10 nodes, 10 nodes: 0.985, same
 forest fires-----------------
-	0 HIDDEN: NaN, does not work
-	1 HIDDEN, 16 nodes: NaN, does not work
+	0 HIDDEN: MSE: 6.191538229712121 E25, 100,00 epochs
+	1 HIDDEN, 16 nodes: MSE: 0.009087800173717686 100,000 epochs eta=0.05
 	2 HIDDEN, 16 nodes, 16 nodes: MSE: 7.426492642484602E-4, 100,000 epochs
 abalone-----------------
-	0 HIDDEN: NaN, does not work
-	1 HIDDEN, 16 nodes: NaN, does not work
+	0 HIDDEN: MSE: 0.007527710714737325
+	1 HIDDEN, 20 nodes: MSE: 0.00810749657355477 100,000 epochs eta=0.05 
 	2 HIDDEN, 12 nodes, 12 nodes: MSE: 0.009586307499568382, 100,000 epochs
 machine-----------------
-	0 HIDDEN: NaN, does not work
-	1 HIDDEN, 16 nodes: NaN, does not work
+	0 HIDDEN: MSE: 7.741274405220008 E51, 100,000 epochs eta=0.05
+	1 HIDDEN, 16 nodes: MSE: 0.0019453879937013868, 100,000 epochs eta=0.05
 	2 HIDDEN, 16 nodes, 16 nodes: MSE: 0.004662657239092996, 100,000 epochs
