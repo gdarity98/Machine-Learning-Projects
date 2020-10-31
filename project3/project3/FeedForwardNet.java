@@ -204,8 +204,8 @@ public class FeedForwardNet {
     public void backprop(DataC[] trainingData, int epochs) {
 
         //Use first miniBatchSize for regression, 2nd for classification
-//        int miniBatchSize = 1;
-        int miniBatchSize = data.length / 10;
+        int miniBatchSize = 1;
+//        int miniBatchSize = data.length / 10;
 
         for (int i= 0; i< epochs; i++) {
             double[] weightUpdate = new double[network[network.length-1].nodes.length];
@@ -300,7 +300,7 @@ public class FeedForwardNet {
         DataC[] train = new DataC[trainSize];
         training.toArray(train);
 
-        backprop(train, 10000);
+        backprop(train, 100000);
 
         for (DataC d: testing) {
             double guess;
@@ -380,7 +380,7 @@ public class FeedForwardNet {
         glass.zScoreNormalize();
 
         int inputLen = glass.getAllData()[0].getNormalizedFeatures().length;
-        int[] layers = {inputLen, 16, 7};
+        int[] layers = {inputLen, 12, 12, 7};
 //        FeedForwardNet network = new FeedForwardNet(glass.getAllData(), layers, true);
 //        network.evaluate();
 
@@ -389,7 +389,7 @@ public class FeedForwardNet {
         soybean.zScoreNormalize();
 
         inputLen = soybean.getAllData()[0].getNormalizedFeatures().length;
-        int[] layers3 = {inputLen, 20, 4};
+        int[] layers3 = {inputLen, 12, 12, 4};
 //        FeedForwardNet netS = new FeedForwardNet(soybean.getAllData(), layers3, true);
 //        netS.evaluate();
 
@@ -398,7 +398,7 @@ public class FeedForwardNet {
         breastCancer.zScoreNormalize();
 
         inputLen = breastCancer.getAllData()[0].getNormalizedFeatures().length;
-        int[] layersB = {inputLen, 16, 2};
+        int[] layersB = {inputLen, 10, 10, 2};
 //        FeedForwardNet netB = new FeedForwardNet(breastCancer.getAllData(), layersB, true);
 //        netB.evaluate();
 
@@ -407,7 +407,7 @@ public class FeedForwardNet {
         forestFires.zScoreNormalize();
 
         inputLen = forestFires.getAllData()[0].getNormalizedFeatures().length;
-        int[] layersF = {inputLen, 16, 16, 1};
+        int[] layersF = {inputLen, 16, 1};
 //        FeedForwardNet net = new FeedForwardNet(forestFires.getAllData(), layersF, false);
 //        net.evaluate();
 
@@ -416,7 +416,7 @@ public class FeedForwardNet {
         abalone.zScoreNormalize();
 
         inputLen = abalone.getAllData()[0].getNormalizedFeatures().length;
-        int[] layersA = {inputLen, 12, 12, 1};
+        int[] layersA = {inputLen, 20, 1};
 //        FeedForwardNet netA = new FeedForwardNet(abalone.getAllData(), layersA, false);
 //        netA.evaluate();
 
@@ -425,7 +425,7 @@ public class FeedForwardNet {
         machine.zScoreNormalize();
 
         inputLen = machine.getAllData()[0].getNormalizedFeatures().length;
-//        int[] layersM = {inputLen, 16, 16, 1};
+        int[] layersM = {inputLen, 16, 16, 1};
 //        FeedForwardNet netM = new FeedForwardNet(machine.getAllData(), layersM, false);
 //        netM.evaluate();
     }

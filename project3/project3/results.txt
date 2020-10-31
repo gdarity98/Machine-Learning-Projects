@@ -1,0 +1,27 @@
+For update size:
+	Classification problems: trainingData.length / 10
+	Regression problems: 1-5
+GLASS-----------------
+	0 HIDDEN: 0.363636363636,  no convergence
+	1 HIDDEN, 16 nodes: 0.86, 1,000,000 epochs
+	2 HIDDEN, 12 nodes, 12 nodes: 0.545454, same epochs
+Soy-----------------
+	0 HIDDEN: 1.0, 10000 epochs
+	1 HIDDEN, 20 nodes: 1.0, 10,000 epochs
+	2 HIDDEN, 12 nodes, 12 nodes: 1.0, 100000
+breast-----------------
+	0 HIDDEN: 0.01, no convergence
+	1 HIDDEN, 16 nodes: 1.0, 100,000
+	2 HIDDEN, 10 nodes, 10 nodes: 0.985, same
+forest fires-----------------
+	0 HIDDEN: NaN, does not work
+	1 HIDDEN, 16 nodes: NaN, does not work
+	2 HIDDEN, 16 nodes, 16 nodes: MSE: 7.426492642484602E-4, 100,000 epochs
+abalone-----------------
+	0 HIDDEN: NaN, does not work
+	1 HIDDEN, 16 nodes: NaN, does not work
+	2 HIDDEN, 12 nodes, 12 nodes: MSE: 0.009586307499568382, 100,000 epochs
+machine-----------------
+	0 HIDDEN: NaN, does not work
+	1 HIDDEN, 16 nodes: NaN, does not work
+	2 HIDDEN, 16 nodes, 16 nodes: MSE: 0.004662657239092996, 100,000 epochs
