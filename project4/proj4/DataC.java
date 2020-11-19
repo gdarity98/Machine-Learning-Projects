@@ -1,4 +1,4 @@
-package project3;
+package proj4;
 
 /*
     A generalized Data object that corresponds to 1 line in a _.data file

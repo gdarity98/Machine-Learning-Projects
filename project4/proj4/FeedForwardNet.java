@@ -1,4 +1,4 @@
-package project3;
+package proj4;
 
 import java.util.*;
 
@@ -139,6 +139,7 @@ public class FeedForwardNet {
     public DataC[] data;
     public double eta;
     public boolean isClassification;
+    public double fitness;
 
     /*
         Takes an array of layer sizes for the network i.e
@@ -151,6 +152,7 @@ public class FeedForwardNet {
         this.data = trainingData;
         this.eta = 0.5;
         this.isClassification = isClassification;
+        this.fitness = 0;
         network = new Layer[layers.length];
 
         //for each layer, make a Layer object of size layers[i]
@@ -406,7 +408,7 @@ public class FeedForwardNet {
 
         int inputLen = glass.getAllData()[0].getNormalizedFeatures().length;
         int[] layers = {inputLen, 12, 12, 7};
-//        FeedForwardNet network = new FeedForwardNet(glass.getAllData(), layers, true);
+//        proj4.FeedForwardNet network = new proj4.FeedForwardNet(glass.getAllData(), layers, true);
 //        network.evaluate();
 
         //---------------------------------->SOYBEAN
@@ -415,7 +417,7 @@ public class FeedForwardNet {
 
         inputLen = soybean.getAllData()[0].getNormalizedFeatures().length;
         int[] layers3 = {inputLen, 12, 12, 4};
-//        FeedForwardNet netS = new FeedForwardNet(soybean.getAllData(), layers3, true);
+//        proj4.FeedForwardNet netS = new proj4.FeedForwardNet(soybean.getAllData(), layers3, true);
 //        netS.evaluate();
 
         //---------------------------------->BREAST CANCER
@@ -424,7 +426,7 @@ public class FeedForwardNet {
 
         inputLen = breastCancer.getAllData()[0].getNormalizedFeatures().length;
         int[] layersB = {inputLen, 10, 10, 2};
-//        FeedForwardNet netB = new FeedForwardNet(breastCancer.getAllData(), layersB, true);
+//        proj4.FeedForwardNet netB = new proj4.FeedForwardNet(breastCancer.getAllData(), layersB, true);
 //        netB.evaluate();
 
         //---------------------------------->FOREST FIRES
@@ -433,7 +435,7 @@ public class FeedForwardNet {
 
         inputLen = forestFires.getAllData()[0].getNormalizedFeatures().length;
         int[] layersF = {inputLen, 16, 1};
-//        FeedForwardNet net = new FeedForwardNet(forestFires.getAllData(), layersF, false);
+//        proj4.FeedForwardNet net = new proj4.FeedForwardNet(forestFires.getAllData(), layersF, false);
 //        net.evaluate();
 
         //---------------------------------->ABALONE
@@ -442,7 +444,7 @@ public class FeedForwardNet {
 
         inputLen = abalone.getAllData()[0].getNormalizedFeatures().length;
         int[] layersA = {inputLen, 20, 1};
-//        FeedForwardNet netA = new FeedForwardNet(abalone.getAllData(), layersA, false);
+//        proj4.FeedForwardNet netA = new proj4.FeedForwardNet(abalone.getAllData(), layersA, false);
 //        netA.evaluate();
 
         //---------------------------------->MACHINE
@@ -451,7 +453,7 @@ public class FeedForwardNet {
 
         inputLen = machine.getAllData()[0].getNormalizedFeatures().length;
         int[] layersM = {inputLen, 16, 16, 1};
-//        FeedForwardNet netM = new FeedForwardNet(machine.getAllData(), layersM, false);
+//        proj4.FeedForwardNet netM = new proj4.FeedForwardNet(machine.getAllData(), layersM, false);
 //        netM.evaluate();
     }
 
