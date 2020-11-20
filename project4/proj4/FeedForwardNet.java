@@ -125,6 +125,16 @@ public class FeedForwardNet {
         }
 
         /*
+            For GA
+         */
+        public double[][] getWeights() { return weights; }
+
+        /*
+            Assumes weight array is the right size
+         */
+        public void setWeights(double[][] newWeights) { this.weights = newWeights; }
+
+        /*
             Activation function
          */
         public double sigmoid(double z) {
@@ -396,6 +406,52 @@ public class FeedForwardNet {
         }
 
         return delta;
+    }
+
+    public List<double[][]> getWeights() {
+        List<double[][]> weights = new ArrayList<>();
+        for (Layer layer: network) {
+            weights.add(layer.getWeights());
+        }
+
+        return weights;
+    }
+
+    public void setWeights(List<double[][]> newWeights) {
+        for(int i= 0; i< network.length; i++) {
+            network[i].setWeights(newWeights.get(i));
+        }
+    }
+
+    public void updateFitness() {
+        double totalError = 0;
+
+        for (DataC d : data) {
+            double[] output = feedForward(d.getNormalizedFeatures());
+            double target;
+            double[] t;
+
+            //CLASSIFICATION
+            if (isClassification) {
+                target = Integer.parseInt(d.getClassLabel()) - 1;
+                t = new double[output.length];
+                Arrays.fill(t, 0);
+                t[(int) target] = 1;
+            }
+            //REGRESSION
+            else {
+                target = Double.parseDouble(d.getClassLabel());
+                t = new double[output.length];
+                t[0] = target;
+            }
+
+            totalError += error(output, t);
+
+        }
+
+        totalError /= data.length;
+
+        this.fitness = totalError;
     }
 
 
