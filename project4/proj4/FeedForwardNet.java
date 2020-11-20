@@ -270,31 +270,6 @@ public class FeedForwardNet {
         }
     }
 
-
-    /*
-       Training: Genetic Algorithm with real valued chromosomes
-     */
-    
-    public void genalg() {
-    	
-    }
-    
-    /*
-       Training: Differential Evolution
-     */
-    
-    public void difevo() {
-    	
-    }
-    
-    /*
-       Training: Particle Swarm Optimization
-     */
-    
-    public void psopt() {
-    	
-    }
-    
     
     /*
         Updates weights based on performance of mini batch
