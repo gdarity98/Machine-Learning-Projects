@@ -304,15 +304,17 @@ public class FeedForwardNet {
         double error = 0;
 
         //setting up training & testing sets
-        List<DataC> temp = Arrays.asList(data);
-        Collections.shuffle(temp);
-        int trainSize = (int) (data.length * 0.9);
-        List<DataC> training = new ArrayList<>(temp.subList(0, trainSize));
-        List<DataC> testing = new ArrayList<>(temp.subList(trainSize, data.length));
-        DataC[] train = new DataC[trainSize];
-        training.toArray(train);
+//        List<DataC> temp = Arrays.asList(data);
+//        Collections.shuffle(temp);
+//        int trainSize = (int) (data.length * 0.9);
+//        List<DataC> training = new ArrayList<>(temp.subList(0, trainSize));
+//        List<DataC> testing = new ArrayList<>(temp.subList(trainSize, data.length));
+//        DataC[] train = new DataC[trainSize];
+//        training.toArray(train);
 
-        backprop(train, 100000);
+        List<DataC> testing = Arrays.asList(data);
+
+//        backprop(train, 100000);
 
         for (DataC d: testing) {
             double guess;

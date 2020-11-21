@@ -30,12 +30,7 @@ public class Genetic {
     public FeedForwardNet[] selection() {
         int k = 2;
         int rand;
-        Set<FeedForwardNet> finalSelection = new HashSet<>();
-
-        //make sure of even # of parents
-//        if (finalSelection.length % 2 == 1) {
-//            finalSelection = new FeedForwardNet[population.length/2 + 1];
-//        }
+        Set<FeedForwardNet> finalSelection = new HashSet<>();   //to select w/o replacement
 
         for (int i= 0; i< population.length / 2; i++) {
             FeedForwardNet[] tourney = new FeedForwardNet[k];
@@ -59,6 +54,7 @@ public class Genetic {
             finalSelection.add(bestInd);
         }
 
+        //make sure of even number of parents
         int i= 0;
         while (finalSelection.size() % 2 == 1) {
             finalSelection.add(population[i++]);
@@ -149,7 +145,7 @@ public class Genetic {
     public void replace(FeedForwardNet[] newIndividuals) {
         int j= population.length-1;
         for (FeedForwardNet newIndividual : newIndividuals) {
-            population[j--] = newIndividual;
+            population[j--].setWeights(newIndividual.getWeights());
         }
     }
 
@@ -213,7 +209,9 @@ public class Genetic {
 
         Genetic G = new Genetic(20, soybean.getAllData(), layers, true);
 
-        G.GA(1000);
+        G.GA(800);
+        FeedForwardNet best = G.population[0];
+        best.evaluate();
     }
 
 }
