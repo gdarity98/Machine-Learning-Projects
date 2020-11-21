@@ -385,15 +385,15 @@ public class FeedForwardNet {
 
     public List<double[][]> getWeights() {
         List<double[][]> weights = new ArrayList<>();
-        for (Layer layer: network) {
-            weights.add(layer.getWeights());
+        for (int i= 0; i< network.length-1; i++) {
+            weights.add(network[i].getWeights());
         }
 
         return weights;
     }
 
     public void setWeights(List<double[][]> newWeights) {
-        for(int i= 0; i< network.length; i++) {
+        for(int i= 0; i< network.length-1; i++) {
             network[i].setWeights(newWeights.get(i));
         }
     }

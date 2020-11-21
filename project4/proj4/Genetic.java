@@ -13,11 +13,13 @@ public class Genetic {
      */
     public Genetic(int populationSize, DataC[] trainingData, int[] layers, boolean isClassification) {
         population = new FeedForwardNet[populationSize];
-        mutationRate = 0.1;
+        mutationRate = 0.05;
 
-        for (FeedForwardNet net: population) {
-            new FeedForwardNet(trainingData, layers, isClassification);
+        for (int i= 0; i< populationSize; i++) {
+            population[i] = new FeedForwardNet(trainingData, layers, isClassification);
         }
+
+        evaluate();
     }
 
 
@@ -28,36 +30,44 @@ public class Genetic {
     public FeedForwardNet[] selection() {
         int k = 2;
         int rand;
-        FeedForwardNet[] finalSelection = new FeedForwardNet[population.length / 2];
+        Set<FeedForwardNet> finalSelection = new HashSet<>();
 
         //make sure of even # of parents
-        if (finalSelection.length % 2 == 1) {
-            finalSelection = new FeedForwardNet[population.length/2 + 1];
-        }
+//        if (finalSelection.length % 2 == 1) {
+//            finalSelection = new FeedForwardNet[population.length/2 + 1];
+//        }
 
-        for (int i= 0; i< finalSelection.length; i++) {
+        for (int i= 0; i< population.length / 2; i++) {
             FeedForwardNet[] tourney = new FeedForwardNet[k];
 
             //select k individuals at random
             for (int j= 0; j< k; j++) {
-                rand = (int)(Math.random() * (population.length-1));
+                rand = (int)(Math.random() * (population.length -1));
                 tourney[j] = population[rand];
             }
 
             //add best individual to finalSelection[]
-            double best= 0;
+            double best= Double.POSITIVE_INFINITY;
             FeedForwardNet bestInd = null;
             for (int j= 0; j< k; j++) {
-                if (tourney[j].fitness > best) {
+                if (tourney[j].fitness < best) {
                     bestInd = tourney[j];
                     best = tourney[j].fitness;
                 }
             }
 
-            finalSelection[i] = bestInd;
+            finalSelection.add(bestInd);
         }
 
-        return finalSelection;
+        int i= 0;
+        while (finalSelection.size() % 2 == 1) {
+            finalSelection.add(population[i++]);
+        }
+
+        FeedForwardNet[] selection = new FeedForwardNet[finalSelection.size()];
+        finalSelection.toArray(selection);
+
+        return selection;
     }
 
 
@@ -78,8 +88,13 @@ public class Genetic {
             List<double[][]> parent1 = selected[i].getWeights();
             List<double[][]> parent2 = selected[i+1].getWeights();
 
+            List<double[][]> child1 = new ArrayList<>();
+            List<double[][]> child2 = new ArrayList<>();
+
             int c = 0;
             for(double[][] layer: parent1) {
+                double[][] c1 = new double[layer.length][layer[0].length];
+                double[][] c2 = new double[layer.length][layer[0].length];
 
                 for(int j= 0; j< layer.length; j++) {
                     for(int k= 0; k< layer[0].length; k++) {
@@ -88,31 +103,36 @@ public class Genetic {
                         rand = Math.random();
 
                         if (rand >= 0.5) {
-                            double temp = layer[j][k];
-                            parent1.get(c)[j][k] = parent2.get(c)[j][k];
-                            parent2.get(c)[j][k] = temp;
+                            c2[j][k] = parent1.get(c)[j][k];
+                            c1[j][k] = parent2.get(c)[j][k];
+                        }
+                        else {
+                            c1[j][k] = parent1.get(c)[j][k];
+                            c2[j][k] = parent2.get(c)[j][k];
                         }
 
                         //MUTATION
                         rand = Math.random();
 
                         if (rand >= (1 - mutationRate)) {
-                            parent1.get(c)[j][k] += (Math.random() * .2)-0.1;
+                            c1[j][k] += (Math.random() * .2)-0.1;
                         }
 
                         rand = Math.random();
 
                         if (rand >= (1 - mutationRate)) {
-                            parent2.get(c)[j][k] += (Math.random() * .2)-0.1;
+                            c2[j][k] += (Math.random() * .2)-0.1;
                         }
                     }
                 }
 
+                child1.add(c1);
+                child2.add(c2);
                 c++;
             }
 
-            selected[i].setWeights(parent1);
-            selected[i+1].setWeights(parent2);
+            selected[i].setWeights(child1);
+            selected[i+1].setWeights(child2);
 
             i++;
         }
@@ -124,10 +144,13 @@ public class Genetic {
     /*
         Replacement via steady state - kill weakest & replace
 
-        Assumes fitness sorted population lowest to highest
+        Assumes fitness sorted population best fitness to worst
      */
     public void replace(FeedForwardNet[] newIndividuals) {
-        System.arraycopy(newIndividuals, 0, population, 0, newIndividuals.length);
+        int j= population.length-1;
+        for (FeedForwardNet newIndividual : newIndividuals) {
+            population[j--] = newIndividual;
+        }
     }
 
 
@@ -137,8 +160,8 @@ public class Genetic {
      */
     public void evaluate() {
         //update fitness
-        for(int i= 0; i< population.length; i++) {
-            population[i].updateFitness();
+        for (FeedForwardNet feedForwardNet : population) {
+            feedForwardNet.updateFitness();
         }
 
         //sort by fitness
@@ -150,6 +173,12 @@ public class Genetic {
                 return fitness1.compareTo(fitness2);
             }
         });
+
+        System.out.print("[");
+        for (FeedForwardNet net: population) {
+            System.out.printf("%.3f, ", net.fitness);
+        }
+        System.out.print("]\n");
     }
 
 
@@ -165,13 +194,26 @@ public class Genetic {
         for (int i= 0; i< generations; i++) {
             FeedForwardNet[] selected = selection();
 
-            selected = crossover(selected);
+            FeedForwardNet[] children = crossover(selected);
 
-            replace(selected);
+            replace(children);
 
             evaluate();
         }
 
+    }
+
+
+    public static void main(String[] args) {
+        DataSetUp soybean = new DataSetUp("data-sets/soybean-small.data", "endS", "classification");
+        soybean.zScoreNormalize();
+
+        int inputLen = soybean.getAllData()[0].getNormalizedFeatures().length;
+        int[] layers = {inputLen, 12, 4};
+
+        Genetic G = new Genetic(20, soybean.getAllData(), layers, true);
+
+        G.GA(1000);
     }
 
 }
