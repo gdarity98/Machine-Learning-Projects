@@ -24,8 +24,9 @@ public class ParticleSwarm {
         public FeedForwardNet pBest;
         public double pBestError;
         public double w, c1, c2;
+        public int local;
 
-        public Particle(DataC[] trainingData, int[] layers, boolean isClassification, double w, double c1, double c2) {
+        public Particle(DataC[] trainingData, int[] layers, boolean isClassification, double w, double c1, double c2, int local) {
             position = new FeedForwardNet(trainingData, layers, isClassification);
             pBestError = Double.POSITIVE_INFINITY;
             pBest = new FeedForwardNet(trainingData, layers, isClassification);
@@ -33,6 +34,7 @@ public class ParticleSwarm {
             this.w = w;
             this.c1 = c1;
             this.c2 = c2;
+            this.local = local;
         }
 
 
@@ -103,27 +105,31 @@ public class ParticleSwarm {
     //========================================================>ParticleSwarm
 
     public Particle[] particles;
-    public FeedForwardNet gBest;
+    public FeedForwardNet[] lBest;
     public double gBestError;
 
     public ParticleSwarm(int populationSize, DataC[] trainingData, int[] layers, boolean isClassification) {
         particles = new Particle[populationSize];
         gBestError = Double.POSITIVE_INFINITY;
         double w = 0.5;
-        double c1 = 1.5;
+        double c1 = 3;
         double c2 = 1.5;
 
-        for(int i= 0; i< populationSize; i++) {
-            particles[i] = new Particle(trainingData, layers, isClassification, w, c1, c2);
+        lBest = new FeedForwardNet[populationSize / 2];
+        for(int i= 0; i< lBest.length; i++) {
+            lBest[i] = new FeedForwardNet(trainingData, layers, isClassification);
         }
 
-        gBest = new FeedForwardNet(trainingData, layers, isClassification);
+        int local = (int)(Math.random() * (lBest.length-1));
+        for(int i= 0; i< populationSize; i++) {
+            particles[i] = new Particle(trainingData, layers, isClassification, w, c1, c2, local);
+        }
     }
 
 
     public void updateVelocities() {
         for (Particle particle : particles) {
-            particle.updateVelocity(gBest.getWeights());
+            particle.updateVelocity(lBest[particle.local].getWeights());
         }
     }
 
@@ -134,9 +140,10 @@ public class ParticleSwarm {
     public void updatePositions() {
         for (Particle particle : particles) {
             particle.updatePosition();
-            if (particle.pBestError < gBestError) {
+            if (particle.pBestError < lBest[particle.local].fitness) {
                 gBestError = particle.pBestError;
-                gBest.setWeights(particle.pBest.getWeights());
+                lBest[particle.local].setWeights(particle.pBest.getWeights());
+                lBest[particle.local].updateFitness();
             }
         }
     }
@@ -150,8 +157,21 @@ public class ParticleSwarm {
         for(Particle p : particles) {
             System.out.printf("%.3f ", p.pBestError);
         }
-        System.out.printf("[%.3f]", gBestError);
+
+        for (FeedForwardNet net : lBest) {
+            System.out.printf("[%.3f]", net.fitness);
+        }
         System.out.print("]\n");
+
+        //sort by fitness
+        Arrays.sort(particles, new Comparator<Particle>() {
+            @Override
+            public int compare(Particle o1, Particle o2) {
+                Double fitness1 = o1.pBestError;
+                Double fitness2 = o2.pBestError;
+                return fitness1.compareTo(fitness2);
+            }
+        });
     }
 
 
@@ -184,7 +204,10 @@ public class ParticleSwarm {
         int[] layers = {inputLen, 12, 4};
 
         ParticleSwarm PS = new ParticleSwarm(20, soybean.getAllData(), layers, true);
-        PS.PSO(1000);
+        PS.PSO(10000);
+
+        FeedForwardNet best = PS.particles[0].pBest;
+        best.evaluate();
     }
 
 
