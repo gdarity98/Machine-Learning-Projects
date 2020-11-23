@@ -172,6 +172,14 @@ public class FeedForwardNet {
 
         init();
     }
+    
+    public FeedForwardNet(FeedForwardNet clone) {
+    	this.network = clone.network;
+    	this.data = clone.data;
+    	this.eta = clone.eta;
+    	this.isClassification = clone.isClassification;
+    	this.fitness = clone.fitness;
+    }
 
 
     /*
@@ -430,6 +438,7 @@ public class FeedForwardNet {
 
         this.fitness = totalError;
     }
+    
 
 
     //==================================>MAIN

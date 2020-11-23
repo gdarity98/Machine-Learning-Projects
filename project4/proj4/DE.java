@@ -184,7 +184,10 @@ public class DE {
         	
         	//for each individual FFN
         	for(int i = 0; i < population.length; i++) {
+        		
         		FeedForwardNet targetVector = population[i];
+        		FeedForwardNet original = new FeedForwardNet(targetVector);
+        		
         		//Evaluate Fitness
         		double targetFitness = targetVector.fitness;
         		
@@ -201,7 +204,7 @@ public class DE {
         		if(offspringFitness < targetFitness) {
         			population[i] = offspring;
         		}else {
-        			population[i] = targetVector;
+        			population[i] = original;
         		}
         	}
         	evaluate();
