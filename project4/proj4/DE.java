@@ -1,8 +1,6 @@
 package proj4;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Random;
+import java.util.*;
 
 public class DE {
 	// skip selection, considering all examples
@@ -37,18 +35,20 @@ public class DE {
         //all of this is hard coded rn
         mutationRate = 0.1; 
         beta = 1.5;
-        crossoverProb = 0.6;
+        crossoverProb = 0.5;
 
         for (int i= 0; i< populationSize; i++) {
             population[i] = new FeedForwardNet(trainingData, layers, isClassification);
+           // List<double[][]> weights = population[i].getWeights();
+
         }
         
         
 	}
 	
 	
-	public DataC mutation(FeedForwardNet[] population, DataC targetVector) {
-		//DONE?
+	public FeedForwardNet mutation(FeedForwardNet targetVector) {
+		//Done?
 		//target vector x_j
 		//select three other distinct vectors from out population X1,X2,X3
 		//calculate trail vector u_j(u_i?) = X1 + Beta(X2-X3)            Beta in [0,2]
@@ -57,48 +57,51 @@ public class DE {
 		
 		Random rand = new Random();
 		
-		DataC[] distinctVectors = new DataC[3];
-		
-		//picking what feedforwardnet to go into
-		int[] prevIntSub = new int[3];
-		int[] prevIntData = new int[3];
+		FeedForwardNet[] distinctVectors = new FeedForwardNet[3];
 		
 		//checking if the prev data is the same as the ones before
 		//if they are the same the choose again.
 		//set the distinct vectors into the array.
+		
+		int[] prevInt = new int[3];
 		for(int i = 0; i < 3; i++) {
-			int randomIntSub = rand.nextInt(population.length);
-			prevIntSub[i] = randomIntSub;
-			DataC[] subpop = population[randomIntSub].data;
-			int randomIntData = rand.nextInt(subpop.length);
-			prevIntData[i] = randomIntData;
+			int randomInt = rand.nextInt(population.length);
+			prevInt[i] = randomInt;
 			if(i != 0) {
-				if(randomIntSub == prevIntSub[i-1] && randomIntData == prevIntData[i-1]) {
+				if(randomInt == prevInt[i-1]) {
 					i--;
 					continue;
 				}
 			}
-			distinctVectors[i] = subpop[randomIntData];
+			distinctVectors[i] = population[randomInt];
+		}
+	
+		List<double[][]> X1 = distinctVectors[0].getWeights();
+		List<double[][]> X2 = distinctVectors[1].getWeights();
+		List<double[][]> X3 = distinctVectors[2].getWeights();
+
+		List<double[][]> trialWeights = new ArrayList<>();
+		
+		
+		int z = 0;
+		for(double[][] layer : X1) {
+			double[][] newWeights = new double[layer.length][layer[0].length];
+			for(int i= 0; i< layer.length; i++) {
+                for(int j= 0; j< layer[0].length; j++) {
+                	newWeights[i][j] = X1.get(z)[i][j] + (beta*(X2.get(z)[i][j] - X3.get(z)[i][j]));
+                }
+			}
+			trialWeights.add(newWeights);
+			z++;
 		}
 		
-		
-		double[] X1 = distinctVectors[1].getNormalizedFeatures();
-		double[] X2 = distinctVectors[2].getNormalizedFeatures();
-		double[] X3 = distinctVectors[3].getNormalizedFeatures();
-		double[] trialFeatures = new double[X1.length];
-		
-		//creating trial vector features
-		for(int i = 0; i < X1.length; i++) {
-			trialFeatures[i] = X1[i] + (beta*(X2[i]+X3[i]));
-		}
-		
-		//creating trialVector and setting the features
-		DataC trialVector = null;
-		trialVector.setNormFeatures(trialFeatures);
-		return trialVector;
+		//Changing weights
+		targetVector.setWeights(trialWeights);
+		//trialVector.setNormFeatures(trialFeatures);
+		return targetVector;
 	}
 	
-	public DataC crossover(DataC targetVector, DataC trialVector) {
+	public FeedForwardNet crossover(FeedForwardNet targetVector, FeedForwardNet trialVector) {
 		//Done?
 		//Binomial Crossover
 		//x_j'_i (where i are the individual components of the vector)
@@ -111,63 +114,58 @@ public class DE {
 		//   component should be taken from x_j or from u_j
 		// then return offspring x_j'
 		
-		//getting all the features
-		double[] offspringFeatures = new double[targetVector.getNormalizedFeatures().length];
-		double[] targetFeatures = targetVector.getNormalizedFeatures();
-		double[] trialFeatures = trialVector.getNormalizedFeatures();
 		
-		//choosing what features to take from target and trial and putting them in offspring features
-		for(int i = 0; i < offspringFeatures.length; i++) {
-			Random rand = new Random();
-			double double_random = rand.nextDouble();
-			if(double_random <= crossoverProb) {
-				offspringFeatures[i] = targetFeatures[i];
-			}else {
-				offspringFeatures[i] = trialFeatures[i];
+		List<double[][]> targetWeights = targetVector.getWeights();
+		List<double[][]> trialWeights = trialVector.getWeights();
+		
+		List<double[][]> offspringWeights = new ArrayList<>();
+		
+		
+		int z = 0;
+		for(double[][] layer : targetWeights) {
+			double[][] newWeights = new double[layer.length][layer[0].length];
+			for(int i= 0; i< layer.length; i++) {
+                for(int j= 0; j< layer[0].length; j++) {
+                	Random rand = new Random();
+        			double double_random = rand.nextDouble();
+        			if(double_random <= crossoverProb) {
+        				newWeights[i][j] = targetWeights.get(z)[i][j];
+        			}else {
+        				newWeights[i][j] = trialWeights.get(z)[i][j];
+        			}
+                }
 			}
+			offspringWeights.add(newWeights);
+			z++;
 		}
 		
-		//creating the offspring and adding the features
-		DataC offspring = null;
-		offspring.setNormFeatures(offspringFeatures);
-		return offspring;
+		targetVector.setWeights(offspringWeights);
+		return targetVector;
 	}
 	
-	/*
-	 * IDK how to compare the fitnesses??
-	 */
-	public Boolean compare(DataC offspring, DataC targetVector) {
-		
-		return true;
-	}
-	
-    /*
-    Check progress of DE, update fitnesses,
-    maybe sort the population by fitness?
- */
-	public void evaluate() {
-	    //update fitness
-	    for (FeedForwardNet feedForwardNet : population) {
-	        feedForwardNet.updateFitness();
-	    }
-	
-	    //sort by fitness
-	    Arrays.sort(population, new Comparator<FeedForwardNet>() {
-	        @Override
-	        public int compare(FeedForwardNet o1, FeedForwardNet o2) {
-	            Double fitness1 = o1.fitness;
-	            Double fitness2 = o2.fitness;
-	            return fitness1.compareTo(fitness2);
+	 public void evaluate() {
+	        //update fitness
+	        for (FeedForwardNet feedForwardNet : population) {
+	            feedForwardNet.updateFitness();
 	        }
-	    });
-	
-	    System.out.print("[");
-	    for (FeedForwardNet net: population) {
-	        System.out.printf("%.3f, ", net.fitness);
+
+	        //sort by fitness
+	        Arrays.sort(population, new Comparator<FeedForwardNet>() {
+	            @Override
+	            public int compare(FeedForwardNet o1, FeedForwardNet o2) {
+	                Double fitness1 = o1.fitness;
+	                Double fitness2 = o2.fitness;
+	                return fitness1.compareTo(fitness2);
+	            }
+	        });
+
+	        System.out.print("[");
+	        for (FeedForwardNet net: population) {
+	            System.out.printf("%.3f, ", net.fitness);
+	        }
+	        System.out.print("]\n");
 	    }
-	    System.out.print("]\n");
-	}
-	
+
 	public void DiffEvolution(int generations) {
 		
         
@@ -183,33 +181,31 @@ public class DE {
 		
 		//go until we go the number of generations or until specific condition is met
         for(int z = 0; z < generations; z++) {
-        	//going over all of the population (no need for selection)
-        	for(int i=0; i<population.length;i++) {
-        		DataC[] subpop = population[i].data;
-        		//for each individual
-        		for(int j = 0; j < subpop.length; j++) {
-        			DataC targetVector = subpop[j];
-        			//Need to evaluate fitness of the target? Which would be its rank ?
-        			//mutation
-        			DataC trialVector = mutation(population, targetVector);
-        			//offspring
-        			DataC offspring = crossover(targetVector, trialVector);
-        			//Need to evaluate fitness of the offspring and compare to target
-        			//replace whichever has the higher fitness
-        			//compare function just returns true rn since idk how to do thisS
-        			if(compare(offspring,targetVector)) {
-        				subpop[j] = offspring;
-        			}else {
-        				subpop[j] = targetVector;
-        			}
-        			
-        		}
-        		
-        	}
         	
+        	//for each individual FFN
+        	for(int i = 0; i < population.length; i++) {
+        		FeedForwardNet targetVector = population[i];
+        		//Evaluate Fitness
+        		double targetFitness = targetVector.fitness;
+        		
+        		//Mutation
+        		FeedForwardNet trialVector = mutation(targetVector);
+        		
+        		//Offspring (crossover)
+        		
+        		FeedForwardNet offspring = crossover(targetVector,trialVector);
+        		offspring.updateFitness();
+        		
+        		double offspringFitness = offspring.fitness;
+        		
+        		if(offspringFitness < targetFitness) {
+        			population[i] = offspring;
+        		}else {
+        			population[i] = targetVector;
+        		}
+        	}
         	evaluate();
-        }
-        
+        }    
         
 	}
 	
