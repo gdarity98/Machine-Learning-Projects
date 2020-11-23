@@ -34,8 +34,8 @@ public class DE {
         
         //all of this is hard coded rn
         mutationRate = 0.1; 
-        beta = 1.5;
-        crossoverProb = 0.5;
+        beta = 0.2;
+        crossoverProb = .5; //makes it the same as GA
 
         for (int i= 0; i< populationSize; i++) {
             population[i] = new FeedForwardNet(trainingData, layers, isClassification);
