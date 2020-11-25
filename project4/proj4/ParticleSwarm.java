@@ -11,7 +11,7 @@ import java.util.*;
 
     Each swarm has:
         particles[]
-        gBest
+        lBest[]
  */
 public class ParticleSwarm {
 
@@ -111,7 +111,7 @@ public class ParticleSwarm {
     public ParticleSwarm(int populationSize, DataC[] trainingData, int[] layers, boolean isClassification) {
         particles = new Particle[populationSize];
         gBestError = Double.POSITIVE_INFINITY;
-        double w = 0.5;
+        double w = 0.15;
         double c1 = 3;
         double c2 = 1.5;
 
@@ -135,7 +135,7 @@ public class ParticleSwarm {
 
 
     /*
-        Update gBest if necessary
+        Update lBest if necessary
      */
     public void updatePositions() {
         for (Particle particle : particles) {
@@ -144,6 +144,13 @@ public class ParticleSwarm {
                 gBestError = particle.pBestError;
                 lBest[particle.local].setWeights(particle.pBest.getWeights());
                 lBest[particle.local].updateFitness();
+            }
+        }
+
+        //give each lBest a chance to check neighbor
+        for (int i= 0; i< lBest.length; i++) {
+            if (lBest[(i+1)% lBest.length].fitness < lBest[i].fitness) {
+                lBest[i].setWeights(lBest[(i+1)% lBest.length].getWeights());
             }
         }
     }
@@ -191,6 +198,8 @@ public class ParticleSwarm {
 
             evaluate();
 
+            if (particles[0].pBestError < 0.01) { break; }
+
         }
 
     }
@@ -203,8 +212,8 @@ public class ParticleSwarm {
         int inputLen = soybean.getAllData()[0].getNormalizedFeatures().length;
         int[] layers = {inputLen, 12, 4};
 
-        ParticleSwarm PS = new ParticleSwarm(20, soybean.getAllData(), layers, true);
-        PS.PSO(10000);
+        ParticleSwarm PS = new ParticleSwarm(10, soybean.getAllData(), layers, true);
+        PS.PSO(20000);
 
         FeedForwardNet best = PS.particles[0].pBest;
         best.evaluate();

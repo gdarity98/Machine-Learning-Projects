@@ -308,63 +308,99 @@ public class FeedForwardNet {
         data on the network.
      */
     public void evaluate() {
-        int count = 0;
-        double error = 0;
+        double totalAvg= 0;
 
         //setting up training & testing sets
-//        List<DataC> temp = Arrays.asList(data);
-//        Collections.shuffle(temp);
-//        int trainSize = (int) (data.length * 0.9);
-//        List<DataC> training = new ArrayList<>(temp.subList(0, trainSize));
-//        List<DataC> testing = new ArrayList<>(temp.subList(trainSize, data.length));
-//        DataC[] train = new DataC[trainSize];
-//        training.toArray(train);
+        int trainLen = (int)(0.9 * data.length) + 1;
+        int testLen = data.length - trainLen;
+        System.out.println("Train: " + trainLen);
+        System.out.println("Test:  " + testLen);
+        DataC[] train = new DataC[trainLen];
+        DataC[] test;
+        DataC[][] split = new DataC[10][testLen];
 
-        List<DataC> testing = Arrays.asList(data);
+        //shuffle
+        List<DataC> temp = Arrays.asList(data);
+        Collections.shuffle(temp);
+        DataC[] shuffled = new DataC[data.length];
+        temp.toArray(shuffled);
 
-//        backprop(train, 100000);
+        //split into 10 arrays
+        int c= 0;
+        for (int i= 0; i< 10; i++) {
+            for (int j= 0; j< testLen; j++) {
+                if (c >= data.length) {
+                    split[i][j] = null;
+                }
+                else {
+                    split[i][j] = shuffled[c++];
+                }
+            }
+        }
 
-        for (DataC d: testing) {
-            double guess;
-            double trueClass;
-            double[] output = feedForward(d.getNormalizedFeatures());
+        //cross-validate 10x
+        for (int fold= 0; fold< 10; fold++) {
+            int count = 0;
+            double error = 0;
 
-            //CLASSIFICATION - acts as softmax
-            if (isClassification) {
-                trueClass = Integer.parseInt(d.getClassLabel());
+            //train fold to (fold+8)%10, test on (fold+9)%10
+            List<DataC> list = new ArrayList<>();
+            for (int i= 0; i< 9; i++) {
+                //add 1/10 of data to list 9 times
+                list.addAll(Arrays.asList(split[(i+fold)%10]));
+            }
 
-                double max = Double.NEGATIVE_INFINITY;
-                guess = 0;
+            //fill train[] and test[]
+            list.toArray(train);
+            test = split[(fold+9)%10];
 
-                for (int i = 0; i < output.length; i++) {
-                    if (output[i] > max) {
-                        max = output[i];
-                        guess = i + 1;
+            for (DataC d : test) {
+                double guess;
+                double trueClass;
+                double[] output = feedForward(d.getNormalizedFeatures());
+
+                //CLASSIFICATION - acts as softmax
+                if (isClassification) {
+                    trueClass = Integer.parseInt(d.getClassLabel());
+
+                    double max = Double.NEGATIVE_INFINITY;
+                    guess = 0;
+
+                    for (int i = 0; i < output.length; i++) {
+                        if (output[i] > max) {
+                            max = output[i];
+                            guess = i + 1;
+                        }
+                    }
+                    if ((int) guess == trueClass) {
+                        count++;
                     }
                 }
-                if ((int)guess == trueClass) {
-                    count++;
+                //REGRESSION
+                else {
+                    trueClass = Double.parseDouble(d.getClassLabel());
+                    guess = output[0];
+
+                    error += Math.pow(guess - trueClass, 2);
                 }
-            }
-            //REGRESSION
-            else {
-                trueClass = Double.parseDouble(d.getClassLabel());
-                guess = output[0];
 
-                error += Math.pow(guess - trueClass, 2);
+                System.out.println("\tG: " + guess + "\tT: " + trueClass);
             }
 
-            System.out.println("G: "+guess + "\tT: "+trueClass);
+            if (isClassification) {
+                double accuracy = (double) count / testLen;
+                totalAvg += accuracy;
+                System.out.println(count + " / " + testLen + " = " + accuracy);
+            } else {
+                double MSE = error / testLen;
+                totalAvg += MSE;
+                System.out.println("MSE: " + MSE);
+            }
         }
+        totalAvg /= 10;
 
-        if (isClassification) {
-            double accuracy = (double) count / testing.size();
-            System.out.println(count + " / " + testing.size() + " = " + accuracy);
-        }
-        else {
-            double MSE = error / testing.size();
-            System.out.println("MSE: "+ MSE);
-        }
+        if (isClassification) { System.out.println("Total accuracy: " + totalAvg); }
+        else { System.out.println("Total MSE: " + totalAvg); }
     }
 
     /*

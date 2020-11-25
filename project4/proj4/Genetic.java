@@ -195,6 +195,8 @@ public class Genetic {
             replace(children);
 
             evaluate();
+
+            if (population[0].fitness < 0.01) { break; }
         }
 
     }
