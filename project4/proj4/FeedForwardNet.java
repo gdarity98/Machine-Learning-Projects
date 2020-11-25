@@ -384,7 +384,7 @@ public class FeedForwardNet {
                     error += Math.pow(guess - trueClass, 2);
                 }
 
-                System.out.println("\tG: " + guess + "\tT: " + trueClass);
+//                System.out.println("\tG: " + guess + "\tT: " + trueClass);
             }
 
             if (isClassification) {

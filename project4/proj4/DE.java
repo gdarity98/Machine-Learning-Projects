@@ -186,7 +186,6 @@ public class DE {
         	for(int i = 0; i < population.length; i++) {
         		
         		FeedForwardNet targetVector = population[i];
-        		FeedForwardNet original = new FeedForwardNet(targetVector);
         		
         		//Evaluate Fitness
         		double targetFitness = targetVector.fitness;
@@ -202,28 +201,88 @@ public class DE {
         		double offspringFitness = offspring.fitness;
         		
         		if(offspringFitness < targetFitness) {
-        			population[i] = offspring;
-        		}else {
-        			population[i] = original;
+        			population[i].setWeights(offspring.getWeights());
         		}
+
         	}
         	evaluate();
-        }    
+
+        	if (population[0].fitness < 0.008) { System.out.println("Generations: "+ z); break; }
+        }
         
 	}
 	
     public static void main(String[] args) {
-        DataSetUp soybean = new DataSetUp("data-sets/soybean-small.data", "endS", "classification");
-        soybean.zScoreNormalize();
+		//---------------------------------->GLASS
+		DataSetUp glass = new DataSetUp("data-sets/glass.data", "end", "classification");
+		glass.zScoreNormalize();
 
-        int inputLen = soybean.getAllData()[0].getNormalizedFeatures().length;
-        int[] layers = {inputLen, 12, 4};
+		int inputLen = glass.getAllData()[0].getNormalizedFeatures().length;
+		int[] layers = {inputLen, 12, 12, 7};
 
-        DE D = new DE(20, soybean.getAllData(), layers, true);
-        
-        D.DiffEvolution(800);
-        
-        FeedForwardNet best = D.population[0];
-        best.evaluate();
+//        DE P1 = new DE(30, glass.getAllData(), layers, true);
+//        P1.DiffEvolution(2000);
+//
+//        P1.population[0].evaluate();
+
+		//---------------------------------->SOYBEAN
+		DataSetUp soybean = new DataSetUp("data-sets/soybean-small.data", "endS", "classification");
+		soybean.zScoreNormalize();
+
+		inputLen = soybean.getAllData()[0].getNormalizedFeatures().length;
+		int[] layersS = {inputLen, 16, 16, 4};
+
+//		DE P2 = new DE(20, soybean.getAllData(), layers, true);
+//		P2.DiffEvolution(2000);
+//
+//		P2.population[0].evaluate();
+
+		//---------------------------------->BREAST CANCER
+		DataSetUp breastCancer = new DataSetUp("data-sets/breast-cancer-wisconsin.data", "endB", "classification");
+		breastCancer.zScoreNormalize();
+
+		inputLen = breastCancer.getAllData()[0].getNormalizedFeatures().length;
+		int[] layersB = {inputLen, 10, 10, 2};
+
+//        ParticleSwarm P3 = new ParticleSwarm(20, breastCancer.getAllData(), layersB, true);
+//        P3.PSO(10000);
+//
+//        P3.particles[0].pBest.evaluate();
+
+		//---------------------------------->FOREST FIRES
+		DataSetUp forestFires = new DataSetUp("data-sets/forestfires.data", "endF", "regression");
+		forestFires.zScoreNormalize();
+
+		inputLen = forestFires.getAllData()[0].getNormalizedFeatures().length;
+		int[] layersF = {inputLen, 1};
+
+//        DE P4 = new DE(20, forestFires.getAllData(), layersF, false);
+//        P4.DiffEvolution(2000);
+//
+//        P4.population[0].evaluate();
+
+		//---------------------------------->ABALONE
+		DataSetUp abalone = new DataSetUp("data-sets/abalone.data", "endA", "regression");
+		abalone.zScoreNormalize();
+
+		inputLen = abalone.getAllData()[0].getNormalizedFeatures().length;
+		int[] layersA = {inputLen, 1};
+
+//        DE G5 = new DE(20, abalone.getAllData(), layersA, false);
+//        G5.DiffEvolution(100);
+//
+//        G5.population[0].evaluate();
+
+		//---------------------------------->MACHINE
+		DataSetUp machine = new DataSetUp("data-sets/machine.data", "end", "regression");
+		machine.zScoreNormalize();
+
+		inputLen = machine.getAllData()[0].getNormalizedFeatures().length;
+		int[] layersM = {inputLen, 1};
+
+//		DE G6 = new DE(20, machine.getAllData(), layersM, false);
+//		G6.DiffEvolution(200);
+//
+//		G6.population[0].evaluate();
     }
 }
